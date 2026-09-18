@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Geaux Eats E2E test harness — verifies DB schema, seed data, ordering windows,
+ * Group Meals E2E test harness — verifies DB schema, seed data, ordering windows,
  * order creation, Stripe PaymentIntent, webhook handling, and restaurant email path.
  */
 import { createClient } from "@supabase/supabase-js";
@@ -104,7 +104,7 @@ async function checkSchema() {
 
 async function ensureTestData() {
   const ts = Date.now();
-  const testEmail = `e2e-test-${ts}@geauxeats.test`;
+  const testEmail = `e2e-test-${ts}@groupmeals.test`;
   const testPassword = "TestPass123!";
 
   // Admin profile
@@ -133,7 +133,7 @@ async function ensureTestData() {
       .insert({
         name: "E2E Test Kitchen",
         slug: `e2e-kitchen-${ts}`,
-        email: "kitchen@geauxeats.test",
+        email: "kitchen@groupmeals.test",
         active: true,
       })
       .select("*")
@@ -496,7 +496,7 @@ async function cleanup(userId) {
 }
 
 async function main() {
-  console.log("\n=== Geaux Eats E2E Test ===\n");
+  console.log("\n=== Group Meals E2E Test ===\n");
 
   const schemaOk = await checkSchema();
   if (!schemaOk) {

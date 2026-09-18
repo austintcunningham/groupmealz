@@ -76,10 +76,12 @@ export async function sendRestaurantOrderEmail(
   data: RestaurantEmailPayload
 ): Promise<{ sent: boolean; error?: string }> {
   const resend = getResend();
-  const from = process.env.EMAIL_FROM ?? `orders@${BRAND.name.toLowerCase().replace(" ", "")}.com`;
+  const from =
+    process.env.EMAIL_FROM ??
+    `orders@${BRAND.name.toLowerCase().replace(/\s+/g, "")}.com`;
 
   if (!resend) {
-    console.log("[Geaux Eats] RESEND_API_KEY missing — restaurant email preview:");
+    console.log(`[${BRAND.name}] RESEND_API_KEY missing — restaurant email preview:`);
     console.log(buildHtml(data));
     return { sent: false, error: "Email not configured (RESEND_API_KEY missing). Logged to console." };
   }

@@ -43,7 +43,7 @@ function line(ok, label, detail = "") {
   console.log(`${ok ? "✅" : "❌"} ${label}${detail ? ` — ${detail}` : ""}`);
 }
 
-console.log("\nGeaux Eats setup check\n");
+console.log("\nGroup Meals setup check\n");
 
 line(!!url, "Supabase URL configured");
 line(!!key, "Service role key configured");

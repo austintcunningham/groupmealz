@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { confirmPaymentSaved } from "@/lib/actions/orders";
 import { Button, ErrorMessage } from "@/components/ui";
+import { BRAND } from "@/lib/brand";
 
 function PaymentForm({
   orderId,
@@ -82,7 +83,7 @@ function PaymentForm({
         Pay now — card verified instantly
       </Button>
       <p className="text-xs text-slate-500">
-        Payments processed securely by Stripe. Geaux Eats never stores your card number.
+        Payments processed securely by Stripe. {BRAND.name} never stores your card number.
       </p>
     </form>
   );

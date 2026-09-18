@@ -1,6 +1,6 @@
 # Stripe Setup Guide
 
-Step-by-step setup for **Geaux Eats** payments in **test mode**.
+Step-by-step setup for **Group Meals** payments in **test mode**.
 
 ## Part 1 — Create a Stripe account
 
@@ -100,7 +100,7 @@ Restart `npm run dev:clean` again.
 
 6. Complete payment
 
-Geaux Eats creates **card-only** PaymentIntents (no Klarna/redirect wallets) so checkout stays on your site. The pay button always sends Stripe a `return_url` to `/checkout/success`.
+Group Meals creates **card-only** PaymentIntents (no Klarna/redirect wallets) so checkout stays on your site. The pay button always sends Stripe a `return_url` to `/checkout/success`.
 
 ### Verify it worked
 

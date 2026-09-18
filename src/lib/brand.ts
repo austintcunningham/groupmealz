@@ -1,7 +1,7 @@
 export const BRAND = {
-  name: "Geaux Eats",
+  name: "Group Meals",
   tagline: "Scheduled office lunch, done right.",
-  supportEmail: "support@geauxeats.com",
+  supportEmail: "support@groupmealz.com",
 } as const;
 
 export const COLORS = {

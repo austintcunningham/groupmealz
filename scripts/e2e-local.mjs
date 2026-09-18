@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Geaux Eats local test harness — bounded timeouts, no infinite hangs.
+ * Group Meals local test harness — bounded timeouts, no infinite hangs.
  * Split: local (routes, logic, build) vs remote (Supabase, Stripe).
  */
 import { readFileSync } from "fs";
@@ -176,7 +176,7 @@ async function testWebhookRoute() {
 }
 
 async function main() {
-  console.log("\n=== Geaux Eats Local Test (3s timeouts) ===\n");
+  console.log("\n=== Group Meals Local Test (3s timeouts) ===\n");
   console.log(`App URL: ${APP_URL}\n`);
 
   const supabaseUp = await testSupabaseReachability();
