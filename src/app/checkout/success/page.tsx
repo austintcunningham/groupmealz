@@ -18,7 +18,8 @@ export default async function CheckoutSuccessPage({
         <Card className="rounded-t-none">
           <SuccessMessage message="Payment confirmed! Your lunch order is on the way." />
           <p className="mt-3 text-sm text-slate-600">
-            We verify your card instantly through Stripe. Your order status updates within seconds.
+            We&apos;ve sent a confirmation email with your receipt and lunch details. Check spam if
+            you don&apos;t see it within a minute.
           </p>
           <div className="mt-6 flex flex-col gap-2">
             {orderId ? (

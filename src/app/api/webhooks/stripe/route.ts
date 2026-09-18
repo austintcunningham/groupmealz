@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { savePaymentMethodRecord } from "@/lib/stripe/customers";
 import { getStripe } from "@/lib/stripe/client";
+import { sendCustomerOrderConfirmation } from "@/lib/email/customer-confirmation";
 
 export const runtime = "nodejs";
 
@@ -63,6 +64,16 @@ export async function POST(request: NextRequest) {
       entity_id: orderId,
       metadata: { stripe_payment_intent_id: intent.id },
     });
+
+    const emailResult = await sendCustomerOrderConfirmation(orderId);
+    if (!emailResult.sent) {
+      await supabase.from("audit_log").insert({
+        action: "order_confirmation_email_failed",
+        entity_type: "order",
+        entity_id: orderId,
+        metadata: { error: emailResult.error ?? "unknown" },
+      });
+    }
   }
 
   if (event.type === "checkout.session.completed") {

@@ -13,7 +13,7 @@
    - `https://YOUR_DOMAIN/auth/confirm`
    - `http://localhost:3000/auth/callback**` (local)
    Set **Site URL** to `https://YOUR_DOMAIN` (not `/login`).
-8. Optional: `RESEND_API_KEY` + verified `EMAIL_FROM` for restaurant emails on **Close**.
+8. **Resend (recommended):** `RESEND_API_KEY` + verified domain; `EMAIL_FROM` e.g. `orders@yourdomain.com` — sends **customer order confirmations** on payment and **restaurant** emails on **Close**.
 
 ## Employee flow (Major Menus style)
 

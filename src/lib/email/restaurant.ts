@@ -1,13 +1,7 @@
-import { Resend } from "resend";
 import { formatCents } from "@/lib/money/format";
 import { BRAND } from "@/lib/brand";
+import { getEmailFromAddress, getResendClient } from "@/lib/email/resend-client";
 import type { ProductionSheetItem } from "@/types/database";
-
-function getResend(): Resend | null {
-  const key = process.env.RESEND_API_KEY;
-  if (!key) return null;
-  return new Resend(key);
-}
 
 interface RestaurantEmailPayload {
   restaurantName: string;
@@ -75,10 +69,8 @@ function buildHtml(data: RestaurantEmailPayload): string {
 export async function sendRestaurantOrderEmail(
   data: RestaurantEmailPayload
 ): Promise<{ sent: boolean; error?: string }> {
-  const resend = getResend();
-  const from =
-    process.env.EMAIL_FROM ??
-    `orders@${BRAND.name.toLowerCase().replace(/\s+/g, "")}.com`;
+  const resend = getResendClient();
+  const from = getEmailFromAddress();
 
   if (!resend) {
     console.log(`[${BRAND.name}] RESEND_API_KEY missing — restaurant email preview:`);
