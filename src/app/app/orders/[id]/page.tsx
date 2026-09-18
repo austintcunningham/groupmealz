@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DashboardShell } from "@/components/DashboardShell";
+import { OrderPaySection } from "@/components/employee/OrderPaySection";
 import { Badge, Card } from "@/components/ui";
 import { requireAuth } from "@/lib/auth/guards";
 import { formatCents } from "@/lib/money/format";
@@ -105,34 +106,13 @@ export default async function OrderDetailPage({
         </Card>
 
         {order.status === "pending_payment" && order.user_id === profile.id ? (
-          <PayButton orderId={order.id} />
+          <OrderPaySection orderId={order.id} />
         ) : null}
 
-        <Link href="/app/orders" className="text-sm text-blue-600 hover:underline">
+        <Link href="/app/orders" className="text-sm text-red-600 hover:underline">
           ← Back to orders
         </Link>
       </div>
     </DashboardShell>
-  );
-}
-
-function PayButton({ orderId }: { orderId: string }) {
-  return (
-    <form
-      action={async () => {
-        "use server";
-        const { createCheckoutSession } = await import("@/lib/actions/orders");
-        const { redirect } = await import("next/navigation");
-        const result = await createCheckoutSession(orderId);
-        if (result.success) redirect(result.data.url);
-      }}
-    >
-      <button
-        type="submit"
-        className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white"
-      >
-        Pay with Stripe
-      </button>
-    </form>
   );
 }

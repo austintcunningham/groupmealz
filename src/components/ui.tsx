@@ -7,9 +7,9 @@ const buttonBase =
 
 const buttonVariants = {
   primary:
-    "bg-blue-600 text-white shadow-sm hover:bg-blue-700 hover:shadow-md focus-visible:outline-blue-600",
+    "bg-[var(--geaux-red)] text-white shadow-sm hover:bg-[var(--geaux-red-dark)] hover:shadow-md focus-visible:outline-[var(--geaux-red)]",
   secondary:
-    "border border-slate-300 bg-white text-slate-700 shadow-sm hover:border-slate-400 hover:bg-slate-50 focus-visible:outline-slate-400",
+    "border-2 border-[var(--geaux-yellow)] bg-white text-[var(--geaux-charcoal)] shadow-sm hover:bg-[var(--geaux-yellow-light)] focus-visible:outline-[var(--geaux-yellow)]",
   success:
     "bg-green-600 text-white shadow-sm hover:bg-green-700 hover:shadow-md focus-visible:outline-green-600",
   danger:

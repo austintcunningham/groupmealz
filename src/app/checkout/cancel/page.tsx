@@ -9,7 +9,7 @@ export default async function CheckoutCancelPage({
   const { order_id: orderId } = await searchParams;
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
+    <div className="flex min-h-screen items-center justify-center bg-[var(--geaux-cream)] px-4">
       <div className="w-full max-w-md">
         <Card title="Checkout cancelled">
           <p className="text-sm text-slate-600">
@@ -19,16 +19,16 @@ export default async function CheckoutCancelPage({
             {orderId ? (
               <Link
                 href={`/app/orders/${orderId}`}
-                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white"
+                className="rounded-lg bg-[var(--geaux-red)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--geaux-red-dark)]"
               >
                 Back to order
               </Link>
             ) : null}
             <Link
-              href="/app/today"
-              className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium"
+              href="/app/order"
+              className="rounded-lg border-2 border-[var(--geaux-yellow)] px-4 py-2 text-sm font-medium"
             >
-              Order today
+              Order lunch
             </Link>
           </div>
         </Card>

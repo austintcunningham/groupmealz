@@ -16,6 +16,7 @@ export type ScheduleStatus =
 
 export type OrderStatus =
   | "pending_payment"
+  | "authorized"
   | "paid"
   | "cancelled"
   | "failed";
@@ -28,6 +29,7 @@ export interface Profile {
   email: string;
   phone: string | null;
   role: UserRole;
+  stripe_customer_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -52,6 +54,7 @@ export interface Restaurant {
 export interface Office {
   id: string;
   name: string;
+  slug: string | null;
   company_name: string | null;
   street_address: string;
   suite: string | null;
@@ -94,6 +97,7 @@ export interface DailyLunchSchedule {
   office_id: string;
   restaurant_id: string;
   lunch_date: string;
+  order_opens_at: string;
   order_cutoff_at: string;
   delivery_at: string;
   status: ScheduleStatus;
@@ -101,12 +105,36 @@ export interface DailyLunchSchedule {
   updated_at: string;
 }
 
+export interface WeeklyScheduleTemplate {
+  id: string;
+  office_id: string;
+  day_of_week: number;
+  restaurant_id: string;
+  cutoff_time: string;
+  delivery_time: string;
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SavedPaymentMethod {
+  id: string;
+  user_id: string;
+  stripe_payment_method_id: string;
+  card_brand: string | null;
+  card_last4: string | null;
+  exp_month: number | null;
+  exp_year: number | null;
+  is_default: boolean;
+  created_at: string;
+}
+
 export interface Order {
   id: string;
   schedule_id: string;
   office_id: string;
   restaurant_id: string;
-  user_id: string;
+  user_id: string | null;
   customer_name: string;
   customer_email: string;
   subtotal_cents: number;
@@ -139,6 +167,7 @@ export interface PlatformSettings {
   flat_fee_cents: number;
   percentage_bps: number;
   sales_tax_bps: number;
+  advance_order_hours: number;
   created_at: string;
   updated_at: string;
 }

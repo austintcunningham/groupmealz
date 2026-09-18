@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { ErrorMessage } from "@/components/ui";
+import { Button, ErrorMessage, Input } from "@/components/ui";
 import Link from "next/link";
 
 export function LoginForm() {
@@ -34,40 +34,26 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error ? <ErrorMessage message={error} /> : null}
-      <div>
-        <label className="mb-1 block text-sm font-medium text-slate-700">
-          Email
-        </label>
-        <input
-          type="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded-lg border border-slate-300 px-3 py-2"
-        />
-      </div>
-      <div>
-        <label className="mb-1 block text-sm font-medium text-slate-700">
-          Password
-        </label>
-        <input
-          type="password"
-          required
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full rounded-lg border border-slate-300 px-3 py-2"
-        />
-      </div>
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-      >
-        {loading ? "Signing in..." : "Sign in"}
-      </button>
+      <Input
+        label="Email"
+        type="email"
+        required
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <Input
+        label="Password"
+        type="password"
+        required
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <Button type="submit" loading={loading} className="w-full">
+        Sign in
+      </Button>
       <p className="text-center text-sm text-slate-600">
         No account?{" "}
-        <Link href="/signup" className="text-blue-600 hover:underline">
+        <Link href="/signup" className="text-red-600 hover:underline">
           Sign up
         </Link>
       </p>

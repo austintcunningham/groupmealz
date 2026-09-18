@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { ErrorMessage } from "@/components/ui";
+import { Button, ErrorMessage, Input } from "@/components/ui";
 import Link from "next/link";
 
 export function SignupForm() {
@@ -43,11 +43,8 @@ export function SignupForm() {
         <p className="text-green-700">
           Account created. Check your email if confirmation is required, then sign in.
         </p>
-        <Link
-          href="/login"
-          className="inline-block rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700"
-        >
-          Go to login
+        <Link href="/login">
+          <Button>Go to login</Button>
         </Link>
       </div>
     );
@@ -56,53 +53,34 @@ export function SignupForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error ? <ErrorMessage message={error} /> : null}
-      <div>
-        <label className="mb-1 block text-sm font-medium text-slate-700">
-          Full name
-        </label>
-        <input
-          type="text"
-          required
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
-          className="w-full rounded-lg border border-slate-300 px-3 py-2"
-        />
-      </div>
-      <div>
-        <label className="mb-1 block text-sm font-medium text-slate-700">
-          Email
-        </label>
-        <input
-          type="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded-lg border border-slate-300 px-3 py-2"
-        />
-      </div>
-      <div>
-        <label className="mb-1 block text-sm font-medium text-slate-700">
-          Password
-        </label>
-        <input
-          type="password"
-          required
-          minLength={6}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full rounded-lg border border-slate-300 px-3 py-2"
-        />
-      </div>
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-      >
-        {loading ? "Creating account..." : "Create account"}
-      </button>
+      <Input
+        label="Full name"
+        type="text"
+        required
+        value={fullName}
+        onChange={(e) => setFullName(e.target.value)}
+      />
+      <Input
+        label="Email"
+        type="email"
+        required
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <Input
+        label="Password"
+        type="password"
+        required
+        minLength={6}
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <Button type="submit" loading={loading} className="w-full">
+        Create account
+      </Button>
       <p className="text-center text-sm text-slate-600">
         Already have an account?{" "}
-        <Link href="/login" className="text-blue-600 hover:underline">
+        <Link href="/login" className="text-red-600 hover:underline">
           Sign in
         </Link>
       </p>

@@ -1,21 +1,38 @@
 import Link from "next/link";
-import { Card } from "@/components/ui";
+import { Card, SuccessMessage } from "@/components/ui";
+import { BRAND } from "@/lib/brand";
 
-export default function CheckoutSuccessPage() {
+export default async function CheckoutSuccessPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ order_id?: string }>;
+}) {
+  const { order_id: orderId } = await searchParams;
+
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
+    <div className="min-h-screen bg-[var(--geaux-cream)] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <Card title="Payment submitted">
-          <p className="text-sm text-slate-600">
-            Thanks! Your payment is being confirmed. Order status updates when our
-            server receives the Stripe webhook — do not rely on this page alone.
+        <div className="geaux-header-gradient rounded-t-xl px-6 py-4 text-center">
+          <h1 className="text-2xl font-black text-[var(--geaux-yellow)]">{BRAND.name}</h1>
+        </div>
+        <Card className="rounded-t-none">
+          <SuccessMessage message="Payment confirmed! Your lunch order is on the way." />
+          <p className="mt-3 text-sm text-slate-600">
+            We verify your card instantly through Stripe. Your order status updates within seconds.
           </p>
-          <Link
-            href="/app/orders"
-            className="mt-4 inline-block rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white"
-          >
-            View my orders
-          </Link>
+          <div className="mt-6 flex flex-col gap-2">
+            {orderId ? (
+              <Link
+                href={`/app/orders/${orderId}`}
+                className="rounded-lg bg-[var(--geaux-red)] px-4 py-2 text-center text-sm font-semibold text-white hover:bg-[var(--geaux-red-dark)]"
+              >
+                View order
+              </Link>
+            ) : null}
+            <Link href="/app/week" className="text-center text-sm text-red-600 hover:underline">
+              Back to this week&apos;s lunches
+            </Link>
+          </div>
         </Card>
       </div>
     </div>

@@ -35,6 +35,7 @@ export async function updateSession(request: NextRequest) {
   const isPublicRoute =
     isAuthRoute ||
     pathname.startsWith("/checkout") ||
+    pathname.startsWith("/order") ||
     pathname.startsWith("/api/webhooks");
 
   if (!user && !isPublicRoute && pathname !== "/") {

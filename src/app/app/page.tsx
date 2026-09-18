@@ -37,10 +37,13 @@ export default async function EmployeeHomePage() {
                 Cutoff: {new Date(schedule.order_cutoff_at).toLocaleString()}
               </p>
               <Link
-                href="/app/today"
-                className="mt-4 inline-block rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white"
+                href="/app/order"
+                className="mt-4 inline-block rounded-lg bg-[var(--geaux-red)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--geaux-red-dark)]"
               >
                 Order now
+              </Link>
+              <Link href="/app/week" className="ml-3 text-sm text-red-600 hover:underline">
+                This week →
               </Link>
             </div>
           ) : (

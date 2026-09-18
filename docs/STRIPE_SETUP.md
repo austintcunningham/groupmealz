@@ -1,6 +1,6 @@
 # Stripe Setup Guide
 
-Step-by-step setup for Office Lunch payments in **test mode**.
+Step-by-step setup for **Geaux Eats** payments in **test mode**.
 
 ## Part 1 — Create a Stripe account
 
@@ -33,7 +33,7 @@ STRIPE_WEBHOOK_SECRET=
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
-**Restart your dev server** after adding keys (`Ctrl+C`, then `npm run dev`).
+**Restart your dev server** after adding keys (`Ctrl+C`, then `npm run dev:clean`).
 
 ---
 
@@ -77,7 +77,7 @@ Copy that `whsec_...` value into `.env.local`:
 STRIPE_WEBHOOK_SECRET=whsec_xxxxxxxxxxxxx
 ```
 
-Restart `npm run dev` again.
+Restart `npm run dev:clean` again.
 
 **Keep the `stripe listen` terminal running** while testing payments.
 
@@ -85,10 +85,10 @@ Restart `npm run dev` again.
 
 ## Part 5 — Test a payment
 
-1. As **admin**: create restaurant, office, menu, schedule for **today**, click **Open**
+1. As **admin**: create restaurant, office, menu, weekly template, generate schedules, open a schedule
 2. As **admin**: assign yourself (or another account) as an **employee** on the office
-3. Log in as that **employee** → `/app/today`
-4. Add items to cart → **Checkout with Stripe**
+3. Go to `/order` (public) or log in as employee → `/app/order`
+4. Add items → checkout → pay with embedded Stripe form
 5. Use Stripe's test card:
 
 | Field | Value |
@@ -100,9 +100,11 @@ Restart `npm run dev` again.
 
 6. Complete payment
 
+Geaux Eats creates **card-only** PaymentIntents (no Klarna/redirect wallets) so checkout stays on your site. The pay button always sends Stripe a `return_url` to `/checkout/success`.
+
 ### Verify it worked
 
-- **`stripe listen` terminal** should show `checkout.session.completed`
+- **`stripe listen` terminal** should show `payment_intent.succeeded`
 - **Employee** `/app/orders` — order status should become **paid** (may take 1–2 seconds)
 - **Restaurant manager** `/restaurant/production` — order appears on production sheet
 - **Admin** `/admin/orders` — order shows as paid with totals
@@ -117,8 +119,8 @@ When deploying to production:
 2. In Stripe Dashboard → **Developers → Webhooks → Add endpoint**
 3. URL: `https://your-domain.com/api/webhooks/stripe`
 4. Events to listen for:
-   - `checkout.session.completed`
-   - `checkout.session.expired` (optional)
+   - `payment_intent.succeeded`
+   - `payment_intent.payment_failed` (optional)
 5. Copy the **signing secret** into your production env as `STRIPE_WEBHOOK_SECRET`
 
 ---
@@ -130,7 +132,8 @@ When deploying to production:
 | Order stays `pending_payment` after paying | Is `stripe listen` running? Is `STRIPE_WEBHOOK_SECRET` set? Did you restart the dev server? |
 | "Missing STRIPE_SECRET_KEY" on checkout | Add `STRIPE_SECRET_KEY` to `.env.local` and restart |
 | Webhook signature error | `STRIPE_WEBHOOK_SECRET` must match the secret from `stripe listen` (not the Dashboard webhook secret during local dev) |
-| Employee can't order | Schedule must be **Open**, cutoff not passed, employee assigned to office |
+| Employee can't order | Schedule must be **Open**, ordering window open (default 48h ahead), employee assigned to office |
+| Unstyled pages / CSS 404 | Run `npm run dev:clean` and use only one dev server on port 3000 |
 
 ---
 

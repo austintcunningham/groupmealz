@@ -3,40 +3,36 @@
 @source "../../src/**/*.{js,ts,jsx,tsx}";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --card: #ffffff;
-  --border: #e2e8f0;
-  --primary: #2563eb;
-  --primary-hover: #1d4ed8;
-  --muted: #64748b;
-  --danger: #dc2626;
-  --success: #16a34a;
+  --geaux-red: #D62828;
+  --geaux-red-dark: #B71F1F;
+  --geaux-yellow: #FDB913;
+  --geaux-yellow-light: #FFE082;
+  --geaux-cream: #FFFBF5;
+  --geaux-charcoal: #1A1A1A;
+  --background: var(--geaux-cream);
+  --foreground: var(--geaux-charcoal);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family:
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
+  font-family: "Segoe UI", ui-sans-serif, system-ui, -apple-system, sans-serif;
 }
 
 @keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .animate-fade-in {
   animation: fade-in 0.2s ease-out;
+}
+
+.geaux-header-gradient {
+  background: linear-gradient(135deg, var(--geaux-red) 0%, var(--geaux-red-dark) 60%, #8B0000 100%);
+}
+
+.geaux-accent-bar {
+  background: linear-gradient(90deg, var(--geaux-yellow) 0%, var(--geaux-yellow-light) 100%);
+  height: 4px;
 }

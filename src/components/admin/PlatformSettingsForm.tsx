@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { updatePlatformSettings } from "@/lib/actions/orders";
-import { ErrorMessage } from "@/components/ui";
+import { Button, ErrorMessage } from "@/components/ui";
 import type { PlatformSettings } from "@/types/database";
 
 export function PlatformSettingsForm({ settings }: { settings: PlatformSettings }) {
@@ -17,6 +17,7 @@ export function PlatformSettingsForm({ settings }: { settings: PlatformSettings 
         flat_fee_cents: Math.round(Number(formData.get("flat_fee_dollars")) * 100),
         percentage_bps: Math.round(Number(formData.get("percentage")) * 100),
         sales_tax_bps: Math.round(Number(formData.get("sales_tax")) * 100),
+        advance_order_hours: Number(formData.get("advance_order_hours") ?? 48),
       });
       if (!result.success) setError(result.error);
       else window.location.reload();
@@ -59,6 +60,17 @@ export function PlatformSettingsForm({ settings }: { settings: PlatformSettings 
         />
       </div>
       <div>
+        <label className="mb-1 block text-sm font-medium">Advance ordering (hours before lunch)</label>
+        <input
+          name="advance_order_hours"
+          type="number"
+          min={1}
+          max={168}
+          defaultValue={settings.advance_order_hours ?? 48}
+          className="w-full rounded-lg border px-3 py-2 text-sm"
+        />
+      </div>
+      <div>
         <label className="mb-1 block text-sm font-medium">Sales tax (%)</label>
         <input
           name="sales_tax"
@@ -68,13 +80,7 @@ export function PlatformSettingsForm({ settings }: { settings: PlatformSettings 
           className="w-full rounded-lg border px-3 py-2 text-sm"
         />
       </div>
-      <button
-        type="submit"
-        disabled={isPending}
-        className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white"
-      >
-        Save settings
-      </button>
+      <Button type="submit" loading={isPending}>Save settings</Button>
     </form>
   );
 }

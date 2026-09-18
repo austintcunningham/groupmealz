@@ -38,7 +38,7 @@ export async function getProductionSheet(
     .from("orders")
     .select("id, customer_name, order_items(*)")
     .eq("schedule_id", scheduleId)
-    .eq("status", "paid");
+    .in("status", ["paid", "authorized"]);
 
   if (error) return { error: error.message };
 

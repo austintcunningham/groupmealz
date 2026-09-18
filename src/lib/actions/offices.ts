@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { slugifyOfficeName } from "@/lib/offices/slug";
 import { createClient } from "@/lib/supabase/server";
 import {
   logAudit,
@@ -36,10 +37,26 @@ export async function createOffice(
   }
 
   const supabase = await createClient();
+  const baseSlug = slugifyOfficeName(parsed.data.name) || "office";
+  let slug = baseSlug;
+  for (let n = 0; n < 20; n++) {
+    const candidate = n === 0 ? slug : `${baseSlug}-${n + 1}`;
+    const { data: existing } = await supabase
+      .from("offices")
+      .select("id")
+      .eq("slug", candidate)
+      .maybeSingle();
+    if (!existing) {
+      slug = candidate;
+      break;
+    }
+  }
+
   const { data, error } = await supabase
     .from("offices")
     .insert({
       ...parsed.data,
+      slug,
       contact_email: parsed.data.contact_email || null,
     })
     .select("id")
@@ -78,6 +95,39 @@ export async function updateOffice(
   await logAudit("update_office", "office", id);
   revalidatePath("/admin/offices");
   return { success: true, data: undefined };
+}
+
+export async function ensureOfficeSlugs(): Promise<ActionResult<{ updated: number }>> {
+  const auth = await requireProfileRole(["admin"]);
+  if ("error" in auth) return { success: false, error: auth.error };
+
+  const supabase = await createClient();
+  const { data: offices } = await supabase.from("offices").select("id, name, slug").is("slug", null);
+  let updated = 0;
+
+  for (const office of offices ?? []) {
+    const baseSlug = slugifyOfficeName(office.name) || `office-${office.id.slice(0, 6)}`;
+    let slug = baseSlug;
+    for (let n = 0; n < 20; n++) {
+      const candidate = n === 0 ? slug : `${baseSlug}-${n + 1}`;
+      const { data: clash } = await supabase
+        .from("offices")
+        .select("id")
+        .eq("slug", candidate)
+        .neq("id", office.id)
+        .maybeSingle();
+      if (!clash) {
+        slug = candidate;
+        break;
+      }
+    }
+    const { error } = await supabase.from("offices").update({ slug }).eq("id", office.id);
+    if (!error) updated++;
+  }
+
+  revalidatePath("/admin/offices");
+  revalidatePath("/order");
+  return { success: true, data: { updated } };
 }
 
 export async function assignOfficeUser(
