@@ -11,6 +11,7 @@ const navByRole: Record<UserRole, { href: string; label: string }[]> = {
     { href: "/admin/schedules", label: "Schedules" },
     { href: "/admin/orders", label: "Orders" },
     { href: "/admin/settings", label: "Settings" },
+    { href: "/admin/email-preview", label: "Email preview" },
   ],
   restaurant_manager: [
     { href: "/restaurant", label: "Dashboard" },
