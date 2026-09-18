@@ -8,7 +8,11 @@
 4. Stripe **Live mode** keys in production env (not `pk_test_` / `sk_test_`).
 5. Stripe Dashboard webhook: `https://YOUR_DOMAIN/api/webhooks/stripe` → event `payment_intent.succeeded`.
 6. `NEXT_PUBLIC_APP_URL=https://YOUR_DOMAIN`
-7. Supabase → **Authentication → URL configuration** → **Redirect URLs** must include `https://YOUR_DOMAIN/auth/callback` (password reset emails).
+7. Supabase → **Authentication → URL configuration** → **Redirect URLs** add (wildcard is fine):
+   - `https://YOUR_DOMAIN/auth/callback**`
+   - `https://YOUR_DOMAIN/auth/confirm`
+   - `http://localhost:3000/auth/callback**` (local)
+   Set **Site URL** to `https://YOUR_DOMAIN` (not `/login`).
 8. Optional: `RESEND_API_KEY` + verified `EMAIL_FROM` for restaurant emails on **Close**.
 
 ## Employee flow (Major Menus style)

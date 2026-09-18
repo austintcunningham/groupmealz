@@ -15,8 +15,8 @@ export function ResetPasswordForm() {
 
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setReady(!!session);
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setReady(!!user);
     });
   }, []);
 
