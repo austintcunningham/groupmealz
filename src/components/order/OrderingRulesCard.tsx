@@ -46,6 +46,10 @@ export function OrderingRulesCard({
           <strong>Delivery target:</strong> {deliveryLocal}.
         </li>
         <li>
+          <strong>Service fee:</strong> A platform fee may be added <strong>once per order</strong> (not
+          per item). You&apos;ll see the full total in your cart before you pay.
+        </li>
+        <li>
           <strong>Payment:</strong> Card required at checkout; your order is confirmed when payment
           succeeds.
         </li>

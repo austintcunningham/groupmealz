@@ -61,7 +61,18 @@ export async function loadOfficeOrderContext(office: Office, selectedDate: strin
     scheduleByDate.get(dates[0]) ??
     null;
 
-  const { data: settings } = await supabase.from("platform_settings").select("advance_order_hours").limit(1).maybeSingle();
+  const { data: settings } = await supabase
+    .from("platform_settings")
+    .select("advance_order_hours, platform_fee_type, flat_fee_cents, percentage_bps, sales_tax_bps")
+    .limit(1)
+    .maybeSingle();
+
+  const feeSettings = {
+    platform_fee_type: settings?.platform_fee_type ?? "flat",
+    flat_fee_cents: settings?.flat_fee_cents ?? 250,
+    percentage_bps: settings?.percentage_bps ?? 0,
+    sales_tax_bps: settings?.sales_tax_bps ?? 0,
+  };
 
   if (!schedule) {
     return {
@@ -70,6 +81,7 @@ export async function loadOfficeOrderContext(office: Office, selectedDate: strin
       categories: [] as MenuCategory[],
       menuItems: [] as MenuItem[],
       advanceOrderHours: settings?.advance_order_hours ?? 48,
+      feeSettings,
     };
   }
 
@@ -93,5 +105,6 @@ export async function loadOfficeOrderContext(office: Office, selectedDate: strin
     categories: categories ?? [],
     menuItems: menuItems ?? [],
     advanceOrderHours: settings?.advance_order_hours ?? 48,
+    feeSettings,
   };
 }

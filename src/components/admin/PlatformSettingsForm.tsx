@@ -27,6 +27,9 @@ export function PlatformSettingsForm({ settings }: { settings: PlatformSettings 
   return (
     <form action={handleSubmit} className="max-w-md space-y-4">
       {error ? <ErrorMessage message={error} /> : null}
+      <p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
+        Fees apply <strong>once per order</strong> (one checkout), not per menu item or per quantity line.
+      </p>
       <div>
         <label className="mb-1 block text-sm font-medium">Fee type</label>
         <select
@@ -48,6 +51,7 @@ export function PlatformSettingsForm({ settings }: { settings: PlatformSettings 
           defaultValue={(settings.flat_fee_cents / 100).toFixed(2)}
           className="w-full rounded-lg border px-3 py-2 text-sm"
         />
+        <p className="mt-1 text-xs text-slate-500">Used when type is Flat or Hybrid — added once per order.</p>
       </div>
       <div>
         <label className="mb-1 block text-sm font-medium">Percentage (%)</label>
@@ -58,6 +62,7 @@ export function PlatformSettingsForm({ settings }: { settings: PlatformSettings 
           defaultValue={(settings.percentage_bps / 100).toFixed(2)}
           className="w-full rounded-lg border px-3 py-2 text-sm"
         />
+        <p className="mt-1 text-xs text-slate-500">Used when type is Percentage or Hybrid — % of food subtotal, once per order.</p>
       </div>
       <div>
         <label className="mb-1 block text-sm font-medium">Advance ordering (hours before lunch)</label>

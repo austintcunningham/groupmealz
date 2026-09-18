@@ -4,7 +4,9 @@ import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { checkoutGuest, createOrder, createPaymentIntent } from "@/lib/actions/orders";
+import { calculateOrderTotals } from "@/lib/fees/calculate";
 import { formatCents } from "@/lib/money/format";
+import type { PlatformSettings } from "@/types/database";
 import { isOrderingWindowOpen, formatOrderingWindow } from "@/lib/scheduling/window";
 import { EmbeddedCheckout } from "@/components/checkout/EmbeddedCheckout";
 import { OrderingRulesCard } from "@/components/order/OrderingRulesCard";
@@ -40,6 +42,10 @@ interface Props {
   userEmail?: string;
   userName?: string;
   advanceOrderHours?: number;
+  feeSettings?: Pick<
+    PlatformSettings,
+    "platform_fee_type" | "flat_fee_cents" | "percentage_bps" | "sales_tax_bps"
+  >;
 }
 
 interface CartEntry {
@@ -59,6 +65,12 @@ export function OrderFlowClient({
   userEmail,
   userName,
   advanceOrderHours = 48,
+  feeSettings = {
+    platform_fee_type: "flat",
+    flat_fee_cents: 250,
+    percentage_bps: 0,
+    sales_tax_bps: 0,
+  },
 }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -111,6 +123,8 @@ export function OrderFlowClient({
   }, [cart, menuItems]);
 
   const subtotal = cartLines.reduce((s, l) => s + l.lineTotal, 0);
+  const feePreview =
+    subtotal > 0 ? calculateOrderTotals(subtotal, feeSettings) : null;
 
   function pickDay(lunchDate: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -384,11 +398,33 @@ export function OrderFlowClient({
                     <span>{formatCents(l.lineTotal)}</span>
                   </div>
                 ))}
-                <div className="flex justify-between border-t pt-3 font-bold">
-                  <span>Subtotal</span>
-                  <span className="text-red-600">{formatCents(subtotal)}</span>
+                <div className="space-y-1 border-t pt-3 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">Food subtotal</span>
+                    <span>{formatCents(subtotal)}</span>
+                  </div>
+                  {feePreview && feePreview.platformFeeCents > 0 ? (
+                    <div className="flex justify-between">
+                      <span className="text-slate-600">Service fee (per order)</span>
+                      <span>{formatCents(feePreview.platformFeeCents)}</span>
+                    </div>
+                  ) : null}
+                  {feePreview && feePreview.taxCents > 0 ? (
+                    <div className="flex justify-between">
+                      <span className="text-slate-600">Tax</span>
+                      <span>{formatCents(feePreview.taxCents)}</span>
+                    </div>
+                  ) : null}
+                  <div className="flex justify-between border-t border-slate-200 pt-2 text-base font-bold">
+                    <span>Estimated total</span>
+                    <span className="text-[var(--geaux-red)]">
+                      {formatCents(feePreview?.totalCents ?? subtotal)}
+                    </span>
+                  </div>
                 </div>
-                <p className="text-xs text-slate-500">Tax and fees calculated at payment.</p>
+                <p className="text-xs text-slate-500">
+                  One service fee per checkout, not per item. Final total confirmed at payment.
+                </p>
                 <Button className="w-full" size="lg" loading={isPending} onClick={proceedToCheckout}>
                   Checkout
                 </Button>

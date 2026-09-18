@@ -68,6 +68,7 @@ export default async function OfficeOrderPage({
             userEmail={profile?.email}
             userName={profile?.full_name}
             advanceOrderHours={ctx.advanceOrderHours}
+            feeSettings={ctx.feeSettings}
           />
         </Suspense>
       </main>
