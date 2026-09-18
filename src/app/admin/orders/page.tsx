@@ -17,17 +17,23 @@ export default async function AdminOrdersPage() {
     .limit(100);
 
   const paid = orders?.filter((o) => o.status === "paid") ?? [];
-  const totalSales = paid.reduce((s, o) => s + o.total_cents, 0);
-  const totalFees = paid.reduce((s, o) => s + o.platform_fee_cents, 0);
-  const totalPayout = paid.reduce((s, o) => s + o.payout_due_cents, 0);
+  const monthStart = new Date().toISOString().slice(0, 7) + "-01";
+  const paidThisMonth = paid.filter((o) => o.created_at.slice(0, 10) >= monthStart);
+  const totalSales = paidThisMonth.reduce((s, o) => s + o.total_cents, 0);
+  const totalFees = paidThisMonth.reduce((s, o) => s + o.platform_fee_cents, 0);
+  const totalPayout = paidThisMonth.reduce((s, o) => s + o.payout_due_cents, 0);
 
   return (
     <DashboardShell role={profile.role} title="Orders">
       <div className="space-y-6">
         <div className="grid gap-4 sm:grid-cols-3">
-          <Summary label="Paid order sales" value={formatCents(totalSales)} />
-          <Summary label="Platform fees" value={formatCents(totalFees)} />
-          <Summary label="Payout due (reporting)" value={formatCents(totalPayout)} />
+          <Summary
+            label="Paid sales (this month)"
+            value={formatCents(totalSales)}
+            hint={`${paidThisMonth.length} orders — table below shows last 100 orders (any status)`}
+          />
+          <Summary label="Platform fees (this month)" value={formatCents(totalFees)} />
+          <Summary label="Payout due (this month)" value={formatCents(totalPayout)} />
         </div>
         <Card title="All orders">
           {!orders?.length ? (
@@ -80,11 +86,12 @@ export default async function AdminOrdersPage() {
   );
 }
 
-function Summary({ label, value }: { label: string; value: string }) {
+function Summary({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
-    <div className="rounded-xl border bg-white p-4 shadow-sm">
+    <div className="rounded-xl border bg-white p-4 shadow-sm transition-all hover:shadow-md">
       <p className="text-sm text-slate-500">{label}</p>
       <p className="text-xl font-semibold">{value}</p>
+      {hint ? <p className="mt-1 text-xs text-slate-400">{hint}</p> : null}
     </div>
   );
 }

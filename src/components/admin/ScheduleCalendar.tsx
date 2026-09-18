@@ -9,6 +9,7 @@ import {
   upsertDaySchedule,
 } from "@/lib/actions/schedules";
 import { Button, ErrorMessage, Select, SuccessMessage } from "@/components/ui";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import type { DailyLunchSchedule, Office, Restaurant } from "@/types/database";
 
 type ScheduleRow = DailyLunchSchedule & {
@@ -40,6 +41,7 @@ export function ScheduleCalendar({
   const [isPending, startTransition] = useTransition();
   const [editDate, setEditDate] = useState<string | null>(null);
   const [editRestaurantId, setEditRestaurantId] = useState("");
+  const [closeConfirmId, setCloseConfirmId] = useState<string | null>(null);
 
   const weeks = useMemo(() => {
     const start = new Date();
@@ -69,6 +71,12 @@ export function ScheduleCalendar({
     return map;
   }, [schedules, officeId]);
 
+  function openEditor(dayDate: string, row: ScheduleRow | undefined) {
+    setEditDate(dayDate);
+    setEditRestaurantId(row?.restaurant_id ?? restaurants[0]?.id ?? "");
+    setError(null);
+  }
+
   function runGenerate() {
     startTransition(async () => {
       const result = await generateSchedulesFromTemplates(14);
@@ -94,7 +102,7 @@ export function ScheduleCalendar({
       if (!result.success) setError(result.error);
       else {
         setEditDate(null);
-        setSuccess("Day saved");
+        setSuccess("Day saved — click Open when employees should order.");
         router.refresh();
       }
     });
@@ -104,7 +112,11 @@ export function ScheduleCalendar({
     startTransition(async () => {
       const result = open ? await openLunchSchedule(scheduleId) : await closeLunchSchedule(scheduleId);
       if (!result.success) setError(result.error);
-      else router.refresh();
+      else {
+        setSuccess(open ? "Ordering opened for this day." : "Day closed — restaurant notified if email is configured.");
+        setCloseConfirmId(null);
+        router.refresh();
+      }
     });
   }
 
@@ -132,7 +144,7 @@ export function ScheduleCalendar({
       </div>
 
       <p className="text-sm text-slate-600">
-        Click a day to set the restaurant. Use <strong>Open</strong> when employees should order.
+        Click anywhere on a day to set the restaurant. Use <strong>Open</strong> when employees should order.
       </p>
 
       {weeks.map((week, wi) => (
@@ -142,60 +154,76 @@ export function ScheduleCalendar({
             const status = row?.status ?? "empty";
             const tone =
               status === "empty"
-                ? "bg-white border-dashed border-slate-300 text-slate-400"
-                : STATUS_COLORS[status] ?? STATUS_COLORS.draft;
+                ? "bg-white border-dashed border-slate-300 text-slate-500 hover:border-[var(--geaux-yellow)] hover:bg-[var(--geaux-cream)]"
+                : `${STATUS_COLORS[status] ?? STATUS_COLORS.draft} hover:shadow-md`;
 
             return (
               <div
                 key={day.date}
-                className={`min-h-[120px] rounded-xl border p-2 text-xs ${tone}`}
+                className={`calendar-day-cell flex min-h-[128px] flex-col rounded-xl border p-2 text-xs transition-all ${tone}`}
               >
                 <button
                   type="button"
-                  className="w-full text-left font-semibold"
-                  onClick={() => {
-                    setEditDate(day.date);
-                    setEditRestaurantId(row?.restaurant_id ?? restaurants[0]?.id ?? "");
-                  }}
+                  className="flex min-h-[72px] flex-1 flex-col rounded-lg p-1 text-left transition-colors hover:bg-black/[0.04] active:bg-black/[0.06]"
+                  onClick={() => openEditor(day.date, row)}
                 >
-                  {day.label}
+                  <span className="font-semibold">{day.label}</span>
+                  {row ? (
+                    <>
+                      <span className="mt-1 line-clamp-2 font-medium">{row.restaurants?.name ?? "—"}</span>
+                      <span className="mt-1 capitalize opacity-80">{row.status}</span>
+                    </>
+                  ) : (
+                    <span className="mt-2 font-medium text-[var(--geaux-red)]">+ Add lunch</span>
+                  )}
                 </button>
                 {row ? (
-                  <>
-                    <p className="mt-1 line-clamp-2 font-medium">{row.restaurants?.name ?? "—"}</p>
-                    <p className="mt-1 capitalize opacity-80">{row.status}</p>
-                    <div className="mt-2 flex flex-col gap-1">
-                      {row.status !== "open" ? (
-                        <button
-                          type="button"
-                          className="rounded bg-green-600 px-2 py-1 text-[10px] font-semibold text-white"
-                          onClick={() => toggleOpen(row.id, true)}
-                        >
-                          Open
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          className="rounded bg-amber-600 px-2 py-1 text-[10px] font-semibold text-white"
-                          onClick={() => toggleOpen(row.id, false)}
-                        >
-                          Close
-                        </button>
-                      )}
-                    </div>
-                  </>
-                ) : (
-                  <p className="mt-2">+ Add lunch</p>
-                )}
+                  <div className="mt-1 shrink-0">
+                    {row.status !== "open" ? (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="success"
+                        className="w-full text-[10px]"
+                        disabled={isPending}
+                        onClick={() => toggleOpen(row.id, true)}
+                      >
+                        Open
+                      </Button>
+                    ) : (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="secondary"
+                        className="w-full border-amber-500 text-[10px] text-amber-900"
+                        disabled={isPending}
+                        onClick={() => setCloseConfirmId(row.id)}
+                      >
+                        Close
+                      </Button>
+                    )}
+                  </div>
+                ) : null}
               </div>
             );
           })}
         </div>
       ))}
 
+      <ConfirmDialog
+        open={closeConfirmId !== null}
+        title="Close this lunch day?"
+        message="Employees won't be able to order anymore. If email is configured, the restaurant may receive the order summary."
+        confirmLabel="Close day"
+        variant="danger"
+        loading={isPending}
+        onCancel={() => setCloseConfirmId(null)}
+        onConfirm={() => closeConfirmId && toggleOpen(closeConfirmId, false)}
+      />
+
       {editDate ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-sm rounded-xl bg-white p-5 shadow-xl">
+          <div className="w-full max-w-sm animate-fade-in rounded-xl bg-white p-5 shadow-xl">
             <h3 className="font-bold text-slate-900">Schedule {editDate}</h3>
             <Select
               label="Restaurant"

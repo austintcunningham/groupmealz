@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { DashboardShell } from "@/components/DashboardShell";
-import { Card, EmptyState } from "@/components/ui";
+import { Card, EmptyState, StatCard } from "@/components/ui";
 import { requireAdmin } from "@/lib/auth/guards";
 import { getAdminDashboardTotals } from "@/lib/actions/reports";
 import { formatCents } from "@/lib/money/format";
@@ -25,14 +25,19 @@ export default async function AdminDashboardPage() {
     <DashboardShell role={profile.role} title="Admin Dashboard">
       <div className="space-y-6">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Stat label="Today's schedules" value={String(totals?.todaySchedules ?? 0)} />
-          <Stat label="Paid orders" value={String(totals?.paidOrderCount ?? 0)} />
-          <Stat
-            label="Total sales"
-            value={formatCents(totals?.totalSalesCents ?? 0)}
+          <StatCard label="Today's schedules" value={String(totals?.todaySchedules ?? 0)} />
+          <StatCard
+            label="Sales this month"
+            value={formatCents(totals?.monthSalesCents ?? 0)}
+            hint={`${totals?.monthPaidOrderCount ?? 0} paid orders in ${new Date().toLocaleString(undefined, { month: "long" })}`}
           />
-          <Stat
-            label="Platform fees"
+          <StatCard
+            label="All-time paid sales"
+            value={formatCents(totals?.totalSalesCents ?? 0)}
+            hint={`${totals?.paidOrderCount ?? 0} orders total — includes dev/test checkouts in this database`}
+          />
+          <StatCard
+            label="Platform fees (all-time)"
             value={formatCents(totals?.totalPlatformFeesCents ?? 0)}
           />
         </div>
@@ -109,20 +114,11 @@ export default async function AdminDashboardPage() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-      <p className="text-sm text-slate-500">{label}</p>
-      <p className="mt-1 text-2xl font-semibold">{value}</p>
-    </div>
-  );
-}
-
 function QuickLink({ href, label }: { href: string; label: string }) {
   return (
     <Link
       href={href}
-      className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium hover:bg-slate-50"
+      className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium shadow-sm transition-all hover:-translate-y-px hover:border-[var(--geaux-yellow)] hover:bg-[var(--geaux-cream)] hover:shadow-md active:scale-[0.98]"
     >
       {label}
     </Link>

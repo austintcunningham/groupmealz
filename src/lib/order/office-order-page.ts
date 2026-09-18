@@ -61,8 +61,16 @@ export async function loadOfficeOrderContext(office: Office, selectedDate: strin
     scheduleByDate.get(dates[0]) ??
     null;
 
+  const { data: settings } = await supabase.from("platform_settings").select("advance_order_hours").limit(1).maybeSingle();
+
   if (!schedule) {
-    return { weekDays, schedule: null, categories: [] as MenuCategory[], menuItems: [] as MenuItem[] };
+    return {
+      weekDays,
+      schedule: null,
+      categories: [] as MenuCategory[],
+      menuItems: [] as MenuItem[],
+      advanceOrderHours: settings?.advance_order_hours ?? 48,
+    };
   }
 
   const [{ data: categories }, { data: menuItems }] = await Promise.all([
@@ -84,5 +92,6 @@ export async function loadOfficeOrderContext(office: Office, selectedDate: strin
     schedule,
     categories: categories ?? [],
     menuItems: menuItems ?? [],
+    advanceOrderHours: settings?.advance_order_hours ?? 48,
   };
 }

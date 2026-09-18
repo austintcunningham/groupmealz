@@ -2,8 +2,9 @@ import { type ButtonHTMLAttributes, type InputHTMLAttributes, type SelectHTMLAtt
 
 const buttonBase =
   "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-all duration-150 " +
-  "active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 " +
-  "disabled:pointer-events-none disabled:opacity-50";
+  "hover:-translate-y-px active:translate-y-0 active:scale-[0.97] " +
+  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 " +
+  "disabled:pointer-events-none disabled:opacity-50 disabled:translate-y-0";
 
 const buttonVariants = {
   primary:
@@ -63,7 +64,7 @@ export function Input({
       ) : null}
       <input
         {...props}
-        className={`w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition-colors hover:border-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 ${className}`}
+        className={`w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition-colors hover:border-slate-400 focus:border-[var(--geaux-red)] focus:outline-none focus:ring-2 focus:ring-[var(--geaux-yellow-light)] ${className}`}
       />
     </div>
   );
@@ -82,7 +83,7 @@ export function Select({
       ) : null}
       <select
         {...props}
-        className={`w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition-colors hover:border-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 ${className}`}
+        className={`w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition-colors hover:border-slate-400 focus:border-[var(--geaux-red)] focus:outline-none focus:ring-2 focus:ring-[var(--geaux-yellow-light)] ${className}`}
       >
         {children}
       </select>
@@ -114,14 +115,17 @@ export function Card({
 export function StatCard({
   label,
   value,
+  hint,
 }: {
   label: string;
   value: string;
+  hint?: string;
 }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
+    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
       <p className="text-sm text-slate-500">{label}</p>
       <p className="mt-1 text-2xl font-semibold text-slate-900">{value}</p>
+      {hint ? <p className="mt-1 text-xs text-slate-400">{hint}</p> : null}
     </div>
   );
 }

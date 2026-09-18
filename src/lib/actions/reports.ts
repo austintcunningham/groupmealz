@@ -104,12 +104,15 @@ export async function getAdminDashboardTotals(): Promise<
   if (error) return { error: error.message };
 
   const orders = paidOrders ?? [];
+  const monthStart = `${today.slice(0, 7)}-01`;
   const restaurantMap = new Map<
     string,
     { restaurantId: string; restaurantName: string; orderCount: number; salesCents: number }
   >();
 
   let totalSalesCents = 0;
+  let monthSalesCents = 0;
+  let monthPaidOrderCount = 0;
   let totalPlatformFeesCents = 0;
   let totalPayoutDueCents = 0;
 
@@ -117,6 +120,12 @@ export async function getAdminDashboardTotals(): Promise<
     totalSalesCents += order.total_cents;
     totalPlatformFeesCents += order.platform_fee_cents;
     totalPayoutDueCents += order.payout_due_cents;
+
+    const orderDay = order.created_at.slice(0, 10);
+    if (orderDay >= monthStart) {
+      monthPaidOrderCount += 1;
+      monthSalesCents += order.total_cents;
+    }
 
     const restaurant = order.restaurants as
       | { id: string; name: string }
@@ -141,6 +150,8 @@ export async function getAdminDashboardTotals(): Promise<
       todaySchedules: todaySchedules?.length ?? 0,
       paidOrderCount: orders.length,
       totalSalesCents,
+      monthPaidOrderCount,
+      monthSalesCents,
       totalPlatformFeesCents,
       totalPayoutDueCents,
       ordersByRestaurant: Array.from(restaurantMap.values()).sort(

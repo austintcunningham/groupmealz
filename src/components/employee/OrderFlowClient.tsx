@@ -1,13 +1,14 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { checkoutGuest, createOrder, createPaymentIntent } from "@/lib/actions/orders";
 import { formatCents } from "@/lib/money/format";
 import { isOrderingWindowOpen, formatOrderingWindow } from "@/lib/scheduling/window";
 import { EmbeddedCheckout } from "@/components/checkout/EmbeddedCheckout";
-import { Badge, Button, Card, ErrorMessage, Input } from "@/components/ui";
+import { OrderingRulesCard } from "@/components/order/OrderingRulesCard";
+import { Badge, Button, Card, ErrorMessage, Input, SuccessMessage } from "@/components/ui";
 import type {
   DailyLunchSchedule,
   MenuCategory,
@@ -38,6 +39,7 @@ interface Props {
   isLoggedIn?: boolean;
   userEmail?: string;
   userName?: string;
+  advanceOrderHours?: number;
 }
 
 interface CartEntry {
@@ -56,6 +58,7 @@ export function OrderFlowClient({
   isLoggedIn = false,
   userEmail,
   userName,
+  advanceOrderHours = 48,
 }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -70,9 +73,16 @@ export function OrderFlowClient({
     publishableKey: string;
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [cartNotice, setCartNotice] = useState<string | null>(null);
 
   const orderingOpen = isOrderingWindowOpen(schedule);
   const selectedDate = schedule.lunch_date;
+
+  useEffect(() => {
+    if (!cartNotice) return;
+    const t = window.setTimeout(() => setCartNotice(null), 2500);
+    return () => window.clearTimeout(t);
+  }, [cartNotice]);
 
   const itemsByCategory = useMemo(() => {
     const map = new Map<string, MenuItem[]>();
@@ -112,6 +122,10 @@ export function OrderFlowClient({
   }
 
   function updateQty(id: string, qty: number) {
+    if (qty > (cart[id]?.quantity ?? 0)) {
+      const item = menuItems.find((m) => m.id === id);
+      if (item) setCartNotice(`Added ${item.name}`);
+    }
     setCart((p) => ({
       ...p,
       [id]: {
@@ -197,6 +211,8 @@ export function OrderFlowClient({
         </p>
       </Card>
 
+      <OrderingRulesCard schedule={schedule} advanceOrderHours={advanceOrderHours} />
+
       <Card title="This week">
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
           {weekDays.map((day) => {
@@ -208,12 +224,12 @@ export function OrderFlowClient({
                 type="button"
                 disabled={disabled}
                 onClick={() => day.schedule && pickDay(day.lunchDate)}
-                className={`rounded-xl border p-3 text-left text-sm transition-all ${
+                className={`rounded-xl border p-3 text-left text-sm transition-all active:scale-[0.98] ${
                   active
                     ? "border-[var(--geaux-red)] bg-red-50 ring-2 ring-[var(--geaux-yellow)]"
                     : disabled
                       ? "cursor-not-allowed border-slate-100 bg-slate-50 opacity-60"
-                      : "border-slate-200 bg-white hover:border-[var(--geaux-yellow)]"
+                      : "border-slate-200 bg-white hover:-translate-y-0.5 hover:border-[var(--geaux-yellow)] hover:shadow-md"
                 }`}
               >
                 <p className="font-semibold text-slate-800">{day.label}</p>
@@ -351,6 +367,11 @@ export function OrderFlowClient({
             )}
           </div>
           <Card title="Your cart" className="sticky top-4 h-fit">
+            {cartNotice ? (
+              <div className="mb-3">
+                <SuccessMessage message={cartNotice} />
+              </div>
+            ) : null}
             {cartLines.length === 0 ? (
               <p className="text-sm text-slate-500">Pick something tasty!</p>
             ) : (

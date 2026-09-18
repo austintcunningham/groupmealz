@@ -67,6 +67,7 @@ export default async function OfficeOrderPage({
             isLoggedIn={!!profile}
             userEmail={profile?.email}
             userName={profile?.full_name}
+            advanceOrderHours={ctx.advanceOrderHours}
           />
         </Suspense>
       </main>

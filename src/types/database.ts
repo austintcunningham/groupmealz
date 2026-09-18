@@ -196,6 +196,8 @@ export interface AdminDashboardTotals {
   todaySchedules: number;
   paidOrderCount: number;
   totalSalesCents: number;
+  monthPaidOrderCount: number;
+  monthSalesCents: number;
   totalPlatformFeesCents: number;
   totalPayoutDueCents: number;
   ordersByRestaurant: {
