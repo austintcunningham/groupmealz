@@ -41,13 +41,21 @@ export function LoginForm() {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
-      <Input
-        label="Password"
-        type="password"
-        required
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
+      <div>
+        <Input
+          label="Password"
+          type="password"
+          required
+          autoComplete="current-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <p className="mt-1 text-right text-sm">
+          <Link href="/forgot-password" className="text-[var(--geaux-red)] hover:underline">
+            Forgot password?
+          </Link>
+        </p>
+      </div>
       <Button type="submit" loading={loading} className="w-full">
         Sign in
       </Button>

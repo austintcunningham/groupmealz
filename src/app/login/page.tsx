@@ -1,25 +1,28 @@
-import { Card } from "@/components/ui";
-import { LoginForm } from "@/components/auth/LoginForm";
-import { BRAND } from "@/lib/brand";
 import Link from "next/link";
+import { LoginForm } from "@/components/auth/LoginForm";
+import { AuthPageShell } from "@/components/auth/AuthPageShell";
+import { ErrorMessage } from "@/components/ui";
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const { error } = await searchParams;
+  const authError =
+    error === "auth_callback_failed"
+      ? "Sign-in link expired or was invalid. Try again or reset your password."
+      : null;
+
   return (
-    <div className="min-h-screen bg-[var(--geaux-cream)] flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="geaux-header-gradient rounded-t-xl px-6 py-5 text-center">
-          <h1 className="text-3xl font-black text-[var(--geaux-yellow)]">{BRAND.name}</h1>
-          <p className="text-sm text-white/80">{BRAND.tagline}</p>
-        </div>
-        <Card className="rounded-t-none" title="Sign in">
-          <LoginForm />
-          <p className="mt-4 text-center text-sm">
-            <Link href="/order" className="font-medium text-[var(--geaux-red)] hover:underline">
-              Order lunch (no account) →
-            </Link>
-          </p>
-        </Card>
-      </div>
-    </div>
+    <AuthPageShell title="Sign in">
+      {authError ? <div className="mb-4"><ErrorMessage message={authError} /></div> : null}
+      <LoginForm />
+      <p className="mt-4 text-center text-sm">
+        <Link href="/order" className="font-medium text-[var(--geaux-red)] hover:underline">
+          Order lunch (no account) →
+        </Link>
+      </p>
+    </AuthPageShell>
   );
 }
