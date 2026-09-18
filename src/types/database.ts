@@ -21,7 +21,7 @@ export type OrderStatus =
   | "cancelled"
   | "failed";
 
-export type PlatformFeeType = "flat" | "percentage" | "hybrid";
+export type PlatformFeeType = "flat" | "percentage" | "hybrid" | "per_entree";
 
 export interface Profile {
   id: string;

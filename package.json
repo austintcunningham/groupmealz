@@ -13,7 +13,8 @@
     "setup:check": "node scripts/check-setup.mjs",
     "setup:slugs": "node scripts/backfill-office-slugs.mjs",
     "db:apply:002": "node scripts/apply-sql-file.mjs supabase/migrations/002_geaux_eats_phase2.sql",
-    "db:apply:003": "node scripts/apply-sql-file.mjs supabase/migrations/003_guest_orders_office_slug.sql"
+    "db:apply:003": "node scripts/apply-sql-file.mjs supabase/migrations/003_guest_orders_office_slug.sql",
+    "db:apply:004": "node scripts/apply-sql-file.mjs supabase/migrations/004_per_entree_service_fee.sql"
   },
   "dependencies": {
     "@stripe/react-stripe-js": "^3.7.0",

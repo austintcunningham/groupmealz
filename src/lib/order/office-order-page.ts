@@ -68,7 +68,7 @@ export async function loadOfficeOrderContext(office: Office, selectedDate: strin
     .maybeSingle();
 
   const feeSettings = {
-    platform_fee_type: settings?.platform_fee_type ?? "flat",
+    platform_fee_type: settings?.platform_fee_type ?? "per_entree",
     flat_fee_cents: settings?.flat_fee_cents ?? 250,
     percentage_bps: settings?.percentage_bps ?? 0,
     sales_tax_bps: settings?.sales_tax_bps ?? 0,

@@ -60,6 +60,7 @@ export async function sendCustomerOrderConfirmation(
     lineCents: i.line_total_cents ?? i.base_price_cents * i.quantity,
     instructions: i.special_instructions,
   }));
+  const entreeCount = items.reduce((s, i) => s + i.qty, 0);
 
   const html = buildOrderConfirmationHtml({
     customerName: order.customer_name,
@@ -79,6 +80,7 @@ export async function sendCustomerOrderConfirmation(
     taxCents: order.tax_cents,
     platformFeeCents: order.platform_fee_cents,
     totalCents: order.total_cents,
+    entreeCount,
   });
 
   const lunchLabel = formatLunchDate(scheduleRow.lunch_date);

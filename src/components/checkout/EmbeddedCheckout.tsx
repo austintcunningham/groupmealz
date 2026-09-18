@@ -7,13 +7,16 @@ import { useRouter } from "next/navigation";
 import { confirmPaymentSaved } from "@/lib/actions/orders";
 import { Button, ErrorMessage } from "@/components/ui";
 import { BRAND } from "@/lib/brand";
+import { formatCents } from "@/lib/money/format";
 
 function PaymentForm({
   orderId,
   guestCheckout = false,
+  totalCents,
 }: {
   orderId: string;
   guestCheckout?: boolean;
+  totalCents?: number;
 }) {
   const stripe = useStripe();
   const elements = useElements();
@@ -80,7 +83,9 @@ function PaymentForm({
         </label>
       ) : null}
       <Button type="submit" loading={loading} className="w-full" size="lg">
-        Pay now — card verified instantly
+        {totalCents != null
+          ? `Pay ${formatCents(totalCents)} now`
+          : "Pay now — card verified instantly"}
       </Button>
       <p className="text-xs text-slate-500">
         Payments processed securely by Stripe. {BRAND.name} never stores your card number.
@@ -94,11 +99,13 @@ export function EmbeddedCheckout({
   publishableKey,
   orderId,
   guestCheckout = false,
+  totalCents,
 }: {
   clientSecret: string;
   publishableKey: string;
   orderId: string;
   guestCheckout?: boolean;
+  totalCents?: number;
 }) {
   const stripePromise = loadStripe(publishableKey);
   const options: StripeElementsOptions = {
@@ -115,7 +122,11 @@ export function EmbeddedCheckout({
 
   return (
     <Elements stripe={stripePromise} options={options}>
-      <PaymentForm orderId={orderId} guestCheckout={guestCheckout} />
+      <PaymentForm
+        orderId={orderId}
+        guestCheckout={guestCheckout}
+        totalCents={totalCents}
+      />
     </Elements>
   );
 }

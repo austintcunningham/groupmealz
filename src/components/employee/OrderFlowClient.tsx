@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { checkoutGuest, createOrder, createPaymentIntent } from "@/lib/actions/orders";
 import { calculateOrderTotals } from "@/lib/fees/calculate";
+import { OrderCheckoutSummary } from "@/components/order/OrderCheckoutSummary";
 import { formatCents } from "@/lib/money/format";
 import type { PlatformSettings } from "@/types/database";
 import { isOrderingWindowOpen, formatOrderingWindow } from "@/lib/scheduling/window";
@@ -66,12 +67,14 @@ export function OrderFlowClient({
   userName,
   advanceOrderHours = 48,
   feeSettings = {
-    platform_fee_type: "flat",
+    platform_fee_type: "per_entree",
     flat_fee_cents: 250,
     percentage_bps: 0,
     sales_tax_bps: 0,
   },
 }: Props) {
+  const serviceFeePerEntree =
+    feeSettings.platform_fee_type === "per_entree" ? feeSettings.flat_fee_cents : null;
   const router = useRouter();
   const searchParams = useSearchParams();
   const [cart, setCart] = useState<Record<string, CartEntry>>({});
@@ -123,8 +126,9 @@ export function OrderFlowClient({
   }, [cart, menuItems]);
 
   const subtotal = cartLines.reduce((s, l) => s + l.lineTotal, 0);
+  const entreeCount = cartLines.reduce((s, l) => s + l.quantity, 0);
   const feePreview =
-    subtotal > 0 ? calculateOrderTotals(subtotal, feeSettings) : null;
+    subtotal > 0 ? calculateOrderTotals(subtotal, feeSettings, entreeCount) : null;
 
   function pickDay(lunchDate: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -286,16 +290,33 @@ export function OrderFlowClient({
 
       {error ? <ErrorMessage message={error} /> : null}
 
-      {step === "pay" && paymentData && orderId ? (
+      {step === "pay" && paymentData && orderId && feePreview ? (
         <Card title="Payment">
-          <EmbeddedCheckout
-            {...paymentData}
-            orderId={orderId}
-            guestCheckout={guestMode || !isLoggedIn}
+          <OrderCheckoutSummary
+            breakdown={feePreview}
+            feeSettings={feeSettings}
+            emphasized
           />
+          <div className="mt-6">
+            <EmbeddedCheckout
+              {...paymentData}
+              orderId={orderId}
+              guestCheckout={guestMode || !isLoggedIn}
+              totalCents={feePreview.totalCents}
+            />
+          </div>
         </Card>
       ) : step === "details" ? (
         <Card title="Your details">
+          {feePreview ? (
+            <div className="mb-6">
+              <OrderCheckoutSummary
+                breakdown={feePreview}
+                feeSettings={feeSettings}
+                emphasized
+              />
+            </div>
+          ) : null}
           <p className="mb-4 text-sm text-slate-600">
             No account needed — just your name and email for the order confirmation.
           </p>
@@ -337,6 +358,11 @@ export function OrderFlowClient({
                               <div>
                                 <h3 className="font-semibold">{item.name}</h3>
                                 <p className="font-medium text-red-600">{formatCents(item.price_cents)}</p>
+                                {serviceFeePerEntree != null ? (
+                                  <p className="text-xs text-slate-500">
+                                    + {formatCents(serviceFeePerEntree)} service fee per entrée
+                                  </p>
+                                ) : null}
                               </div>
                               <div className="flex items-center gap-2">
                                 <button type="button" onClick={() => updateQty(item.id, qty - 1)} className="qty-btn">
@@ -398,32 +424,11 @@ export function OrderFlowClient({
                     <span>{formatCents(l.lineTotal)}</span>
                   </div>
                 ))}
-                <div className="space-y-1 border-t pt-3 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-slate-600">Food subtotal</span>
-                    <span>{formatCents(subtotal)}</span>
-                  </div>
-                  {feePreview && feePreview.platformFeeCents > 0 ? (
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">Service fee (per order)</span>
-                      <span>{formatCents(feePreview.platformFeeCents)}</span>
-                    </div>
-                  ) : null}
-                  {feePreview && feePreview.taxCents > 0 ? (
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">Tax</span>
-                      <span>{formatCents(feePreview.taxCents)}</span>
-                    </div>
-                  ) : null}
-                  <div className="flex justify-between border-t border-slate-200 pt-2 text-base font-bold">
-                    <span>Estimated total</span>
-                    <span className="text-[var(--geaux-red)]">
-                      {formatCents(feePreview?.totalCents ?? subtotal)}
-                    </span>
-                  </div>
-                </div>
+                {feePreview ? (
+                  <OrderCheckoutSummary breakdown={feePreview} feeSettings={feeSettings} />
+                ) : null}
                 <p className="text-xs text-slate-500">
-                  One service fee per checkout, not per item. Final total confirmed at payment.
+                  Total due is what Stripe charges — food plus service fees listed above.
                 </p>
                 <Button className="w-full" size="lg" loading={isPending} onClick={proceedToCheckout}>
                   Checkout

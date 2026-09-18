@@ -28,6 +28,7 @@ export type OrderConfirmationEmailData = {
   taxCents: number;
   platformFeeCents: number;
   totalCents: number;
+  entreeCount?: number;
 };
 
 export function buildOrderConfirmationHtml(data: OrderConfirmationEmailData): string {
@@ -45,7 +46,7 @@ export function buildOrderConfirmationHtml(data: OrderConfirmationEmailData): st
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-top:8px;">
       <tr><td style="padding:6px 0;font-size:14px;color:#64748b;">Subtotal</td><td style="padding:6px 0;text-align:right;font-size:14px;">${formatCents(data.subtotalCents)}</td></tr>
       ${data.taxCents > 0 ? `<tr><td style="padding:6px 0;font-size:14px;color:#64748b;">Tax</td><td style="padding:6px 0;text-align:right;font-size:14px;">${formatCents(data.taxCents)}</td></tr>` : ""}
-      ${data.platformFeeCents > 0 ? `<tr><td style="padding:6px 0;font-size:14px;color:#64748b;">Service fee</td><td style="padding:6px 0;text-align:right;font-size:14px;">${formatCents(data.platformFeeCents)}</td></tr>` : ""}
+      ${data.platformFeeCents > 0 ? `<tr><td style="padding:6px 0;font-size:14px;color:#64748b;">Service fee${data.entreeCount ? ` (${data.entreeCount} entrée${data.entreeCount === 1 ? "" : "s"})` : ""}</td><td style="padding:6px 0;text-align:right;font-size:14px;">${formatCents(data.platformFeeCents)}</td></tr>` : ""}
       <tr>
         <td style="padding:12px 0 0;font-size:16px;font-weight:700;color:#D62828;border-top:2px solid #FDB913;">Total paid</td>
         <td style="padding:12px 0 0;text-align:right;font-size:18px;font-weight:800;color:#D62828;border-top:2px solid #FDB913;">${formatCents(data.totalCents)}</td>
@@ -101,5 +102,6 @@ export function sampleOrderConfirmationHtml(): string {
     taxCents: 0,
     platformFeeCents: 250,
     totalCents: 350,
+    entreeCount: 1,
   });
 }

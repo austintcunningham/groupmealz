@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { calculateOrderTotals } from "@/lib/fees/calculate";
+import { calculateOrderTotals, countEntrees } from "@/lib/fees/calculate";
 import { sendRestaurantOrderEmail } from "@/lib/email/restaurant";
 import { getOrCreateStripeCustomer, savePaymentMethodRecord } from "@/lib/stripe/customers";
 import { isOrderingWindowOpen } from "@/lib/scheduling/window";
@@ -103,13 +103,14 @@ async function buildOrderFromItems(
     .single();
 
   const settings = (settingsRow ?? {
-    platform_fee_type: "flat",
+    platform_fee_type: "per_entree",
     flat_fee_cents: 250,
     percentage_bps: 0,
     sales_tax_bps: 0,
   }) as PlatformSettings;
 
-  const totals = calculateOrderTotals(subtotalCents, settings);
+  const entreeCount = countEntrees(items);
+  const totals = calculateOrderTotals(subtotalCents, settings, entreeCount);
 
   const { data: order, error: orderError } = await supabase
     .from("orders")
@@ -380,7 +381,7 @@ export async function deleteSavedPaymentMethod(id: string): Promise<ActionResult
 }
 
 const settingsSchema = z.object({
-  platform_fee_type: z.enum(["flat", "percentage", "hybrid"]),
+  platform_fee_type: z.enum(["flat", "percentage", "hybrid", "per_entree"]),
   flat_fee_cents: z.number().int().min(0),
   percentage_bps: z.number().int().min(0),
   sales_tax_bps: z.number().int().min(0),

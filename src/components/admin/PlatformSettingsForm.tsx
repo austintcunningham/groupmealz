@@ -28,7 +28,7 @@ export function PlatformSettingsForm({ settings }: { settings: PlatformSettings 
     <form action={handleSubmit} className="max-w-md space-y-4">
       {error ? <ErrorMessage message={error} /> : null}
       <p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
-        Fees apply <strong>once per order</strong> (one checkout), not per menu item or per quantity line.
+        Recommended: <strong>Per entrée</strong> — service fee × total quantity ordered (each +/− in the cart).
       </p>
       <div>
         <label className="mb-1 block text-sm font-medium">Fee type</label>
@@ -37,13 +37,14 @@ export function PlatformSettingsForm({ settings }: { settings: PlatformSettings 
           defaultValue={settings.platform_fee_type}
           className="w-full rounded-lg border px-3 py-2 text-sm"
         >
-          <option value="flat">Flat</option>
+          <option value="per_entree">Per entrée (recommended)</option>
+          <option value="flat">Flat per order</option>
           <option value="percentage">Percentage</option>
           <option value="hybrid">Hybrid</option>
         </select>
       </div>
       <div>
-        <label className="mb-1 block text-sm font-medium">Flat fee (USD)</label>
+        <label className="mb-1 block text-sm font-medium">Fee amount (USD)</label>
         <input
           name="flat_fee_dollars"
           type="number"
@@ -51,7 +52,9 @@ export function PlatformSettingsForm({ settings }: { settings: PlatformSettings 
           defaultValue={(settings.flat_fee_cents / 100).toFixed(2)}
           className="w-full rounded-lg border px-3 py-2 text-sm"
         />
-        <p className="mt-1 text-xs text-slate-500">Used when type is Flat or Hybrid — added once per order.</p>
+        <p className="mt-1 text-xs text-slate-500">
+          Per entrée: charged for each item quantity. Flat/Hybrid: see fee type.
+        </p>
       </div>
       <div>
         <label className="mb-1 block text-sm font-medium">Percentage (%)</label>
