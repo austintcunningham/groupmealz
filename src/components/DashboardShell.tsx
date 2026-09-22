@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { UserRole } from "@/types/database";
+import { signOut } from "@/lib/actions/auth";
 import { BRAND } from "@/lib/brand";
 
 const navByRole: Record<UserRole, { href: string; label: string }[]> = {
@@ -42,7 +43,7 @@ export function DashboardShell({
   title: string;
   children: React.ReactNode;
 }) {
-  const links = navByRole[role];
+  const links = navByRole[role] ?? [];
 
   return (
     <div className="min-h-screen bg-[var(--geaux-cream)]">
@@ -76,19 +77,13 @@ export function DashboardShell({
 
 function SignOutButton() {
   return (
-    <button
-      formAction={async () => {
-        "use server";
-        const { createClient } = await import("@/lib/supabase/server");
-        const supabase = await createClient();
-        await supabase.auth.signOut();
-        const { redirect } = await import("next/navigation");
-        redirect("/login");
-      }}
-      className="rounded-lg px-3 py-2 text-sm font-medium text-[var(--geaux-yellow-light)] transition-all hover:bg-white/10 active:scale-95"
-      type="submit"
-    >
-      Sign out
-    </button>
+    <form action={signOut}>
+      <button
+        className="rounded-lg px-3 py-2 text-sm font-medium text-[var(--geaux-yellow-light)] transition-all hover:bg-white/10 active:scale-95"
+        type="submit"
+      >
+        Sign out
+      </button>
+    </form>
   );
 }

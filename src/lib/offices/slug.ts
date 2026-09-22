@@ -1,4 +1,5 @@
-export function slugifyOfficeName(name: string): string {
+export function slugifyOfficeName(name: string | null | undefined): string {
+  if (!name?.trim()) return "";
   return name
     .toLowerCase()
     .trim()

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { backfillMissingOfficeSlugs } from "@/lib/offices/backfill-slugs";
 import { slugifyOfficeName } from "@/lib/offices/slug";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import {
   logAudit,
@@ -102,12 +103,29 @@ export async function ensureOfficeSlugs(): Promise<ActionResult<{ updated: numbe
   const auth = await requireProfileRole(["admin"]);
   if ("error" in auth) return { success: false, error: auth.error };
 
-  const supabase = await createClient();
-  const updated = await backfillMissingOfficeSlugs(supabase);
-
-  revalidatePath("/admin/offices");
-  revalidatePath("/order");
-  return { success: true, data: { updated } };
+  try {
+    const updated = await backfillMissingOfficeSlugs(createAdminClient());
+    revalidatePath("/admin/offices");
+    revalidatePath("/order");
+    return { success: true, data: { updated } };
+  } catch (e) {
+    const message = e instanceof Error ? e.message : "Could not generate slugs";
+    if (message.includes("Missing Supabase admin")) {
+      return {
+        success: false,
+        error:
+          "Server is missing SUPABASE_SERVICE_ROLE_KEY. Add it in Vercel → Settings → Environment Variables, then redeploy.",
+      };
+    }
+    if (message.toLowerCase().includes("slug")) {
+      return {
+        success: false,
+        error:
+          "Database is missing the offices.slug column. Run migration supabase/migrations/003_guest_orders_office_slug.sql in Supabase SQL Editor.",
+      };
+    }
+    return { success: false, error: message };
+  }
 }
 
 export async function assignOfficeUser(
