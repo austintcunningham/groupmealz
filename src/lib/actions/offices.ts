@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { backfillMissingOfficeSlugs } from "@/lib/offices/backfill-slugs";
 import { slugifyOfficeName } from "@/lib/offices/slug";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -102,28 +103,7 @@ export async function ensureOfficeSlugs(): Promise<ActionResult<{ updated: numbe
   if ("error" in auth) return { success: false, error: auth.error };
 
   const supabase = await createClient();
-  const { data: offices } = await supabase.from("offices").select("id, name, slug").is("slug", null);
-  let updated = 0;
-
-  for (const office of offices ?? []) {
-    const baseSlug = slugifyOfficeName(office.name) || `office-${office.id.slice(0, 6)}`;
-    let slug = baseSlug;
-    for (let n = 0; n < 20; n++) {
-      const candidate = n === 0 ? slug : `${baseSlug}-${n + 1}`;
-      const { data: clash } = await supabase
-        .from("offices")
-        .select("id")
-        .eq("slug", candidate)
-        .neq("id", office.id)
-        .maybeSingle();
-      if (!clash) {
-        slug = candidate;
-        break;
-      }
-    }
-    const { error } = await supabase.from("offices").update({ slug }).eq("id", office.id);
-    if (!error) updated++;
-  }
+  const updated = await backfillMissingOfficeSlugs(supabase);
 
   revalidatePath("/admin/offices");
   revalidatePath("/order");

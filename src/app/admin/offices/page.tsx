@@ -4,21 +4,31 @@ import { CreateOfficeForm } from "@/components/admin/CreateOfficeForm";
 import { AssignOfficeUserForm } from "@/components/admin/AssignOfficeUserForm";
 import { OfficeOrderLinks } from "@/components/admin/OfficeOrderLinks";
 import { requireAdmin } from "@/lib/auth/guards";
-import { ensureOfficeSlugs } from "@/lib/actions/offices";
+import { backfillMissingOfficeSlugs } from "@/lib/offices/backfill-slugs";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function AdminOfficesPage() {
   const profile = await requireAdmin();
   const supabase = await createClient();
-  let { data: offices } = await supabase.from("offices").select("*").order("name");
+  let { data: offices, error: loadError } = await supabase.from("offices").select("*").order("name");
 
-  if (offices?.some((o) => !o.slug)) {
-    await ensureOfficeSlugs();
-    const refreshed = await supabase.from("offices").select("*").order("name");
-    offices = refreshed.data;
+  if (loadError) {
+    throw new Error(`Could not load offices: ${loadError.message}`);
+  }
+
+  if (offices?.some((o) => !o.slug?.trim())) {
+    try {
+      await backfillMissingOfficeSlugs(createAdminClient());
+      const refreshed = await supabase.from("offices").select("*").order("name");
+      offices = refreshed.data ?? offices;
+    } catch {
+      /* Page still loads; slugs can be fixed via npm run setup:slugs */
+    }
   }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const officesWithSlugs = offices?.filter((o) => o.slug?.trim()) ?? [];
 
   return (
     <DashboardShell role={profile.role} title="Offices">
@@ -38,8 +48,10 @@ export default async function AdminOfficesPage() {
           </p>
           {!offices?.length ? (
             <EmptyState message="No offices yet." />
+          ) : !officesWithSlugs.length ? (
+            <EmptyState message="Offices exist but order links need slugs. Save an office again or run setup:slugs." />
           ) : (
-            <OfficeOrderLinks offices={offices} appUrl={appUrl} />
+            <OfficeOrderLinks offices={officesWithSlugs} appUrl={appUrl} />
           )}
         </Card>
       </div>
