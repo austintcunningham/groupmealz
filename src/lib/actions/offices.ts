@@ -159,9 +159,10 @@ export async function assignOfficeUser(
     };
   }
 
+  // Office membership lives in office_users. Only promote employees on profiles — never
+  // change admin or restaurant_manager (avoids locking yourself out of /admin).
   if (role === "office_admin") {
     const { data: target } = await admin.from("profiles").select("role").eq("id", userId).single();
-    // Keep platform admins as admin; only promote employees to office_admin.
     if (target?.role === "employee") {
       const { error: profileError } = await admin
         .from("profiles")
