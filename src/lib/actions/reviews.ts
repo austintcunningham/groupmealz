@@ -5,6 +5,11 @@ import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { requireProfileRole, type ActionResult } from "@/lib/actions/utils";
+import {
+  formatReviewOpensAt,
+  getReviewOpensAt,
+  isReviewOpen,
+} from "@/lib/reviews/eligibility";
 import { getRelationName } from "@/lib/supabase/relation";
 import type { RestaurantReview } from "@/types/database";
 
@@ -23,44 +28,59 @@ export type ReviewOrderContext = {
   customerName: string;
   alreadyReviewed: boolean;
   requiresEmailConfirm: boolean;
+  canReview: boolean;
+  reviewOpensAtLabel: string | null;
 };
+
+async function loadOrderForReview(orderId: string) {
+  const admin = createAdminClient();
+  const { data: order, error } = await admin
+    .from("orders")
+    .select(
+      "id, status, customer_name, customer_email, user_id, restaurant_id, office_id, restaurants(name), offices(name), daily_lunch_schedules(lunch_date, delivery_at)"
+    )
+    .eq("id", orderId)
+    .single();
+  if (error || !order) return null;
+  return order;
+}
+
+function scheduleRow(order: NonNullable<Awaited<ReturnType<typeof loadOrderForReview>>>) {
+  const schedule = order.daily_lunch_schedules as
+    | { lunch_date: string; delivery_at: string }
+    | { lunch_date: string; delivery_at: string }[]
+    | null;
+  return Array.isArray(schedule) ? schedule[0] : schedule;
+}
 
 export async function getReviewOrderContext(
   orderId: string
 ): Promise<ActionResult<ReviewOrderContext>> {
-  let admin;
   try {
-    admin = createAdminClient();
+    createAdminClient();
   } catch {
     return { success: false, error: "Reviews are temporarily unavailable." };
   }
 
-  const { data: order, error } = await admin
-    .from("orders")
-    .select(
-      "id, status, customer_name, customer_email, user_id, restaurants(name), offices(name), daily_lunch_schedules(lunch_date)"
-    )
-    .eq("id", orderId)
-    .single();
-
-  if (error || !order) {
+  const order = await loadOrderForReview(orderId);
+  if (!order) {
     return { success: false, error: "Order not found." };
   }
   if (order.status !== "paid") {
     return { success: false, error: "You can review after payment is complete." };
   }
 
+  const admin = createAdminClient();
   const { data: existing } = await admin
     .from("restaurant_reviews")
     .select("id")
     .eq("order_id", orderId)
     .maybeSingle();
 
-  const schedule = order.daily_lunch_schedules as
-    | { lunch_date: string }
-    | { lunch_date: string }[]
-    | null;
-  const lunchDate = (Array.isArray(schedule) ? schedule[0] : schedule)?.lunch_date ?? "";
+  const sched = scheduleRow(order);
+  const lunchDate = sched?.lunch_date ?? "";
+  const opensAt = getReviewOpensAt(lunchDate, sched?.delivery_at);
+  const canReview = isReviewOpen(opensAt);
 
   const supabase = await createClient();
   const {
@@ -80,6 +100,8 @@ export async function getReviewOrderContext(
       customerName: order.customer_name,
       alreadyReviewed: Boolean(existing),
       requiresEmailConfirm: guestOrder && !ownsOrder,
+      canReview,
+      reviewOpensAtLabel: canReview ? null : formatReviewOpensAt(opensAt),
     },
   };
 }
@@ -99,17 +121,21 @@ export async function submitRestaurantReview(
     return { success: false, error: "Reviews are temporarily unavailable." };
   }
 
-  const { data: order, error: orderError } = await admin
-    .from("orders")
-    .select("id, status, customer_name, customer_email, user_id, restaurant_id, office_id")
-    .eq("id", parsed.data.orderId)
-    .single();
-
-  if (orderError || !order) {
+  const order = await loadOrderForReview(parsed.data.orderId);
+  if (!order) {
     return { success: false, error: "Order not found." };
   }
   if (order.status !== "paid") {
     return { success: false, error: "Only paid orders can be reviewed." };
+  }
+
+  const sched = scheduleRow(order);
+  const opensAt = getReviewOpensAt(sched?.lunch_date ?? "", sched?.delivery_at);
+  if (!isReviewOpen(opensAt)) {
+    return {
+      success: false,
+      error: `Reviews open after your lunch is delivered (about ${formatReviewOpensAt(opensAt)}).`,
+    };
   }
 
   const { data: existing } = await admin

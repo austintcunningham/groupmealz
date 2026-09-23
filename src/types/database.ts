@@ -177,6 +177,7 @@ export interface Order {
   stripe_checkout_session_id: string | null;
   stripe_payment_intent_id: string | null;
   payment_status: string | null;
+  review_invitation_sent_at?: string | null;
   created_at: string;
   updated_at: string;
 }

@@ -1,6 +1,6 @@
 import { formatCents } from "@/lib/money/format";
 import { BRAND } from "@/lib/brand";
-import { emailInfoRow, emailPrimaryButton, emailSection, wrapBrandedEmail } from "@/lib/email/layout";
+import { emailInfoRow, emailSection, wrapBrandedEmail } from "@/lib/email/layout";
 
 function formatLunchDate(isoDate: string): string {
   return new Date(isoDate + "T12:00:00").toLocaleDateString(undefined, {
@@ -14,7 +14,6 @@ function formatLunchDate(isoDate: string): string {
 export type OrderConfirmationEmailData = {
   customerName: string;
   orderId: string;
-  reviewUrl?: string;
   restaurantName: string;
   officeName: string;
   lunchDate: string;
@@ -79,11 +78,7 @@ export function buildOrderConfirmationHtml(data: OrderConfirmationEmailData): st
     )}
 
     <p style="margin:0;font-size:13px;color:#64748b;line-height:1.5;">Order reference: <code style="background:#fff;padding:2px 6px;border-radius:4px;font-size:12px;">${data.orderId.slice(0, 8).toUpperCase()}</code></p>
-    ${
-      data.reviewUrl
-        ? `<p style="margin:20px 0 0;font-size:15px;line-height:1.5;color:#334155 !important;">After lunch, tell us how ${data.restaurantName} did — it only takes a moment.</p>${emailPrimaryButton(data.reviewUrl, "Rate this restaurant →")}`
-        : ""
-    }`;
+    <p style="margin:16px 0 0;font-size:14px;line-height:1.5;color:#64748b !important;">After your lunch is delivered, we&apos;ll email you a quick link to rate ${data.restaurantName}.</p>`;
 
   return wrapBrandedEmail({
     preheader: `You're all set for lunch on ${formatLunchDate(data.lunchDate)} — ${formatCents(data.totalCents)} paid.`,

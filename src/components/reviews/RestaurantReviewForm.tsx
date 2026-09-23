@@ -47,6 +47,21 @@ export function RestaurantReviewForm({ context }: { context: ReviewOrderContext 
     );
   }
 
+  if (!context.canReview) {
+    return (
+      <p className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+        Reviews open after your lunch is delivered
+        {context.reviewOpensAtLabel ? (
+          <>
+            {" "}
+            (about <strong>{context.reviewOpensAtLabel}</strong>)
+          </>
+        ) : null}
+        . We&apos;ll also email you a link when it&apos;s time.
+      </p>
+    );
+  }
+
   if (done) {
     return (
       <SuccessMessage message="Thank you! Your feedback helps us and the restaurant improve." />
