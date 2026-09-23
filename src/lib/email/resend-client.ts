@@ -8,8 +8,13 @@ export function getResendClient(): Resend | null {
 }
 
 export function getEmailFromAddress(): string {
-  return (
-    process.env.EMAIL_FROM ??
-    `orders@${BRAND.name.toLowerCase().replace(/\s+/g, "")}.com`
-  );
+  const addr =
+    process.env.EMAIL_FROM?.trim() ??
+    `orders@${BRAND.name.toLowerCase().replace(/\s+/g, "")}.com`;
+  if (addr.includes("<")) return addr;
+  return `${BRAND.name} <${addr}>`;
+}
+
+export function getReplyToAddress(): string {
+  return process.env.EMAIL_REPLY_TO?.trim() ?? BRAND.supportEmail;
 }

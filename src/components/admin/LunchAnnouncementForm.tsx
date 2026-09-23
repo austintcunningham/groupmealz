@@ -110,17 +110,18 @@ export function LunchAnnouncementForm({
           </option>
         ))}
       </Select>
-      <Select name="schedule_id" label="Restaurant of the Day (auto-build email)">
-        <option value="">Custom HTML only</option>
+      <Select name="schedule_id" label="Restaurant of the Day (recommended)">
+        <option value="">No schedule — simple branded office email</option>
         {officeSchedules.map((s) => (
           <option key={s.id} value={s.id}>
             {s.lunch_date} — {s.restaurants?.name ?? "Restaurant"}
           </option>
         ))}
       </Select>
-      <p className="text-xs text-amber-800">
-        Pick a <strong>schedule</strong> above for the full branded email, or use Custom HTML only
-        with content in the box below.
+      <p className="text-xs text-slate-600">
+        Pick a <strong>schedule</strong> for the full Restaurant of the Day layout (logo, dates,
+        order window). Without a schedule, your note still uses the same red/yellow Group Meals
+        template as order confirmations.
       </p>
       <Input name="subject" label="Email subject" required placeholder="🍽 Firehouse Subs is lunch tomorrow!" />
       <Input name="headline" label="Headline (optional)" placeholder="Today's Restaurant of the Day: …" />

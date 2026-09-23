@@ -5,8 +5,12 @@ import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { requireProfileRole, type ActionResult } from "@/lib/actions/utils";
-import { buildRestaurantOfTheDayHtml } from "@/lib/email/restaurant-of-the-day";
-import { getEmailFromAddress, getResendClient } from "@/lib/email/resend-client";
+import { htmlToPlainText } from "@/lib/email/html-utils";
+import {
+  buildOfficeLunchAnnouncementHtml,
+  buildRestaurantOfTheDayHtml,
+} from "@/lib/email/restaurant-of-the-day";
+import { getEmailFromAddress, getReplyToAddress, getResendClient } from "@/lib/email/resend-client";
 import { officeOrderPath } from "@/lib/offices/slug";
 import { formatOrderingWindow } from "@/lib/scheduling/window";
 
@@ -32,18 +36,32 @@ export async function scheduleLunchAnnouncement(
     return { success: false, error: parsed.error.errors[0]?.message ?? "Invalid input" };
   }
 
-  const supabase = await createClient();
-  let bodyHtml = parsed.data.bodyHtml ?? "";
+  let bodyHtml = "";
 
   if (parsed.data.scheduleId) {
-    const built = await buildAnnouncementFromSchedule(parsed.data.scheduleId, parsed.data.headline);
+    const built = await buildAnnouncementFromSchedule(
+      parsed.data.scheduleId,
+      parsed.data.headline,
+      parsed.data.bodyHtml
+    );
     if ("error" in built) return { success: false, error: built.error };
     bodyHtml = built.html;
+  } else {
+    const wrapped = await buildWrappedCustomAnnouncement({
+      officeId: parsed.data.officeId,
+      subject: parsed.data.subject,
+      headline: parsed.data.headline,
+      bodyContent: parsed.data.bodyHtml,
+    });
+    if ("error" in wrapped) return { success: false, error: wrapped.error };
+    bodyHtml = wrapped.html;
   }
 
   if (!bodyHtml.trim()) {
-    return { success: false, error: "Add message body or pick a schedule to auto-build." };
+    return { success: false, error: "Could not build email HTML." };
   }
+
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("lunch_announcements")
@@ -83,9 +101,40 @@ export async function scheduleAndSendLunchAnnouncement(
   return sendLunchAnnouncementNow(scheduled.data.id);
 }
 
+async function buildWrappedCustomAnnouncement(input: {
+  officeId: string;
+  subject: string;
+  headline?: string;
+  bodyContent?: string;
+}): Promise<{ html: string } | { error: string }> {
+  const supabase = createAdminClient();
+  const { data: office } = await supabase
+    .from("offices")
+    .select("name, slug")
+    .eq("id", input.officeId)
+    .single();
+
+  if (!office) return { error: "Office not found" };
+  if (!office.slug?.trim()) return { error: "Office needs an order link slug first." };
+
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "https://www.groupmeals.net").replace(/\/$/, "");
+  const orderLink = `${appUrl}${officeOrderPath(office.slug)}`;
+
+  return {
+    html: buildOfficeLunchAnnouncementHtml({
+      officeName: office.name,
+      orderLink,
+      subject: input.subject,
+      headline: input.headline,
+      bodyContent: input.bodyContent,
+    }),
+  };
+}
+
 async function buildAnnouncementFromSchedule(
   scheduleId: string,
-  headline?: string
+  headline?: string,
+  extraHtml?: string
 ): Promise<{ html: string } | { error: string }> {
   const supabase = createAdminClient();
   const { data: schedule } = await supabase
@@ -122,9 +171,24 @@ async function buildAnnouncementFromSchedule(
     cutoffLabel: formatOrderingWindow(schedule),
     deliveryLabel: new Date(schedule.delivery_at).toLocaleString(),
     headline,
+    extraHtml,
   });
 
   return { html };
+}
+
+function sendBrandedEmail(
+  resend: NonNullable<ReturnType<typeof getResendClient>>,
+  params: { from: string; to: string; subject: string; html: string }
+) {
+  return resend.emails.send({
+    from: params.from,
+    to: params.to,
+    replyTo: getReplyToAddress(),
+    subject: params.subject,
+    html: params.html,
+    text: htmlToPlainText(params.html),
+  });
 }
 
 export async function sendDueLunchAnnouncements(): Promise<{
@@ -165,7 +229,7 @@ export async function sendDueLunchAnnouncements(): Promise<{
     }
 
     for (const to of emails) {
-      const { error } = await resend.emails.send({
+      const { error } = await sendBrandedEmail(resend, {
         from,
         to,
         subject: row.subject,
@@ -243,7 +307,7 @@ export async function sendLunchAnnouncementNow(
   const from = getEmailFromAddress();
   let sent = 0;
   for (const to of emails) {
-    const { error } = await resend.emails.send({
+    const { error } = await sendBrandedEmail(resend, {
       from,
       to,
       subject: row.subject,

@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { BRAND } from "@/lib/brand";
-import { getEmailFromAddress, getResendClient } from "@/lib/email/resend-client";
+import { htmlToPlainText } from "@/lib/email/html-utils";
+import { getEmailFromAddress, getReplyToAddress, getResendClient } from "@/lib/email/resend-client";
 import { buildOrderConfirmationHtml } from "@/lib/email/order-confirmation-html";
 import { getRelationName } from "@/lib/supabase/relation";
 
@@ -87,8 +88,10 @@ export async function sendCustomerOrderConfirmation(
   const { error } = await resend.emails.send({
     from: getEmailFromAddress(),
     to: order.customer_email,
+    replyTo: getReplyToAddress(),
     subject: `${BRAND.name} — order confirmed for ${lunchLabel}`,
     html,
+    text: htmlToPlainText(html),
   });
 
   if (error) return { sent: false, error: error.message };
