@@ -87,7 +87,9 @@ export function LunchAnnouncementForm({
         setError(result.error);
         return;
       }
-      setSuccess(`Sent to ${result.data.sent} recipient(s). Check inbox.`);
+      setSuccess(
+        `Resend accepted ${result.data.sent} message(s). From: ${result.data.from}. To: ${result.data.recipients.join(", ") || "(none)"}. Check that inbox and spam; confirm delivery in Resend → Logs.`
+      );
       router.refresh();
     });
   }

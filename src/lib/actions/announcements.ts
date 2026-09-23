@@ -71,13 +71,15 @@ export async function scheduleLunchAnnouncement(
 /** Create announcement and send immediately (best for testing). */
 export async function scheduleAndSendLunchAnnouncement(
   input: Omit<z.infer<typeof announcementSchema>, "sendAtIso" | "sendImmediately">
-): Promise<ActionResult<{ sent: number }>> {
+): Promise<ActionResult<{ sent: number; recipients: string[]; from: string }>> {
   const scheduled = await scheduleLunchAnnouncement({
     ...input,
     sendAtIso: new Date().toISOString(),
     sendImmediately: true,
   });
-  if (!scheduled.success) return scheduled;
+  if (!scheduled.success) {
+    return { success: false, error: scheduled.error };
+  }
   return sendLunchAnnouncementNow(scheduled.data.id);
 }
 
@@ -150,20 +152,7 @@ export async function sendDueLunchAnnouncements(): Promise<{
   const errors: string[] = [];
 
   for (const row of due ?? []) {
-    const { data: recipients } = await supabase
-      .from("office_users")
-      .select("profiles(email, full_name)")
-      .eq("office_id", row.office_id)
-      .eq("rotd_email_opt_in", true)
-      .eq("role", "office_admin");
-
-    const emails = (recipients ?? [])
-      .map((r) => {
-        const p = r.profiles as { email: string } | { email: string }[] | null;
-        const profile = Array.isArray(p) ? p[0] : p;
-        return profile?.email;
-      })
-      .filter(Boolean) as string[];
+    const emails = await getRotdRecipientEmails(supabase, row.office_id);
 
     if (!emails.length) {
       errors.push(`Announcement ${row.id}: no opted-in office admins`);
@@ -199,9 +188,33 @@ export async function sendDueLunchAnnouncements(): Promise<{
 }
 
 /** Admin: send one scheduled announcement immediately (ignores send_at). */
+async function getRotdRecipientEmails(
+  supabase: ReturnType<typeof createAdminClient>,
+  officeId: string
+): Promise<string[]> {
+  const { data: links } = await supabase
+    .from("office_users")
+    .select("user_id")
+    .eq("office_id", officeId)
+    .eq("rotd_email_opt_in", true)
+    .eq("role", "office_admin");
+
+  const userIds = (links ?? []).map((l) => l.user_id);
+  if (!userIds.length) return [];
+
+  const { data: profiles } = await supabase
+    .from("profiles")
+    .select("email")
+    .in("id", userIds);
+
+  return (profiles ?? [])
+    .map((p) => p.email?.trim().toLowerCase())
+    .filter(Boolean) as string[];
+}
+
 export async function sendLunchAnnouncementNow(
   announcementId: string
-): Promise<ActionResult<{ sent: number }>> {
+): Promise<ActionResult<{ sent: number; recipients: string[]; from: string }>> {
   const auth = await requireProfileRole(["admin"]);
   if ("error" in auth) return { success: false, error: auth.error };
 
@@ -218,20 +231,7 @@ export async function sendLunchAnnouncementNow(
   const resend = getResendClient();
   if (!resend) return { success: false, error: "RESEND_API_KEY missing on server" };
 
-  const { data: recipients } = await supabase
-    .from("office_users")
-    .select("profiles(email)")
-    .eq("office_id", row.office_id)
-    .eq("rotd_email_opt_in", true)
-    .eq("role", "office_admin");
-
-  const emails = (recipients ?? [])
-    .map((r) => {
-      const p = r.profiles as { email: string } | { email: string }[] | null;
-      const profile = Array.isArray(p) ? p[0] : p;
-      return profile?.email;
-    })
-    .filter(Boolean) as string[];
+  const emails = await getRotdRecipientEmails(supabase, row.office_id);
 
   if (!emails.length) {
     return {
@@ -264,7 +264,7 @@ export async function sendLunchAnnouncementNow(
     .eq("id", row.id);
 
   revalidatePath("/admin/announcements");
-  return { success: true, data: { sent } };
+  return { success: true, data: { sent, recipients: emails, from } };
 }
 
 export async function setOfficeRotdEmailOptIn(
