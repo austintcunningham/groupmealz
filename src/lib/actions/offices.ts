@@ -148,17 +148,30 @@ export async function assignOfficeUser(
   const auth = await requireProfileRole(["admin"]);
   if ("error" in auth) return { success: false, error: auth.error };
 
-  const supabase = await createClient();
-
-  if (role === "office_admin") {
-    const { error: profileError } = await supabase
-      .from("profiles")
-      .update({ role: "office_admin" })
-      .eq("id", userId);
-    if (profileError) return { success: false, error: profileError.message };
+  let admin;
+  try {
+    admin = createAdminClient();
+  } catch {
+    return {
+      success: false,
+      error:
+        "Missing SUPABASE_SERVICE_ROLE_KEY on the server. Add it in Vercel and redeploy.",
+    };
   }
 
-  const { error } = await supabase.from("office_users").upsert(
+  if (role === "office_admin") {
+    const { data: target } = await admin.from("profiles").select("role").eq("id", userId).single();
+    // Keep platform admins as admin; only promote employees to office_admin.
+    if (target?.role === "employee") {
+      const { error: profileError } = await admin
+        .from("profiles")
+        .update({ role: "office_admin" })
+        .eq("id", userId);
+      if (profileError) return { success: false, error: profileError.message };
+    }
+  }
+
+  const { error } = await admin.from("office_users").upsert(
     { office_id: officeId, user_id: userId, role },
     { onConflict: "office_id,user_id" }
   );
@@ -166,6 +179,7 @@ export async function assignOfficeUser(
   if (error) return { success: false, error: error.message };
 
   revalidatePath("/admin/offices");
+  revalidatePath("/office");
   revalidatePath("/office/employees");
   return { success: true, data: undefined };
 }

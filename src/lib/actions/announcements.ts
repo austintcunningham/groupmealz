@@ -179,10 +179,15 @@ export async function setOfficeRotdEmailOptIn(
   const auth = await requireProfileRole(["office_admin", "admin"]);
   if ("error" in auth) return { success: false, error: auth.error };
 
-  const supabase = await createClient();
+  let db;
+  try {
+    db = createAdminClient();
+  } catch {
+    return { success: false, error: "Server missing SUPABASE_SERVICE_ROLE_KEY." };
+  }
 
   if (auth.profile.role === "office_admin") {
-    const { data: link } = await supabase
+    const { data: link } = await db
       .from("office_users")
       .select("id")
       .eq("office_id", officeId)
@@ -192,7 +197,22 @@ export async function setOfficeRotdEmailOptIn(
     if (!link) return { success: false, error: "Unauthorized" };
   }
 
-  const { error } = await supabase
+  const { data: existing } = await db
+    .from("office_users")
+    .select("id, role")
+    .eq("office_id", officeId)
+    .eq("user_id", auth.profile.id)
+    .maybeSingle();
+
+  if (!existing) {
+    return {
+      success: false,
+      error:
+        "You are not linked to this office yet. An admin must assign you under Admin → Offices (staff logins).",
+    };
+  }
+
+  const { error } = await db
     .from("office_users")
     .update({ rotd_email_opt_in: optIn })
     .eq("office_id", officeId)
