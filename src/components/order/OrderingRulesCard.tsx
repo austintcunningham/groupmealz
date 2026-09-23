@@ -46,9 +46,11 @@ export function OrderingRulesCard({
           <strong>Delivery target:</strong> {deliveryLocal}.
         </li>
         <li>
-          <strong>Service fee:</strong> Group Meals adds a service fee <strong>for each entrée</strong>{" "}
-          (each quantity in your cart). Food price + service fees = total shown before you enter card
-          details.
+          <strong>Service fee:</strong> $2.50 per <strong>entrée</strong> quantity in your cart. Sides,
+          drinks, and add-ons marked as non-entrées do not incur this fee.
+        </li>
+        <li>
+          <strong>Gratuity:</strong> Optional — add a tip at checkout if you like.
         </li>
         <li>
           <strong>Payment:</strong> Card required at checkout; your order is confirmed when payment

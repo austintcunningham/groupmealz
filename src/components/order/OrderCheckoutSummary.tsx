@@ -43,6 +43,12 @@ export function OrderCheckoutSummary({
             <span>{formatCents(breakdown.taxCents)}</span>
           </div>
         ) : null}
+        {breakdown.gratuityCents > 0 ? (
+          <div className="flex justify-between">
+            <span className="text-slate-600">Gratuity</span>
+            <span>{formatCents(breakdown.gratuityCents)}</span>
+          </div>
+        ) : null}
         <div
           className={`flex justify-between border-t border-slate-200 pt-2 ${emphasized ? "text-lg" : "text-base"} font-bold`}
         >

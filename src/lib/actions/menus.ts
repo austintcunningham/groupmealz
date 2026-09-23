@@ -25,6 +25,7 @@ const menuItemSchema = z.object({
   active: z.boolean().optional(),
   available: z.boolean().optional(),
   display_order: z.number().int().optional(),
+  counts_as_entree: z.boolean().optional(),
 });
 
 export async function createMenuCategory(

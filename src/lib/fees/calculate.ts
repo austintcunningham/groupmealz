@@ -5,10 +5,23 @@ export interface FeeBreakdown {
   entreeCount: number;
   taxCents: number;
   platformFeeCents: number;
+  gratuityCents: number;
+  restaurantCommissionCents: number;
+  stripeProcessingFeeCents: number;
   totalCents: number;
   payoutDueCents: number;
 }
 
+export function countBillableEntrees(
+  items: { quantity: number; countsAsEntree: boolean }[]
+): number {
+  return items.reduce(
+    (sum, item) => sum + (item.countsAsEntree ? item.quantity : 0),
+    0
+  );
+}
+
+/** @deprecated Use countBillableEntrees with menu item flags */
 export function countEntrees(items: { quantity: number }[]): number {
   return items.reduce((sum, item) => sum + item.quantity, 0);
 }
@@ -38,31 +51,66 @@ export function calculatePlatformFeeCents(
   }
 }
 
-export function calculateTaxCents(
-  subtotalCents: number,
-  salesTaxBps: number
-): number {
+export function calculateTaxCents(subtotalCents: number, salesTaxBps: number): number {
   return Math.round((subtotalCents * salesTaxBps) / 10000);
+}
+
+export function calculateRestaurantCommissionCents(
+  subtotalCents: number,
+  restaurantCommissionBps: number
+): number {
+  return Math.round((subtotalCents * restaurantCommissionBps) / 10000);
+}
+
+export function estimateStripeProcessingFeeCents(
+  totalChargedCents: number,
+  fixedCents: number,
+  bps: number
+): number {
+  return fixedCents + Math.round((totalChargedCents * bps) / 10000);
 }
 
 export function calculateOrderTotals(
   subtotalCents: number,
   settings: Pick<
     PlatformSettings,
-    "platform_fee_type" | "flat_fee_cents" | "percentage_bps" | "sales_tax_bps"
+    | "platform_fee_type"
+    | "flat_fee_cents"
+    | "percentage_bps"
+    | "sales_tax_bps"
+    | "restaurant_commission_bps"
+    | "stripe_fee_fixed_cents"
+    | "stripe_fee_bps"
   >,
-  entreeCount: number
+  entreeCount: number,
+  gratuityCents = 0
 ): FeeBreakdown {
   const taxCents = calculateTaxCents(subtotalCents, settings.sales_tax_bps);
   const platformFeeCents = calculatePlatformFeeCents(subtotalCents, settings, entreeCount);
-  const totalCents = subtotalCents + taxCents + platformFeeCents;
-  const payoutDueCents = Math.max(0, subtotalCents + taxCents - platformFeeCents);
+  const gratuity = Math.max(0, gratuityCents);
+  const totalCents = subtotalCents + taxCents + platformFeeCents + gratuity;
+  const restaurantCommissionCents = calculateRestaurantCommissionCents(
+    subtotalCents,
+    settings.restaurant_commission_bps ?? 1000
+  );
+  const stripeProcessingFeeCents = estimateStripeProcessingFeeCents(
+    totalCents,
+    settings.stripe_fee_fixed_cents ?? 35,
+    settings.stripe_fee_bps ?? 270
+  );
+  const payoutDueCents = Math.max(
+    0,
+    subtotalCents + taxCents + gratuity - restaurantCommissionCents - stripeProcessingFeeCents
+  );
 
   return {
     subtotalCents,
     entreeCount,
     taxCents,
     platformFeeCents,
+    gratuityCents: gratuity,
+    restaurantCommissionCents,
+    stripeProcessingFeeCents,
     totalCents,
     payoutDueCents,
   };

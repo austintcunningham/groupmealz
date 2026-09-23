@@ -5,11 +5,45 @@ import { AssignOfficeUserForm } from "@/components/admin/AssignOfficeUserForm";
 import { EnsureOfficeSlugsButton } from "@/components/admin/EnsureOfficeSlugsButton";
 import { OfficeOrderLinks } from "@/components/admin/OfficeOrderLinks";
 import { requireAdmin } from "@/lib/auth/guards";
-import { loadOfficesForAdminPage } from "@/lib/offices/load-admin-offices";
+import { createClient } from "@/lib/supabase/server";
+import type { Office } from "@/types/database";
+
+export const dynamic = "force-dynamic";
+
+const OFFICE_COLUMNS =
+  "id,name,slug,company_name,street_address,suite,city,state,zip,delivery_instructions,contact_name,contact_phone,contact_email,active,created_at,updated_at";
 
 export default async function AdminOfficesPage() {
   const profile = await requireAdmin();
-  const { offices, loadError, slugColumnMissing } = await loadOfficesForAdminPage();
+  const supabase = await createClient();
+
+  let offices: Office[] = [];
+  let loadError: string | null = null;
+  let slugColumnMissing = false;
+
+  const primary = await supabase.from("offices").select(OFFICE_COLUMNS).order("name");
+  if (primary.error) {
+    const msg = primary.error.message.toLowerCase();
+    if (msg.includes("slug") && (msg.includes("column") || msg.includes("schema"))) {
+      slugColumnMissing = true;
+      const fallback = await supabase
+        .from("offices")
+        .select(OFFICE_COLUMNS.replace(",slug", ""))
+        .order("name");
+      if (fallback.error) {
+        loadError = fallback.error.message;
+      } else {
+        offices = (fallback.data ?? []).map((row) => ({
+          ...(row as unknown as Record<string, unknown>),
+          slug: null,
+        })) as Office[];
+      }
+    } else {
+      loadError = primary.error.message;
+    }
+  } else {
+    offices = (primary.data ?? []) as Office[];
+  }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   const officesWithSlugs = offices.filter((o) => o.slug?.trim());
@@ -26,9 +60,8 @@ export default async function AdminOfficesPage() {
 
       {slugColumnMissing ? (
         <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          Guest order links need database migration{" "}
-          <code className="text-xs">003_guest_orders_office_slug.sql</code>. Run it in Supabase →
-          SQL Editor, then refresh this page.
+          Guest order links need migration{" "}
+          <code className="text-xs">003_guest_orders_office_slug.sql</code> in Supabase SQL Editor.
         </div>
       ) : null}
 

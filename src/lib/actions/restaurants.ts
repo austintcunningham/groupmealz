@@ -81,6 +81,62 @@ export async function updateRestaurant(
   return { success: true, data: undefined };
 }
 
+const brandingSchema = z.object({
+  logo_url: z.string().url().optional().or(z.literal("")),
+  banner_url: z.string().url().optional().or(z.literal("")),
+  branding_status: z.enum(["pending", "approved", "rejected"]).optional(),
+});
+
+export async function updateRestaurantBranding(
+  id: string,
+  input: z.infer<typeof brandingSchema>
+): Promise<ActionResult> {
+  const auth = await requireProfileRole(["admin", "restaurant_manager"]);
+  if ("error" in auth) return { success: false, error: auth.error };
+
+  const parsed = brandingSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.errors[0]?.message ?? "Invalid input" };
+  }
+
+  const supabase = await createClient();
+
+  if (auth.profile.role === "restaurant_manager") {
+    const { data: link } = await supabase
+      .from("restaurant_users")
+      .select("id")
+      .eq("restaurant_id", id)
+      .eq("user_id", auth.profile.id)
+      .maybeSingle();
+    if (!link) return { success: false, error: "Unauthorized" };
+
+    const { error } = await supabase
+      .from("restaurants")
+      .update({
+        logo_url: parsed.data.logo_url || null,
+        banner_url: parsed.data.banner_url || null,
+        branding_status: "pending",
+      })
+      .eq("id", id);
+    if (error) return { success: false, error: error.message };
+  } else {
+    const { error } = await supabase
+      .from("restaurants")
+      .update({
+        logo_url: parsed.data.logo_url || null,
+        banner_url: parsed.data.banner_url || null,
+        ...(parsed.data.branding_status ? { branding_status: parsed.data.branding_status } : {}),
+      })
+      .eq("id", id);
+    if (error) return { success: false, error: error.message };
+  }
+
+  revalidatePath("/admin/restaurants");
+  revalidatePath("/restaurant/branding");
+  revalidatePath("/order");
+  return { success: true, data: undefined };
+}
+
 export async function assignRestaurantManager(
   restaurantId: string,
   userId: string

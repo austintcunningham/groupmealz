@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { checkoutGuest, createOrder, createPaymentIntent } from "@/lib/actions/orders";
-import { calculateOrderTotals } from "@/lib/fees/calculate";
+import { calculateOrderTotals, countBillableEntrees } from "@/lib/fees/calculate";
 import { OrderCheckoutSummary } from "@/components/order/OrderCheckoutSummary";
 import { formatCents } from "@/lib/money/format";
 import type { PlatformSettings } from "@/types/database";
@@ -89,6 +89,7 @@ export function OrderFlowClient({
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [cartNotice, setCartNotice] = useState<string | null>(null);
+  const [gratuityCents, setGratuityCents] = useState(0);
 
   const orderingOpen = isOrderingWindowOpen(schedule);
   const selectedDate = schedule.lunch_date;
@@ -126,9 +127,19 @@ export function OrderFlowClient({
   }, [cart, menuItems]);
 
   const subtotal = cartLines.reduce((s, l) => s + l.lineTotal, 0);
-  const entreeCount = cartLines.reduce((s, l) => s + l.quantity, 0);
+  const entreeCount = countBillableEntrees(
+    cartLines.map((l) => {
+      const item = menuItems.find((m) => m.id === l.menuItemId);
+      return {
+        quantity: l.quantity,
+        countsAsEntree: item?.counts_as_entree ?? true,
+      };
+    })
+  );
   const feePreview =
-    subtotal > 0 ? calculateOrderTotals(subtotal, feeSettings, entreeCount) : null;
+    subtotal > 0
+      ? calculateOrderTotals(subtotal, feeSettings, entreeCount, gratuityCents)
+      : null;
 
   function pickDay(lunchDate: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -181,13 +192,18 @@ export function OrderFlowClient({
 
       const result =
         isLoggedIn && !guestMode
-          ? await createOrder({ scheduleId: schedule.id, items })
+          ? await createOrder({
+              scheduleId: schedule.id,
+              items,
+              gratuityCents,
+            })
           : await checkoutGuest({
               scheduleId: schedule.id,
               officeId: office.id,
               items,
               fullName: fullName.trim(),
               email: email.trim(),
+              gratuityCents,
             });
 
       if (!result.success) {
@@ -214,12 +230,32 @@ export function OrderFlowClient({
   }
 
   const restaurant = schedule.restaurants;
-
   return (
-    <div className="space-y-6">
-      <Card className="border-red-200">
-        <p className="text-sm font-medium text-red-600">{office.company_name || office.name}</p>
-        <h2 className="text-2xl font-bold text-slate-900">{restaurant?.name ?? "Lunch"}</h2>
+    <div className="space-y-6 pb-24 sm:pb-6">
+      <Card className="overflow-hidden border-red-200 p-0">
+        {restaurant?.banner_url && restaurant.branding_status !== "rejected" ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={restaurant.banner_url}
+            alt=""
+            className="h-32 w-full object-cover sm:h-40"
+          />
+        ) : null}
+        <div className="p-4">
+          <div className="flex items-start gap-3">
+            {restaurant?.logo_url && restaurant.branding_status !== "rejected" ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={restaurant.logo_url}
+                alt=""
+                className="h-14 w-14 shrink-0 rounded-lg border object-cover"
+              />
+            ) : null}
+            <div>
+              <p className="text-sm font-medium text-red-600">{office.company_name || office.name}</p>
+              <h2 className="text-2xl font-bold text-slate-900">{restaurant?.name ?? "Lunch"}</h2>
+            </div>
+          </div>
         <p className="text-sm text-slate-600">
           {new Date(selectedDate + "T12:00:00").toLocaleDateString(undefined, {
             weekday: "long",
@@ -227,6 +263,7 @@ export function OrderFlowClient({
             day: "numeric",
           })}
         </p>
+        </div>
       </Card>
 
       <OrderingRulesCard schedule={schedule} advanceOrderHours={advanceOrderHours} />
@@ -323,7 +360,8 @@ export function OrderFlowClient({
           <div className="space-y-3">
             <Input label="Full name" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
             <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            <div className="flex gap-2">
+            <GratuityPicker valueCents={gratuityCents} onChange={setGratuityCents} />
+            <div className="flex flex-wrap gap-2">
               <Button variant="secondary" onClick={() => setStep("menu")}>
                 Back
               </Button>
@@ -358,7 +396,8 @@ export function OrderFlowClient({
                               <div>
                                 <h3 className="font-semibold">{item.name}</h3>
                                 <p className="font-medium text-red-600">{formatCents(item.price_cents)}</p>
-                                {serviceFeePerEntree != null ? (
+                                {serviceFeePerEntree != null &&
+                                (item.counts_as_entree ?? true) ? (
                                   <p className="text-xs text-slate-500">
                                     + {formatCents(serviceFeePerEntree)} service fee per entrée
                                   </p>
@@ -424,20 +463,39 @@ export function OrderFlowClient({
                     <span>{formatCents(l.lineTotal)}</span>
                   </div>
                 ))}
+                <GratuityPicker valueCents={gratuityCents} onChange={setGratuityCents} compact />
                 {feePreview ? (
                   <OrderCheckoutSummary breakdown={feePreview} feeSettings={feeSettings} />
                 ) : null}
                 <p className="text-xs text-slate-500">
-                  Total due is what Stripe charges — food plus service fees listed above.
+                  Total due is what Stripe charges — food, service fees, and optional gratuity.
                 </p>
-                <Button className="w-full" size="lg" loading={isPending} onClick={proceedToCheckout}>
+                <Button className="hidden w-full sm:flex" size="lg" loading={isPending} onClick={proceedToCheckout}>
                   Checkout
                 </Button>
               </div>
             )}
           </Card>
         </div>
-      ) : (
+      ) : null}
+
+      {orderingOpen && step === "menu" && cartLines.length > 0 ? (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white p-3 shadow-lg sm:hidden">
+          <div className="flex items-center justify-between gap-3">
+            <div className="text-sm">
+              <p className="font-semibold text-slate-900">
+                {feePreview ? formatCents(feePreview.totalCents) : formatCents(subtotal)}
+              </p>
+              <p className="text-xs text-slate-500">{cartLines.length} line(s) in cart</p>
+            </div>
+            <Button size="lg" loading={isPending} onClick={proceedToCheckout}>
+              Checkout
+            </Button>
+          </div>
+        </div>
+      ) : null}
+
+      {!orderingOpen ? (
         <Card>
           <p className="text-slate-600">
             Ordering isn&apos;t open for this day yet. Pick another day above or check back during the order window.
@@ -448,12 +506,12 @@ export function OrderFlowClient({
             </Link>
           ) : null}
         </Card>
-      )}
+      ) : null}
 
       <style jsx global>{`
         .qty-btn {
-          height: 2rem;
-          width: 2rem;
+          height: 2.75rem;
+          width: 2.75rem;
           border-radius: 0.5rem;
           border: 2px solid #fdb913;
           background: #fffbf5;
@@ -468,6 +526,39 @@ export function OrderFlowClient({
           transform: scale(0.95);
         }
       `}</style>
+    </div>
+  );
+}
+
+function GratuityPicker({
+  valueCents,
+  onChange,
+  compact = false,
+}: {
+  valueCents: number;
+  onChange: (cents: number) => void;
+  compact?: boolean;
+}) {
+  const presets = [0, 100, 200, 300];
+  return (
+    <div className={compact ? "space-y-1" : "space-y-2"}>
+      <p className="text-sm font-medium text-slate-700">Optional gratuity</p>
+      <div className="flex flex-wrap gap-2">
+        {presets.map((c) => (
+          <button
+            key={c}
+            type="button"
+            onClick={() => onChange(c)}
+            className={`rounded-lg border px-3 py-2 text-sm font-medium transition-all active:scale-95 ${
+              valueCents === c
+                ? "border-[var(--geaux-red)] bg-red-50 text-[var(--geaux-red)]"
+                : "border-slate-200 bg-white text-slate-700"
+            }`}
+          >
+            {c === 0 ? "None" : formatCents(c)}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

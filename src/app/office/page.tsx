@@ -1,5 +1,6 @@
 import { DashboardShell } from "@/components/DashboardShell";
 import { Card, EmptyState } from "@/components/ui";
+import { RotdEmailOptIn } from "@/components/office/RotdEmailOptIn";
 import { requireOfficeAdmin } from "@/lib/auth/guards";
 import { createClient } from "@/lib/supabase/server";
 import { getRelationName } from "@/lib/supabase/relation";
@@ -11,7 +12,7 @@ export default async function OfficeDashboardPage() {
 
   const { data: officeLinks } = await supabase
     .from("office_users")
-    .select("office_id, offices(*)")
+    .select("office_id, rotd_email_opt_in, offices(*)")
     .eq("user_id", profile.id);
 
   const officeIds = officeLinks?.map((l) => l.office_id) ?? [];
@@ -63,6 +64,14 @@ export default async function OfficeDashboardPage() {
             </ul>
           )}
         </Card>
+        {officeLinks?.[0] ? (
+          <Card title="Restaurant of the Day emails">
+            <RotdEmailOptIn
+              officeId={officeLinks[0].office_id}
+              initialOptIn={Boolean(officeLinks[0].rotd_email_opt_in)}
+            />
+          </Card>
+        ) : null}
       </div>
     </DashboardShell>
   );

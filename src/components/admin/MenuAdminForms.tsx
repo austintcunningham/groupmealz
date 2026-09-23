@@ -66,6 +66,7 @@ export function MenuAdminForms({
           name: String(formData.get("item_name") ?? ""),
           description: String(formData.get("description") ?? "") || undefined,
           price_cents: parseDollarsToCents(String(formData.get("price") ?? "0")),
+          counts_as_entree: formData.has("counts_as_entree"),
         });
         if (!result.success) {
           setError(result.error);
@@ -171,6 +172,18 @@ export function MenuAdminForms({
             </>
           )}
         </Select>
+        <label className="flex items-center gap-2 text-sm text-slate-700">
+          <input
+            type="checkbox"
+            name="counts_as_entree"
+            defaultChecked
+            className="rounded border-slate-300"
+          />
+          Counts as entrée (service fee applies per quantity)
+        </label>
+        <p className="text-xs text-slate-500">
+          Uncheck for sides, drinks, and add-ons — no $2.50 service fee per item.
+        </p>
         <Button type="submit" loading={isPending} disabled={restaurantCategories.length === 0}>
           Add menu item
         </Button>

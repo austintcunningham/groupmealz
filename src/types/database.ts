@@ -34,12 +34,16 @@ export interface Profile {
   updated_at: string;
 }
 
+export type BrandingStatus = "pending" | "approved" | "rejected";
+
 export interface Restaurant {
   id: string;
   name: string;
   slug: string;
   description: string | null;
   logo_url: string | null;
+  banner_url?: string | null;
+  branding_status?: BrandingStatus;
   street_address: string | null;
   city: string | null;
   state: string | null;
@@ -85,6 +89,7 @@ export interface MenuItem {
   name: string;
   description: string | null;
   price_cents: number;
+  counts_as_entree?: boolean;
   active: boolean;
   available: boolean;
   display_order: number;
@@ -140,6 +145,9 @@ export interface Order {
   subtotal_cents: number;
   tax_cents: number;
   platform_fee_cents: number;
+  gratuity_cents?: number;
+  restaurant_commission_cents?: number;
+  stripe_processing_fee_cents?: number;
   total_cents: number;
   payout_due_cents: number;
   status: OrderStatus;
@@ -167,7 +175,25 @@ export interface PlatformSettings {
   flat_fee_cents: number;
   percentage_bps: number;
   sales_tax_bps: number;
+  restaurant_commission_bps?: number;
+  stripe_fee_fixed_cents?: number;
+  stripe_fee_bps?: number;
   advance_order_hours: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface LunchAnnouncement {
+  id: string;
+  office_id: string;
+  schedule_id: string | null;
+  subject: string;
+  headline: string | null;
+  body_html: string;
+  send_at: string;
+  sent_at: string | null;
+  status: "draft" | "scheduled" | "sent" | "cancelled";
+  created_by: string | null;
   created_at: string;
   updated_at: string;
 }

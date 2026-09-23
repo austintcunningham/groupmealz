@@ -2,8 +2,10 @@ import Link from "next/link";
 import { DashboardShell } from "@/components/DashboardShell";
 import { Card, EmptyState } from "@/components/ui";
 import { requireRestaurantManager } from "@/lib/auth/guards";
+import { getRestaurantDailySummaries } from "@/lib/actions/settlements";
 import { createClient } from "@/lib/supabase/server";
 import { getRelationName } from "@/lib/supabase/relation";
+import { formatCents } from "@/lib/money/format";
 
 export default async function RestaurantDashboardPage() {
   const profile = await requireRestaurantManager();
@@ -31,9 +33,47 @@ export default async function RestaurantDashboardPage() {
 
   const { data: schedules } = await scheduleQuery;
 
+  const primaryRestaurantId =
+    profile.role === "admin"
+      ? (await supabase.from("restaurants").select("id").limit(1)).data?.[0]?.id
+      : restaurantLinks?.[0]?.restaurant_id;
+
+  const daily = primaryRestaurantId
+    ? await getRestaurantDailySummaries(primaryRestaurantId, 7)
+    : null;
+  const todaySummary =
+    daily && "data" in daily ? daily.data.find((d) => d.lunchDate === today) : null;
+
   return (
     <DashboardShell role={profile.role} title="Restaurant dashboard">
       <div className="space-y-6">
+        <Card title={`Today's sales (${today})`}>
+          {todaySummary ? (
+            <dl className="grid grid-cols-2 gap-4 sm:grid-cols-4 text-sm">
+              <div>
+                <dt className="text-slate-500">Orders</dt>
+                <dd className="text-2xl font-bold">{todaySummary.orderCount}</dd>
+              </div>
+              <div>
+                <dt className="text-slate-500">Food</dt>
+                <dd className="text-2xl font-bold">{formatCents(todaySummary.subtotalCents)}</dd>
+              </div>
+              <div>
+                <dt className="text-slate-500">Your payout</dt>
+                <dd className="text-2xl font-bold text-green-700">
+                  {formatCents(todaySummary.payoutCents)}
+                </dd>
+              </div>
+              <div className="flex items-end">
+                <Link href="/restaurant/reports" className="text-sm font-medium text-[var(--geaux-red)] hover:underline">
+                  Full reports →
+                </Link>
+              </div>
+            </dl>
+          ) : (
+            <EmptyState message="No paid orders for today yet." />
+          )}
+        </Card>
         <Card title="Your restaurants">
           {!restaurantLinks?.length && profile.role !== "admin" ? (
             <EmptyState message="No restaurant assigned." />

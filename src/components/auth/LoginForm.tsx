@@ -64,6 +64,10 @@ export function LoginForm() {
         <Link href="/signup" className="text-red-600 hover:underline">
           Sign up
         </Link>
+        {" · "}
+        <Link href="/faq" className="text-red-600 hover:underline">
+          FAQ
+        </Link>
       </p>
     </form>
   );

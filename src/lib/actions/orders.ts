@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { calculateOrderTotals, countEntrees } from "@/lib/fees/calculate";
+import { calculateOrderTotals, countBillableEntrees } from "@/lib/fees/calculate";
 import { sendRestaurantOrderEmail } from "@/lib/email/restaurant";
 import { getOrCreateStripeCustomer, savePaymentMethodRecord } from "@/lib/stripe/customers";
 import { isOrderingWindowOpen } from "@/lib/scheduling/window";
@@ -25,6 +25,7 @@ const orderItemInputSchema = z.object({
 const createOrderSchema = z.object({
   scheduleId: z.string().uuid(),
   items: z.array(orderItemInputSchema).min(1),
+  gratuityCents: z.number().int().min(0).optional(),
 });
 
 const checkoutAccountSchema = z.object({
@@ -42,6 +43,7 @@ const checkoutGuestSchema = z.object({
   items: z.array(orderItemInputSchema).min(1),
   fullName: z.string().min(1),
   email: z.string().email(),
+  gratuityCents: z.number().int().min(0).optional(),
 });
 
 async function buildOrderFromItems(
@@ -50,7 +52,7 @@ async function buildOrderFromItems(
   userId: string | null,
   customerName: string,
   customerEmail: string,
-  options?: { expectedOfficeId?: string; useAdmin?: boolean }
+  options?: { expectedOfficeId?: string; useAdmin?: boolean; gratuityCents?: number }
 ): Promise<ActionResult<{ orderId: string; totalCents: number }>> {
   const supabase = options?.useAdmin ? createAdminClient() : await createClient();
 
@@ -107,10 +109,22 @@ async function buildOrderFromItems(
     flat_fee_cents: 250,
     percentage_bps: 0,
     sales_tax_bps: 0,
+    restaurant_commission_bps: 1000,
+    stripe_fee_fixed_cents: 35,
+    stripe_fee_bps: 270,
   }) as PlatformSettings;
 
-  const entreeCount = countEntrees(items);
-  const totals = calculateOrderTotals(subtotalCents, settings, entreeCount);
+  const entreeCount = countBillableEntrees(
+    items.map((item) => {
+      const menuItem = menuMap.get(item.menuItemId);
+      return {
+        quantity: item.quantity,
+        countsAsEntree: menuItem?.counts_as_entree ?? true,
+      };
+    })
+  );
+  const gratuityCents = options?.gratuityCents ?? 0;
+  const totals = calculateOrderTotals(subtotalCents, settings, entreeCount, gratuityCents);
 
   const { data: order, error: orderError } = await supabase
     .from("orders")
@@ -124,6 +138,9 @@ async function buildOrderFromItems(
       subtotal_cents: totals.subtotalCents,
       tax_cents: totals.taxCents,
       platform_fee_cents: totals.platformFeeCents,
+      gratuity_cents: totals.gratuityCents,
+      restaurant_commission_cents: totals.restaurantCommissionCents,
+      stripe_processing_fee_cents: totals.stripeProcessingFeeCents,
       total_cents: totals.totalCents,
       payout_due_cents: totals.payoutDueCents,
       status: "pending_payment",
@@ -163,7 +180,8 @@ export async function createOrder(
     parsed.data.items,
     auth.profile.id,
     auth.profile.full_name || auth.profile.email,
-    auth.profile.email
+    auth.profile.email,
+    { gratuityCents: parsed.data.gratuityCents ?? 0 }
   );
 
   if (!result.success) return result;
@@ -186,7 +204,11 @@ export async function checkoutGuest(
     null,
     parsed.data.fullName,
     parsed.data.email,
-    { expectedOfficeId: parsed.data.officeId, useAdmin: true }
+    {
+      expectedOfficeId: parsed.data.officeId,
+      useAdmin: true,
+      gratuityCents: parsed.data.gratuityCents ?? 0,
+    }
   );
 
   if (!result.success) return result;
