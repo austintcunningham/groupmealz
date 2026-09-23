@@ -249,7 +249,12 @@ export async function sendLunchAnnouncementNow(
       subject: row.subject,
       html: row.body_html,
     });
-    if (error) return { success: false, error: error.message };
+    if (error) {
+      return {
+        success: false,
+        error: `Resend: ${error.message}. Fix RESEND_API_KEY and EMAIL_FROM on Vercel, then redeploy.`,
+      };
+    }
     sent += 1;
   }
 
