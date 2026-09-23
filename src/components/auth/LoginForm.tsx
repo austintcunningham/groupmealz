@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { applyPendingStaffInvitationsForCurrentUser } from "@/lib/actions/users";
 import { Button, ErrorMessage, Input } from "@/components/ui";
 import Link from "next/link";
 
@@ -28,6 +29,7 @@ export function LoginForm() {
       return;
     }
 
+    await applyPendingStaffInvitationsForCurrentUser();
     window.location.href = "/";
   }
 

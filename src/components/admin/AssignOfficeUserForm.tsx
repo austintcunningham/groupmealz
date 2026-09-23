@@ -2,9 +2,9 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { assignOfficeUser } from "@/lib/actions/offices";
-import { findProfileIdByEmail } from "@/lib/actions/users";
+import { assignOfficeUserByEmail } from "@/lib/actions/offices";
 import { Button, ErrorMessage, Input, Select, SuccessMessage } from "@/components/ui";
+
 export function AssignOfficeUserForm({
   offices,
 }: {
@@ -21,22 +21,20 @@ export function AssignOfficeUserForm({
     const email = String(formData.get("email") ?? "");
 
     startTransition(async () => {
-      const lookup = await findProfileIdByEmail(email);
-      if (!lookup.success) {
-        setError(lookup.error);
-        return;
-      }
-
-      const result = await assignOfficeUser(
+      const result = await assignOfficeUserByEmail(
         String(formData.get("office_id") ?? ""),
-        lookup.data.id,
+        email,
         formData.get("role") as "office_admin" | "employee"
       );
       if (!result.success) {
         setError(result.error);
         return;
       }
-      setSuccess(`${lookup.data.full_name || lookup.data.email} assigned to office`);
+      setSuccess(
+        result.data.status === "invited"
+          ? `${result.data.email} invited — they get this office role automatically when they sign up at /signup.`
+          : `${result.data.email} assigned to office (account already existed).`
+      );
       router.refresh();
     });
   }
@@ -57,7 +55,7 @@ export function AssignOfficeUserForm({
       </Select>
       <Input
         name="email"
-        label="User email"
+        label="Work email"
         type="email"
         required
         placeholder="employee@company.com"
@@ -67,10 +65,11 @@ export function AssignOfficeUserForm({
         <option value="office_admin">Office admin</option>
       </Select>
       <Button type="submit" variant="secondary" loading={isPending}>
-        Assign user
+        Assign or invite
       </Button>
       <p className="text-xs text-slate-500">
-        User must have signed up first at /signup.
+        No account needed first — enter their email, then they sign up at{" "}
+        <span className="font-medium">/signup</span> with the same address.
       </p>
     </form>
   );

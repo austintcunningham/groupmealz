@@ -140,47 +140,35 @@ export async function ensureOfficeSlugs(): Promise<ActionResult<{ updated: numbe
   }
 }
 
-export async function assignOfficeUser(
+export async function assignOfficeUserByEmail(
   officeId: string,
-  userId: string,
+  email: string,
   role: "office_admin" | "employee"
-): Promise<ActionResult> {
+): Promise<ActionResult<{ status: "assigned" | "invited"; email: string }>> {
   const auth = await requireProfileRole(["admin"]);
   if ("error" in auth) return { success: false, error: auth.error };
 
-  let admin;
-  try {
-    admin = createAdminClient();
-  } catch {
-    return {
-      success: false,
-      error:
-        "Missing SUPABASE_SERVICE_ROLE_KEY on the server. Add it in Vercel and redeploy.",
-    };
+  const { upsertStaffInvitation, normalizeStaffEmail } = await import("@/lib/staff/invitations");
+  const normalized = normalizeStaffEmail(email);
+  if (!normalized) {
+    return { success: false, error: "Email is required." };
   }
 
-  // Office membership lives in office_users. Only promote employees on profiles — never
-  // change admin or restaurant_manager (avoids locking yourself out of /admin).
-  if (role === "office_admin") {
-    const { data: target } = await admin.from("profiles").select("role").eq("id", userId).single();
-    if (target?.role === "employee") {
-      const { error: profileError } = await admin
-        .from("profiles")
-        .update({ role: "office_admin" })
-        .eq("id", userId);
-      if (profileError) return { success: false, error: profileError.message };
-    }
+  const result = await upsertStaffInvitation({
+    kind: "office_member",
+    email: normalized,
+    officeId,
+    officeRole: role,
+    createdBy: auth.profile.id,
+  });
+
+  if ("error" in result) {
+    return { success: false, error: result.error };
   }
-
-  const { error } = await admin.from("office_users").upsert(
-    { office_id: officeId, user_id: userId, role },
-    { onConflict: "office_id,user_id" }
-  );
-
-  if (error) return { success: false, error: error.message };
 
   revalidatePath("/admin/offices");
+  revalidatePath("/admin/settings");
   revalidatePath("/office");
   revalidatePath("/office/employees");
-  return { success: true, data: undefined };
+  return { success: true, data: { status: result.status, email: result.email } };
 }

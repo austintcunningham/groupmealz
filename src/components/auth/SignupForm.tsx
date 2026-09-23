@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { applyPendingStaffInvitationsForCurrentUser } from "@/lib/actions/users";
 import { Button, ErrorMessage, Input } from "@/components/ui";
 import Link from "next/link";
 
@@ -19,7 +20,7 @@ export function SignupForm() {
     setError(null);
 
     const supabase = createClient();
-    const { error: authError } = await supabase.auth.signUp({
+    const { data, error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -33,6 +34,10 @@ export function SignupForm() {
       return;
     }
 
+    if (data.session) {
+      await applyPendingStaffInvitationsForCurrentUser();
+    }
+
     setSuccess(true);
     setLoading(false);
   }
@@ -41,7 +46,8 @@ export function SignupForm() {
     return (
       <div className="space-y-4 text-center">
         <p className="text-green-700">
-          Account created. Check your email if confirmation is required, then sign in.
+          Account created. Check your email if confirmation is required, then sign in. If an admin
+          invited you by email, you&apos;ll land in the right dashboard automatically.
         </p>
         <Link href="/login">
           <Button>Go to login</Button>

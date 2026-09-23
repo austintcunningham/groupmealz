@@ -2,8 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { assignRestaurantManager } from "@/lib/actions/restaurants";
-import { findProfileIdByEmail } from "@/lib/actions/users";
+import { assignRestaurantManagerByEmail } from "@/lib/actions/restaurants";
 import { Button, ErrorMessage, Input, Select, SuccessMessage } from "@/components/ui";
 import type { Restaurant } from "@/types/database";
 
@@ -23,21 +22,19 @@ export function AssignRestaurantManagerForm({
     const email = String(formData.get("email") ?? "");
 
     startTransition(async () => {
-      const lookup = await findProfileIdByEmail(email);
-      if (!lookup.success) {
-        setError(lookup.error);
-        return;
-      }
-
-      const result = await assignRestaurantManager(
+      const result = await assignRestaurantManagerByEmail(
         String(formData.get("restaurant_id") ?? ""),
-        lookup.data.id
+        email
       );
       if (!result.success) {
         setError(result.error);
         return;
       }
-      setSuccess(`${lookup.data.full_name || lookup.data.email} assigned as manager`);
+      setSuccess(
+        result.data.status === "invited"
+          ? `${result.data.email} invited — manager access applies when they create an account at /signup.`
+          : `${result.data.email} is now a manager for this restaurant.`
+      );
       router.refresh();
     });
   }
@@ -58,14 +55,17 @@ export function AssignRestaurantManagerForm({
       </Select>
       <Input
         name="email"
-        label="User email"
+        label="Manager email"
         type="email"
         required
         placeholder="manager@restaurant.com"
       />
       <Button type="submit" variant="secondary" loading={isPending}>
-        Assign manager
+        Assign or invite
       </Button>
+      <p className="text-xs text-slate-500">
+        They can sign up later with this email — no need to create their account first.
+      </p>
     </form>
   );
 }

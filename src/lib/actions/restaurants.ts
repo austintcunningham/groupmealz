@@ -137,29 +137,32 @@ export async function updateRestaurantBranding(
   return { success: true, data: undefined };
 }
 
-export async function assignRestaurantManager(
+export async function assignRestaurantManagerByEmail(
   restaurantId: string,
-  userId: string
-): Promise<ActionResult> {
+  email: string
+): Promise<ActionResult<{ status: "assigned" | "invited"; email: string }>> {
   const auth = await requireProfileRole(["admin"]);
   if ("error" in auth) return { success: false, error: auth.error };
 
-  const supabase = await createClient();
+  const { upsertStaffInvitation, normalizeStaffEmail } = await import("@/lib/staff/invitations");
+  const normalized = normalizeStaffEmail(email);
+  if (!normalized) {
+    return { success: false, error: "Email is required." };
+  }
 
-  const { error: profileError } = await supabase
-    .from("profiles")
-    .update({ role: "restaurant_manager" })
-    .eq("id", userId);
+  const result = await upsertStaffInvitation({
+    kind: "restaurant_manager",
+    email: normalized,
+    restaurantId,
+    createdBy: auth.profile.id,
+  });
 
-  if (profileError) return { success: false, error: profileError.message };
-
-  const { error } = await supabase.from("restaurant_users").upsert(
-    { restaurant_id: restaurantId, user_id: userId },
-    { onConflict: "restaurant_id,user_id" }
-  );
-
-  if (error) return { success: false, error: error.message };
+  if ("error" in result) {
+    return { success: false, error: result.error };
+  }
 
   revalidatePath("/admin/restaurants");
-  return { success: true, data: undefined };
+  revalidatePath("/admin/settings");
+  revalidatePath("/restaurant");
+  return { success: true, data: { status: result.status, email: result.email } };
 }

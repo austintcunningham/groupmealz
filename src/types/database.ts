@@ -34,6 +34,17 @@ export interface Profile {
   updated_at: string;
 }
 
+export interface StaffInvitation {
+  id: string;
+  email: string;
+  profile_role: UserRole;
+  office_id: string | null;
+  office_user_role: OfficeUserRole | null;
+  restaurant_id: string | null;
+  created_by: string | null;
+  created_at: string;
+}
+
 export type BrandingStatus = "pending" | "approved" | "rejected";
 
 export interface Restaurant {
