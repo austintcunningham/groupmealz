@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireProfileRole } from "@/lib/actions/utils";
 import {
   buildCheckStubFromOrders,
-  filterOrdersInWeek,
+  filterOrdersInWeekByDate,
   summarizeOrdersByDay,
   weekBoundsForDate,
   type RestaurantCheckStub,
@@ -58,13 +58,18 @@ export async function getRestaurantWeeklyCheckStub(
 
   const { data: orders, error } = await supabase
     .from("orders")
-    .select("*")
+    .select("*, daily_lunch_schedules(lunch_date)")
     .eq("restaurant_id", restaurantId)
     .eq("status", "paid");
 
   if (error) return { error: error.message };
 
-  const weekOrders = filterOrdersInWeek((orders ?? []) as Order[], period);
+  type OrderWithLunch = Order & { daily_lunch_schedules?: { lunch_date: string } | null };
+  const rows = (orders ?? []) as OrderWithLunch[];
+  const weekOrders = filterOrdersInWeekByDate(rows, period, (o) => {
+    const row = o as OrderWithLunch;
+    return row.daily_lunch_schedules?.lunch_date ?? row.created_at.slice(0, 10);
+  });
   const address = [restaurant.street_address, restaurant.city, restaurant.state, restaurant.zip]
     .filter(Boolean)
     .join(", ");

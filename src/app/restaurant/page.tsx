@@ -66,7 +66,7 @@ export default async function RestaurantDashboardPage() {
               </div>
               <div className="flex items-end">
                 <Link href="/restaurant/reports" className="text-sm font-medium text-[var(--geaux-red)] hover:underline">
-                  Full reports →
+                  Sales & payouts →
                 </Link>
               </div>
             </dl>
@@ -100,9 +100,9 @@ export default async function RestaurantDashboardPage() {
                   </div>
                   <Link
                     href={`/restaurant/production?schedule=${s.id}`}
-                    className="text-blue-600 hover:underline"
+                    className="text-[var(--geaux-red)] hover:underline"
                   >
-                    Production sheet
+                    Prep list
                   </Link>
                 </li>
               ))}

@@ -104,6 +104,24 @@ export function filterOrdersInWeek(orders: OrderRow[], period: SettlementPeriod)
   });
 }
 
+/** Move a YYYY-MM-DD anchor by whole weeks (for report navigation). */
+export function shiftWeekAnchor(dateStr: string, weekDelta: number): string {
+  const d = new Date(`${dateStr}T12:00:00`);
+  d.setDate(d.getDate() + weekDelta * 7);
+  return d.toISOString().slice(0, 10);
+}
+
+export function filterOrdersInWeekByDate(
+  orders: OrderRow[],
+  period: SettlementPeriod,
+  dateFor: (order: OrderRow) => string
+): OrderRow[] {
+  return orders.filter((o) => {
+    const day = dateFor(o);
+    return day >= period.weekStart && day <= period.weekEnd;
+  });
+}
+
 export type DailyRestaurantSummary = {
   lunchDate: string;
   orderCount: number;
