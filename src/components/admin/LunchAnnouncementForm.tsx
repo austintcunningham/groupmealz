@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   scheduleAndSendLunchAnnouncement,
   scheduleLunchAnnouncement,
 } from "@/lib/actions/announcements";
+import { defaultRotdEmailSubject } from "@/lib/email/restaurant-of-the-day";
 import { Button, ErrorMessage, Input, Select, SuccessMessage } from "@/components/ui";
 import type { DailyLunchSchedule, Office } from "@/types/database";
 
@@ -27,10 +28,39 @@ export function LunchAnnouncementForm({
   const [sendImmediately, setSendImmediately] = useState(false);
 
   const officeSchedules = schedules.filter((s) => s.office_id === officeId);
+  const [scheduleId, setScheduleId] = useState(officeSchedules[0]?.id ?? "");
+  const [subject, setSubject] = useState("");
+
+  useEffect(() => {
+    const nextSchedules = schedules.filter((s) => s.office_id === officeId);
+    const first = nextSchedules[0]?.id ?? "";
+    setScheduleId((prev) =>
+      nextSchedules.some((s) => s.id === prev) ? prev : first
+    );
+  }, [officeId, schedules]);
+
+  useEffect(() => {
+    const schedule = officeSchedules.find((s) => s.id === scheduleId);
+    if (!schedule) {
+      setSubject("");
+      return;
+    }
+    setSubject(
+      defaultRotdEmailSubject(
+        schedule.restaurants?.name ?? "Restaurant",
+        schedule.lunch_date
+      )
+    );
+  }, [scheduleId, officeSchedules]);
 
   function readPayload(
     formData: FormData
   ): { error: string } | { payload: Parameters<typeof scheduleLunchAnnouncement>[0] } {
+    const sid = String(formData.get("schedule_id") ?? scheduleId);
+    if (!sid) {
+      return { error: "Pick an upcoming Restaurant of the Day schedule first." };
+    }
+
     const localSend = String(formData.get("send_at") ?? "");
     const sendAtIso = sendImmediately
       ? new Date().toISOString()
@@ -40,13 +70,13 @@ export function LunchAnnouncementForm({
       return { error: "Pick a valid send date and time." };
     }
 
+    const subj = String(formData.get("subject") ?? subject).trim();
+
     return {
       payload: {
         officeId: String(formData.get("office_id") ?? officeId),
-        scheduleId: String(formData.get("schedule_id") ?? "") || undefined,
-        subject: String(formData.get("subject") ?? ""),
-        headline: String(formData.get("headline") ?? "") || undefined,
-        bodyHtml: String(formData.get("body_html") ?? "") || undefined,
+        scheduleId: sid,
+        subject: subj || undefined,
         sendAtIso,
         sendImmediately,
       },
@@ -110,21 +140,36 @@ export function LunchAnnouncementForm({
           </option>
         ))}
       </Select>
-      <Select name="schedule_id" label="Restaurant of the Day (recommended)">
-        <option value="">No schedule — simple branded office email</option>
-        {officeSchedules.map((s) => (
-          <option key={s.id} value={s.id}>
-            {s.lunch_date} — {s.restaurants?.name ?? "Restaurant"}
-          </option>
-        ))}
+      <Select
+        name="schedule_id"
+        label="Restaurant of the Day"
+        value={scheduleId}
+        onChange={(e) => setScheduleId(e.target.value)}
+        required
+      >
+        {officeSchedules.length === 0 ? (
+          <option value="">No upcoming schedules for this office</option>
+        ) : (
+          officeSchedules.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.lunch_date} — {s.restaurants?.name ?? "Restaurant"}
+            </option>
+          ))
+        )}
       </Select>
       <p className="text-xs text-slate-600">
-        Pick a <strong>schedule</strong> for the full Restaurant of the Day layout (logo, dates,
-        order window). Without a schedule, your note still uses the same red/yellow Group Meals
-        template as order confirmations.
+        Email layout is fixed: Group Meals branding, restaurant logo/banner, order window, and
+        order button — same style as order confirmations. You only choose the office, day, and
+        send time.
       </p>
-      <Input name="subject" label="Email subject" required placeholder="🍽 Firehouse Subs is lunch tomorrow!" />
-      <Input name="headline" label="Headline (optional)" placeholder="Today's Restaurant of the Day: …" />
+      <Input
+        name="subject"
+        label="Email subject"
+        value={subject}
+        onChange={(e) => setSubject(e.target.value)}
+        required
+        placeholder="Auto-filled from restaurant and date"
+      />
       <label className="flex items-center gap-2 text-sm font-medium text-slate-800">
         <input
           type="checkbox"
@@ -137,21 +182,11 @@ export function LunchAnnouncementForm({
       {!sendImmediately ? (
         <Input name="send_at" label="Send at (your local time)" type="datetime-local" required />
       ) : null}
-      <div>
-        <label className="mb-1 block text-sm font-medium text-slate-700">
-          Extra HTML (required if Custom HTML only)
-        </label>
-        <textarea
-          name="body_html"
-          rows={4}
-          className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-          placeholder="<p>Special: free cookie with every entrée!</p>"
-        />
-      </div>
       <div className="flex flex-wrap gap-2">
         <Button
           type="button"
           loading={isPending}
+          disabled={!scheduleId}
           onClick={(e) => {
             e.preventDefault();
             const form = (e.currentTarget as HTMLButtonElement).form;
@@ -164,6 +199,7 @@ export function LunchAnnouncementForm({
           type="button"
           variant="secondary"
           loading={isPending}
+          disabled={!scheduleId}
           onClick={(e) => {
             e.preventDefault();
             const form = (e.currentTarget as HTMLButtonElement).form;

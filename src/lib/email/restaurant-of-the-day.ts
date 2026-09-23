@@ -1,5 +1,4 @@
 import { BRAND } from "@/lib/brand";
-import { escapeHtml, formatEmailBodyContent } from "@/lib/email/html-utils";
 import { wrapBrandedEmail } from "@/lib/email/layout";
 
 export type RotdEmailInput = {
@@ -13,8 +12,16 @@ export type RotdEmailInput = {
   cutoffLabel: string;
   deliveryLabel: string;
   headline?: string;
-  extraHtml?: string;
 };
+
+export function defaultRotdEmailSubject(restaurantName: string, lunchDate: string): string {
+  const dateLabel = new Date(`${lunchDate}T12:00:00`).toLocaleDateString(undefined, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  });
+  return `🍽 ${restaurantName} — office lunch ${dateLabel}`;
+}
 
 export function buildRestaurantOfTheDayHtml(input: RotdEmailInput): string {
   const dateLabel = new Date(`${input.lunchDate}T12:00:00`).toLocaleDateString(undefined, {
@@ -49,7 +56,6 @@ export function buildRestaurantOfTheDayHtml(input: RotdEmailInput): string {
       <strong>Order by:</strong> ${input.cutoffLabel}<br/>
       <strong>Delivery:</strong> ${input.deliveryLabel}
     </p>
-    ${input.extraHtml ? formatEmailBodyContent(input.extraHtml) : ""}
     <p style="margin:24px 0;text-align:center">
       <a href="${input.orderLink}" style="display:inline-block;background:#D62828;color:#fff;font-weight:700;padding:14px 28px;border-radius:10px;text-decoration:none">
         Order lunch now →
@@ -58,37 +64,6 @@ export function buildRestaurantOfTheDayHtml(input: RotdEmailInput): string {
 
   return wrapBrandedEmail({
     preheader: `${input.restaurantName} is lunch on ${dateLabel} — order now`,
-    headline,
-    subheadline: input.officeName,
-    bodyHtml,
-    footerNote: `You're receiving this because your office enabled Restaurant of the Day emails on ${BRAND.name}.`,
-  });
-}
-
-/** Branded ROTD-style email when no schedule is selected (wraps admin message). */
-export function buildOfficeLunchAnnouncementHtml(input: {
-  officeName: string;
-  orderLink: string;
-  subject: string;
-  headline?: string;
-  bodyContent?: string;
-}): string {
-  const headline = input.headline?.trim() || input.subject;
-  const message = input.bodyContent ? formatEmailBodyContent(input.bodyContent) : "";
-
-  const bodyHtml = `
-    <p style="margin:0 0 16px;font-size:16px;line-height:1.5;color:#334155;">
-      Lunch update for <strong>${escapeHtml(input.officeName)}</strong> — order online while the window is open.
-    </p>
-    ${message}
-    <p style="margin:24px 0;text-align:center">
-      <a href="${input.orderLink}" style="display:inline-block;background:#D62828;color:#fff;font-weight:700;padding:14px 28px;border-radius:10px;text-decoration:none">
-        Order lunch now →
-      </a>
-    </p>`;
-
-  return wrapBrandedEmail({
-    preheader: `${headline} — ${input.officeName}`,
     headline,
     subheadline: input.officeName,
     bodyHtml,

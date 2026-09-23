@@ -7,8 +7,8 @@ import { createClient } from "@/lib/supabase/server";
 import { requireProfileRole, type ActionResult } from "@/lib/actions/utils";
 import { htmlToPlainText } from "@/lib/email/html-utils";
 import {
-  buildOfficeLunchAnnouncementHtml,
   buildRestaurantOfTheDayHtml,
+  defaultRotdEmailSubject,
 } from "@/lib/email/restaurant-of-the-day";
 import { getEmailFromAddress, getReplyToAddress, getResendClient } from "@/lib/email/resend-client";
 import { officeOrderPath } from "@/lib/offices/slug";
@@ -16,10 +16,8 @@ import { formatOrderingWindow } from "@/lib/scheduling/window";
 
 const announcementSchema = z.object({
   officeId: z.string().uuid(),
-  scheduleId: z.string().uuid().optional(),
-  subject: z.string().min(1),
-  headline: z.string().optional(),
-  bodyHtml: z.string().optional(),
+  scheduleId: z.string().uuid(),
+  subject: z.string().optional(),
   /** ISO 8601 UTC from the browser (preferred). */
   sendAtIso: z.string().min(1),
   sendImmediately: z.boolean().optional(),
@@ -36,30 +34,12 @@ export async function scheduleLunchAnnouncement(
     return { success: false, error: parsed.error.errors[0]?.message ?? "Invalid input" };
   }
 
-  let bodyHtml = "";
+  const built = await buildAnnouncementFromSchedule(parsed.data.scheduleId);
+  if ("error" in built) return { success: false, error: built.error };
 
-  if (parsed.data.scheduleId) {
-    const built = await buildAnnouncementFromSchedule(
-      parsed.data.scheduleId,
-      parsed.data.headline,
-      parsed.data.bodyHtml
-    );
-    if ("error" in built) return { success: false, error: built.error };
-    bodyHtml = built.html;
-  } else {
-    const wrapped = await buildWrappedCustomAnnouncement({
-      officeId: parsed.data.officeId,
-      subject: parsed.data.subject,
-      headline: parsed.data.headline,
-      bodyContent: parsed.data.bodyHtml,
-    });
-    if ("error" in wrapped) return { success: false, error: wrapped.error };
-    bodyHtml = wrapped.html;
-  }
-
-  if (!bodyHtml.trim()) {
-    return { success: false, error: "Could not build email HTML." };
-  }
+  const subject =
+    parsed.data.subject?.trim() ||
+    defaultRotdEmailSubject(built.restaurantName, built.lunchDate);
 
   const supabase = await createClient();
 
@@ -67,10 +47,10 @@ export async function scheduleLunchAnnouncement(
     .from("lunch_announcements")
     .insert({
       office_id: parsed.data.officeId,
-      schedule_id: parsed.data.scheduleId ?? null,
-      subject: parsed.data.subject,
-      headline: parsed.data.headline ?? null,
-      body_html: bodyHtml,
+      schedule_id: parsed.data.scheduleId,
+      subject,
+      headline: null,
+      body_html: built.html,
       send_at: parsed.data.sendImmediately
         ? new Date().toISOString()
         : parsed.data.sendAtIso,
@@ -101,41 +81,12 @@ export async function scheduleAndSendLunchAnnouncement(
   return sendLunchAnnouncementNow(scheduled.data.id);
 }
 
-async function buildWrappedCustomAnnouncement(input: {
-  officeId: string;
-  subject: string;
-  headline?: string;
-  bodyContent?: string;
-}): Promise<{ html: string } | { error: string }> {
-  const supabase = createAdminClient();
-  const { data: office } = await supabase
-    .from("offices")
-    .select("name, slug")
-    .eq("id", input.officeId)
-    .single();
-
-  if (!office) return { error: "Office not found" };
-  if (!office.slug?.trim()) return { error: "Office needs an order link slug first." };
-
-  const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "https://www.groupmeals.net").replace(/\/$/, "");
-  const orderLink = `${appUrl}${officeOrderPath(office.slug)}`;
-
-  return {
-    html: buildOfficeLunchAnnouncementHtml({
-      officeName: office.name,
-      orderLink,
-      subject: input.subject,
-      headline: input.headline,
-      bodyContent: input.bodyContent,
-    }),
-  };
-}
-
 async function buildAnnouncementFromSchedule(
-  scheduleId: string,
-  headline?: string,
-  extraHtml?: string
-): Promise<{ html: string } | { error: string }> {
+  scheduleId: string
+): Promise<
+  | { html: string; restaurantName: string; lunchDate: string }
+  | { error: string }
+> {
   const supabase = createAdminClient();
   const { data: schedule } = await supabase
     .from("daily_lunch_schedules")
@@ -156,6 +107,7 @@ async function buildAnnouncementFromSchedule(
 
   if (!office?.slug) return { error: "Office needs an order link slug first." };
 
+  const restaurantName = restaurant?.name ?? "Restaurant of the Day";
   const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "https://www.groupmeals.net").replace(/\/$/, "");
   const orderLink = `${appUrl}${officeOrderPath(office.slug)}?date=${schedule.lunch_date}`;
 
@@ -163,18 +115,16 @@ async function buildAnnouncementFromSchedule(
   const html = buildRestaurantOfTheDayHtml({
     officeName: office.name,
     lunchDate: schedule.lunch_date,
-    restaurantName: restaurant?.name ?? "Restaurant of the Day",
+    restaurantName,
     restaurantDescription: restaurant?.description,
     logoUrl: approved ? restaurant?.logo_url : null,
     bannerUrl: approved ? restaurant?.banner_url : null,
     orderLink,
     cutoffLabel: formatOrderingWindow(schedule),
     deliveryLabel: new Date(schedule.delivery_at).toLocaleString(),
-    headline,
-    extraHtml,
   });
 
-  return { html };
+  return { html, restaurantName, lunchDate: schedule.lunch_date };
 }
 
 function sendBrandedEmail(
@@ -202,7 +152,7 @@ export async function sendDueLunchAnnouncements(): Promise<{
 
   const { data: due, error: dueError } = await supabase
     .from("lunch_announcements")
-    .select("id, subject, body_html, office_id")
+    .select("id, subject, body_html, office_id, schedule_id")
     .eq("status", "scheduled")
     .lte("send_at", now);
 
@@ -228,12 +178,24 @@ export async function sendDueLunchAnnouncements(): Promise<{
       break;
     }
 
+    let html = row.body_html;
+    let subject = row.subject;
+    if (row.schedule_id) {
+      const built = await buildAnnouncementFromSchedule(row.schedule_id);
+      if (!("error" in built)) {
+        html = built.html;
+        if (!subject?.trim()) {
+          subject = defaultRotdEmailSubject(built.restaurantName, built.lunchDate);
+        }
+      }
+    }
+
     for (const to of emails) {
       const { error } = await sendBrandedEmail(resend, {
         from,
         to,
-        subject: row.subject,
-        html: row.body_html,
+        subject,
+        html,
       });
       if (error) {
         errors.push(error.message);
@@ -244,7 +206,7 @@ export async function sendDueLunchAnnouncements(): Promise<{
 
     await supabase
       .from("lunch_announcements")
-      .update({ status: "sent", sent_at: now })
+      .update({ status: "sent", sent_at: now, body_html: html, subject })
       .eq("id", row.id);
   }
 
@@ -285,12 +247,25 @@ export async function sendLunchAnnouncementNow(
   const supabase = createAdminClient();
   const { data: row } = await supabase
     .from("lunch_announcements")
-    .select("id, subject, body_html, office_id, status")
+    .select("id, subject, body_html, office_id, status, schedule_id")
     .eq("id", announcementId)
     .single();
 
   if (!row) return { success: false, error: "Announcement not found" };
   if (row.status === "sent") return { success: false, error: "Already sent" };
+
+  let html = row.body_html;
+  let subject = row.subject;
+
+  if (row.schedule_id) {
+    const built = await buildAnnouncementFromSchedule(row.schedule_id);
+    if (!("error" in built)) {
+      html = built.html;
+      if (!subject?.trim()) {
+        subject = defaultRotdEmailSubject(built.restaurantName, built.lunchDate);
+      }
+    }
+  }
 
   const resend = getResendClient();
   if (!resend) return { success: false, error: "RESEND_API_KEY missing on server" };
@@ -310,8 +285,8 @@ export async function sendLunchAnnouncementNow(
     const { error } = await sendBrandedEmail(resend, {
       from,
       to,
-      subject: row.subject,
-      html: row.body_html,
+      subject,
+      html,
     });
     if (error) {
       return {
@@ -324,7 +299,7 @@ export async function sendLunchAnnouncementNow(
 
   await supabase
     .from("lunch_announcements")
-    .update({ status: "sent", sent_at: new Date().toISOString() })
+    .update({ status: "sent", sent_at: new Date().toISOString(), body_html: html, subject })
     .eq("id", row.id);
 
   revalidatePath("/admin/announcements");
