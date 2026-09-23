@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { UserRole } from "@/types/database";
 import { SignOutForm } from "@/components/auth/SignOutForm";
+import { DashboardNav } from "@/components/DashboardNav";
 import { BRAND } from "@/lib/brand";
 
 const navByRole: Record<UserRole, { href: string; label: string }[]> = {
@@ -52,27 +53,26 @@ export function DashboardShell({
 
   return (
     <div className="min-h-screen bg-[var(--geaux-cream)]">
-      <header className="geaux-header-gradient text-white shadow-lg">
+      <header className="geaux-header-gradient text-white shadow-md">
         <div className="geaux-accent-bar" />
-        <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <Link href="/" className="text-lg font-black tracking-tight text-[var(--geaux-yellow)]">
-              {BRAND.name}
-            </Link>
-            <h1 className="text-xl font-semibold text-white/95">{title}</h1>
-          </div>
-          <nav className="flex flex-wrap gap-1">
-            {links.map((link) => (
+        <div className="mx-auto max-w-6xl px-4 pt-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
               <Link
-                key={link.href}
-                href={link.href}
-                className="rounded-lg px-3 py-2 text-sm font-medium text-white/90 transition-all hover:bg-white/15 hover:text-[var(--geaux-yellow)] active:scale-95"
+                href="/"
+                className="text-base font-black tracking-tight text-[var(--geaux-yellow)]"
               >
-                {link.label}
+                {BRAND.name}
               </Link>
-            ))}
+              <h1 className="truncate text-lg font-semibold leading-tight text-white/95">
+                {title}
+              </h1>
+            </div>
             <SignOutForm />
-          </nav>
+          </div>
+          <div className="mt-2 border-t border-white/15 pt-2">
+            <DashboardNav links={links} />
+          </div>
         </div>
       </header>
       <main className="mx-auto max-w-6xl px-4 py-6">{children}</main>
