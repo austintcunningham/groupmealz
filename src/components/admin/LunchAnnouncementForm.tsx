@@ -21,12 +21,23 @@ export function LunchAnnouncementForm({
   const [success, setSuccess] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [officeId, setOfficeId] = useState(offices[0]?.id ?? "");
+  const [sendImmediately, setSendImmediately] = useState(false);
 
   const officeSchedules = schedules.filter((s) => s.office_id === officeId);
 
   function submit(formData: FormData) {
     setError(null);
     setSuccess(null);
+    const localSend = String(formData.get("send_at") ?? "");
+    const sendAtIso = sendImmediately
+      ? new Date().toISOString()
+      : new Date(localSend).toISOString();
+
+    if (!sendImmediately && Number.isNaN(new Date(localSend).getTime())) {
+      setError("Pick a valid send date and time.");
+      return;
+    }
+
     startTransition(async () => {
       const result = await scheduleLunchAnnouncement({
         officeId: String(formData.get("office_id") ?? officeId),
@@ -34,13 +45,18 @@ export function LunchAnnouncementForm({
         subject: String(formData.get("subject") ?? ""),
         headline: String(formData.get("headline") ?? "") || undefined,
         bodyHtml: String(formData.get("body_html") ?? "") || undefined,
-        sendAt: String(formData.get("send_at") ?? ""),
+        sendAtIso,
+        sendImmediately,
       });
       if (!result.success) {
         setError(result.error);
         return;
       }
-      setSuccess("Announcement scheduled.");
+      setSuccess(
+        sendImmediately
+          ? "Scheduled for immediate send — run cron or use Send now on the list."
+          : "Announcement scheduled."
+      );
       router.refresh();
     });
   }
@@ -71,7 +87,18 @@ export function LunchAnnouncementForm({
       </Select>
       <Input name="subject" label="Email subject" required placeholder="🍽 Firehouse Subs is lunch tomorrow!" />
       <Input name="headline" label="Headline (optional)" placeholder="Today's Restaurant of the Day: …" />
-      <Input name="send_at" label="Send at (local)" type="datetime-local" required />
+      <label className="flex items-center gap-2 text-sm font-medium text-slate-800">
+        <input
+          type="checkbox"
+          checked={sendImmediately}
+          onChange={(e) => setSendImmediately(e.target.checked)}
+          className="rounded border-slate-300"
+        />
+        Send as soon as cron runs (or use Send now below)
+      </label>
+      {!sendImmediately ? (
+        <Input name="send_at" label="Send at (your local time)" type="datetime-local" required />
+      ) : null}
       <div>
         <label className="mb-1 block text-sm font-medium text-slate-700">
           Extra HTML (optional if schedule selected)

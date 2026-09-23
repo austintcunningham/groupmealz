@@ -1,6 +1,7 @@
 import { DashboardShell } from "@/components/DashboardShell";
 import { Card, EmptyState } from "@/components/ui";
 import { LunchAnnouncementForm } from "@/components/admin/LunchAnnouncementForm";
+import { SendAnnouncementNowButton } from "@/components/admin/SendAnnouncementNowButton";
 import { requireAdmin } from "@/lib/auth/guards";
 import { createClient } from "@/lib/supabase/server";
 
@@ -45,6 +46,7 @@ export default async function AdminAnnouncementsPage() {
                     {(a.offices as { name: string } | null)?.name} · {a.status} ·{" "}
                     {new Date(a.send_at).toLocaleString()}
                   </p>
+                  {a.status === "scheduled" ? <SendAnnouncementNowButton id={a.id} /> : null}
                 </li>
               ))}
             </ul>

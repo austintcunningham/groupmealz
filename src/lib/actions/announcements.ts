@@ -16,7 +16,9 @@ const announcementSchema = z.object({
   subject: z.string().min(1),
   headline: z.string().optional(),
   bodyHtml: z.string().optional(),
-  sendAt: z.string().min(1),
+  /** ISO 8601 UTC from the browser (preferred). */
+  sendAtIso: z.string().min(1),
+  sendImmediately: z.boolean().optional(),
 });
 
 export async function scheduleLunchAnnouncement(
@@ -51,7 +53,9 @@ export async function scheduleLunchAnnouncement(
       subject: parsed.data.subject,
       headline: parsed.data.headline ?? null,
       body_html: bodyHtml,
-      send_at: new Date(parsed.data.sendAt).toISOString(),
+      send_at: parsed.data.sendImmediately
+        ? new Date().toISOString()
+        : parsed.data.sendAtIso,
       status: "scheduled",
       created_by: auth.profile.id,
     })
@@ -108,15 +112,24 @@ async function buildAnnouncementFromSchedule(
   return { html };
 }
 
-export async function sendDueLunchAnnouncements(): Promise<{ sent: number; errors: string[] }> {
+export async function sendDueLunchAnnouncements(): Promise<{
+  sent: number;
+  errors: string[];
+  dueCount: number;
+  now: string;
+}> {
   const supabase = createAdminClient();
   const now = new Date().toISOString();
 
-  const { data: due } = await supabase
+  const { data: due, error: dueError } = await supabase
     .from("lunch_announcements")
     .select("id, subject, body_html, office_id")
     .eq("status", "scheduled")
     .lte("send_at", now);
+
+  if (dueError) {
+    return { sent: 0, errors: [dueError.message], dueCount: 0, now };
+  }
 
   const resend = getResendClient();
   const from = getEmailFromAddress();
@@ -169,7 +182,71 @@ export async function sendDueLunchAnnouncements(): Promise<{ sent: number; error
       .eq("id", row.id);
   }
 
-  return { sent, errors };
+  return { sent, errors, dueCount: due?.length ?? 0, now };
+}
+
+/** Admin: send one scheduled announcement immediately (ignores send_at). */
+export async function sendLunchAnnouncementNow(
+  announcementId: string
+): Promise<ActionResult<{ sent: number }>> {
+  const auth = await requireProfileRole(["admin"]);
+  if ("error" in auth) return { success: false, error: auth.error };
+
+  const supabase = createAdminClient();
+  const { data: row } = await supabase
+    .from("lunch_announcements")
+    .select("id, subject, body_html, office_id, status")
+    .eq("id", announcementId)
+    .single();
+
+  if (!row) return { success: false, error: "Announcement not found" };
+  if (row.status === "sent") return { success: false, error: "Already sent" };
+
+  const resend = getResendClient();
+  if (!resend) return { success: false, error: "RESEND_API_KEY missing on server" };
+
+  const { data: recipients } = await supabase
+    .from("office_users")
+    .select("profiles(email)")
+    .eq("office_id", row.office_id)
+    .eq("rotd_email_opt_in", true)
+    .eq("role", "office_admin");
+
+  const emails = (recipients ?? [])
+    .map((r) => {
+      const p = r.profiles as { email: string } | { email: string }[] | null;
+      const profile = Array.isArray(p) ? p[0] : p;
+      return profile?.email;
+    })
+    .filter(Boolean) as string[];
+
+  if (!emails.length) {
+    return {
+      success: false,
+      error: "No opted-in office admins for this office. Check /office email toggle.",
+    };
+  }
+
+  const from = getEmailFromAddress();
+  let sent = 0;
+  for (const to of emails) {
+    const { error } = await resend.emails.send({
+      from,
+      to,
+      subject: row.subject,
+      html: row.body_html,
+    });
+    if (error) return { success: false, error: error.message };
+    sent += 1;
+  }
+
+  await supabase
+    .from("lunch_announcements")
+    .update({ status: "sent", sent_at: new Date().toISOString() })
+    .eq("id", row.id);
+
+  revalidatePath("/admin/announcements");
+  return { success: true, data: { sent } };
 }
 
 export async function setOfficeRotdEmailOptIn(
