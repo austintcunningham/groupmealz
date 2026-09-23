@@ -1,5 +1,6 @@
 import { BRAND } from "@/lib/brand";
-import { wrapBrandedEmail } from "@/lib/email/layout";
+import { emailPrimaryButton, wrapBrandedEmail } from "@/lib/email/layout";
+import { escapeHtml } from "@/lib/email/html-utils";
 
 export type RotdEmailInput = {
   officeName: string;
@@ -45,22 +46,18 @@ export function buildRestaurantOfTheDayHtml(input: RotdEmailInput): string {
     <div style="display:flex;align-items:center;margin-bottom:16px">
       ${logo}
       <div>
-        <p style="margin:0;font-size:18px;font-weight:700;color:#0f172a">${input.restaurantName}</p>
-        ${input.restaurantDescription ? `<p style="margin:4px 0 0;color:#64748b">${input.restaurantDescription}</p>` : ""}
+        <p style="margin:0;font-size:18px;font-weight:700;color:#0f172a !important;">${escapeHtml(input.restaurantName)}</p>
+        ${input.restaurantDescription ? `<p style="margin:4px 0 0;color:#64748b !important;">${escapeHtml(input.restaurantDescription)}</p>` : ""}
       </div>
     </div>
-    <p style="font-size:16px;line-height:1.5;color:#334155">
-      ${dateLabel} at <strong>${input.officeName}</strong> — order while the window is open. No account needed.
+    <p style="font-size:16px;line-height:1.5;color:#334155 !important;">
+      ${escapeHtml(dateLabel)} at <strong>${escapeHtml(input.officeName)}</strong> — order while the window is open. No account needed.
     </p>
-    <p style="margin:16px 0;font-size:14px;line-height:1.5;color:#475569">
-      <strong>Order by:</strong> ${input.cutoffLabel}<br/>
-      <strong>Delivery:</strong> ${input.deliveryLabel}
+    <p style="margin:16px 0;font-size:14px;line-height:1.5;color:#475569 !important;">
+      <strong>Order by:</strong> ${escapeHtml(input.cutoffLabel)}<br/>
+      <strong>Delivery:</strong> ${escapeHtml(input.deliveryLabel)}
     </p>
-    <p style="margin:24px 0;text-align:center">
-      <a href="${input.orderLink}" style="display:inline-block;background:#D62828;color:#fff;font-weight:700;padding:14px 28px;border-radius:10px;text-decoration:none">
-        Order lunch now →
-      </a>
-    </p>`;
+    ${emailPrimaryButton(input.orderLink, "Order lunch now →")}`;
 
   return wrapBrandedEmail({
     preheader: `${input.restaurantName} is lunch on ${dateLabel} — order now`,
