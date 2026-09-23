@@ -13,6 +13,7 @@ const navByRole: Record<UserRole, { href: string; label: string }[]> = {
     { href: "/admin/announcements", label: "ROTD emails" },
     { href: "/admin/orders", label: "Orders" },
     { href: "/admin/payouts", label: "Payouts" },
+    { href: "/admin/reviews", label: "Feedback" },
     { href: "/admin/settings", label: "Settings" },
     { href: "/admin/email-preview", label: "Email preview" },
   ],

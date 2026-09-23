@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DashboardShell } from "@/components/DashboardShell";
 import { OrderPaySection } from "@/components/employee/OrderPaySection";
+import { OrderReviewSection } from "@/components/reviews/OrderReviewSection";
 import { Badge, Card } from "@/components/ui";
 import { requireAuth } from "@/lib/auth/guards";
 import { formatCents } from "@/lib/money/format";
@@ -107,6 +108,10 @@ export default async function OrderDetailPage({
 
         {order.status === "pending_payment" && order.user_id === profile.id ? (
           <OrderPaySection orderId={order.id} />
+        ) : null}
+
+        {order.status === "paid" && order.user_id === profile.id ? (
+          <OrderReviewSection orderId={order.id} />
         ) : null}
 
         <Link href="/app/orders" className="text-sm text-red-600 hover:underline">

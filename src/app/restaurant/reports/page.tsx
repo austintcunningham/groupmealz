@@ -9,6 +9,11 @@ import {
   getRestaurantLifetimeTotals,
   getRestaurantWeeklyCheckStub,
 } from "@/lib/actions/settlements";
+import {
+  getRestaurantReviewSummary,
+  listRestaurantReviewsForManager,
+} from "@/lib/actions/reviews";
+import { ReviewList } from "@/components/reviews/ReviewList";
 import { createClient } from "@/lib/supabase/server";
 import { formatCents } from "@/lib/money/format";
 import { weekBoundsForDate } from "@/lib/accounting/restaurant-settlement";
@@ -56,11 +61,14 @@ export default async function RestaurantReportsPage({
   }
 
   const weekAnchor = params.week ?? new Date().toISOString().slice(0, 10);
-  const [daily, lifetime, stub] = await Promise.all([
+  const [daily, lifetime, stub, reviewSummary, reviewsResult] = await Promise.all([
     getRestaurantDailySummaries(restaurantId),
     getRestaurantLifetimeTotals(restaurantId),
     getRestaurantWeeklyCheckStub(restaurantId, weekAnchor),
+    getRestaurantReviewSummary(restaurantId),
+    listRestaurantReviewsForManager(restaurantId, 15),
   ]);
+  const reviews = reviewsResult.success ? reviewsResult.data : [];
 
   const period = weekBoundsForDate(weekAnchor);
 
@@ -179,6 +187,21 @@ export default async function RestaurantReportsPage({
           )}
         </Card>
       </div>
+
+      <Card title="Customer feedback" className="mt-6">
+        {reviewSummary.count > 0 && reviewSummary.averageRating != null ? (
+          <p className="mb-4 text-sm text-slate-600">
+            <strong>{reviewSummary.averageRating}</strong> / 5 average from{" "}
+            <strong>{reviewSummary.count}</strong> verified order
+            {reviewSummary.count === 1 ? "" : "s"}.
+          </p>
+        ) : (
+          <p className="mb-4 text-sm text-slate-600">
+            Reviews appear when customers rate a completed order (email link or order receipt).
+          </p>
+        )}
+        <ReviewList reviews={reviews} showOffice />
+      </Card>
     </DashboardShell>
   );
 }

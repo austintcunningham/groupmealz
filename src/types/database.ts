@@ -34,6 +34,18 @@ export interface Profile {
   updated_at: string;
 }
 
+export interface RestaurantReview {
+  id: string;
+  order_id: string;
+  restaurant_id: string;
+  office_id: string;
+  user_id: string | null;
+  reviewer_name: string;
+  rating: number;
+  comment: string;
+  created_at: string;
+}
+
 export interface StaffInvitation {
   id: string;
   email: string;

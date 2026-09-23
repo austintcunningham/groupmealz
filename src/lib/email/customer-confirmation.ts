@@ -63,9 +63,11 @@ export async function sendCustomerOrderConfirmation(
   }));
   const entreeCount = items.reduce((s, i) => s + i.qty, 0);
 
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "https://www.groupmeals.net").replace(/\/$/, "");
   const html = buildOrderConfirmationHtml({
     customerName: order.customer_name,
     orderId: order.id,
+    reviewUrl: `${appUrl}/review/${order.id}`,
     restaurantName: getRelationName(order.restaurants) ?? "Restaurant",
     officeName: getRelationName(order.offices) ?? "Office",
     lunchDate: scheduleRow.lunch_date,
