@@ -68,6 +68,19 @@ export async function scheduleLunchAnnouncement(
   return { success: true, data: { id: data.id } };
 }
 
+/** Create announcement and send immediately (best for testing). */
+export async function scheduleAndSendLunchAnnouncement(
+  input: Omit<z.infer<typeof announcementSchema>, "sendAtIso" | "sendImmediately">
+): Promise<ActionResult<{ sent: number }>> {
+  const scheduled = await scheduleLunchAnnouncement({
+    ...input,
+    sendAtIso: new Date().toISOString(),
+    sendImmediately: true,
+  });
+  if (!scheduled.success) return scheduled;
+  return sendLunchAnnouncementNow(scheduled.data.id);
+}
+
 async function buildAnnouncementFromSchedule(
   scheduleId: string,
   headline?: string

@@ -26,7 +26,7 @@ export function SendAnnouncementNowButton({ id }: { id: string }) {
   return (
     <div className="mt-2">
       {error ? <ErrorMessage message={error} /> : null}
-      <Button type="button" size="sm" variant="secondary" loading={isPending} onClick={send}>
+      <Button type="button" size="sm" loading={isPending} onClick={send}>
         Send now
       </Button>
     </div>

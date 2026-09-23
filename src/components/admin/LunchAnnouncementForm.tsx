@@ -2,7 +2,10 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { scheduleLunchAnnouncement } from "@/lib/actions/announcements";
+import {
+  scheduleAndSendLunchAnnouncement,
+  scheduleLunchAnnouncement,
+} from "@/lib/actions/announcements";
 import { Button, ErrorMessage, Input, Select, SuccessMessage } from "@/components/ui";
 import type { DailyLunchSchedule, Office } from "@/types/database";
 
@@ -25,21 +28,20 @@ export function LunchAnnouncementForm({
 
   const officeSchedules = schedules.filter((s) => s.office_id === officeId);
 
-  function submit(formData: FormData) {
-    setError(null);
-    setSuccess(null);
+  function readPayload(
+    formData: FormData
+  ): { error: string } | { payload: Parameters<typeof scheduleLunchAnnouncement>[0] } {
     const localSend = String(formData.get("send_at") ?? "");
     const sendAtIso = sendImmediately
       ? new Date().toISOString()
       : new Date(localSend).toISOString();
 
     if (!sendImmediately && Number.isNaN(new Date(localSend).getTime())) {
-      setError("Pick a valid send date and time.");
-      return;
+      return { error: "Pick a valid send date and time." };
     }
 
-    startTransition(async () => {
-      const result = await scheduleLunchAnnouncement({
+    return {
+      payload: {
         officeId: String(formData.get("office_id") ?? officeId),
         scheduleId: String(formData.get("schedule_id") ?? "") || undefined,
         subject: String(formData.get("subject") ?? ""),
@@ -47,22 +49,51 @@ export function LunchAnnouncementForm({
         bodyHtml: String(formData.get("body_html") ?? "") || undefined,
         sendAtIso,
         sendImmediately,
-      });
+      },
+    };
+  }
+
+  function scheduleOnly(formData: FormData) {
+    setError(null);
+    setSuccess(null);
+    const parsed = readPayload(formData);
+    if ("error" in parsed) {
+      setError(parsed.error);
+      return;
+    }
+    startTransition(async () => {
+      const result = await scheduleLunchAnnouncement(parsed.payload);
       if (!result.success) {
         setError(result.error);
         return;
       }
-      setSuccess(
-        sendImmediately
-          ? "Scheduled for immediate send — run cron or use Send now on the list."
-          : "Announcement scheduled."
-      );
+      setSuccess("Scheduled. Use Send now on the right, or wait for cron.");
+      router.refresh();
+    });
+  }
+
+  function scheduleAndSend(formData: FormData) {
+    setError(null);
+    setSuccess(null);
+    const parsed = readPayload(formData);
+    if ("error" in parsed) {
+      setError(parsed.error);
+      return;
+    }
+    const { sendAtIso: _s, sendImmediately: _i, ...rest } = parsed.payload;
+    startTransition(async () => {
+      const result = await scheduleAndSendLunchAnnouncement(rest);
+      if (!result.success) {
+        setError(result.error);
+        return;
+      }
+      setSuccess(`Sent to ${result.data.sent} recipient(s). Check inbox.`);
       router.refresh();
     });
   }
 
   return (
-    <form action={submit} className="space-y-4">
+    <form className="space-y-4">
       {error ? <ErrorMessage message={error} /> : null}
       {success ? <SuccessMessage message={success} /> : null}
       <Select
@@ -85,6 +116,10 @@ export function LunchAnnouncementForm({
           </option>
         ))}
       </Select>
+      <p className="text-xs text-amber-800">
+        Pick a <strong>schedule</strong> above for the full branded email, or use Custom HTML only
+        with content in the box below.
+      </p>
       <Input name="subject" label="Email subject" required placeholder="🍽 Firehouse Subs is lunch tomorrow!" />
       <Input name="headline" label="Headline (optional)" placeholder="Today's Restaurant of the Day: …" />
       <label className="flex items-center gap-2 text-sm font-medium text-slate-800">
@@ -94,14 +129,14 @@ export function LunchAnnouncementForm({
           onChange={(e) => setSendImmediately(e.target.checked)}
           className="rounded border-slate-300"
         />
-        Send as soon as cron runs (or use Send now below)
+        Queue for next cron run (instead of picking a time)
       </label>
       {!sendImmediately ? (
         <Input name="send_at" label="Send at (your local time)" type="datetime-local" required />
       ) : null}
       <div>
         <label className="mb-1 block text-sm font-medium text-slate-700">
-          Extra HTML (optional if schedule selected)
+          Extra HTML (required if Custom HTML only)
         </label>
         <textarea
           name="body_html"
@@ -110,9 +145,31 @@ export function LunchAnnouncementForm({
           placeholder="<p>Special: free cookie with every entrée!</p>"
         />
       </div>
-      <Button type="submit" loading={isPending}>
-        Schedule email
-      </Button>
+      <div className="flex flex-wrap gap-2">
+        <Button
+          type="button"
+          loading={isPending}
+          onClick={(e) => {
+            e.preventDefault();
+            const form = (e.currentTarget as HTMLButtonElement).form;
+            if (form) scheduleAndSend(new FormData(form));
+          }}
+        >
+          Send now
+        </Button>
+        <Button
+          type="button"
+          variant="secondary"
+          loading={isPending}
+          onClick={(e) => {
+            e.preventDefault();
+            const form = (e.currentTarget as HTMLButtonElement).form;
+            if (form) scheduleOnly(new FormData(form));
+          }}
+        >
+          Schedule only
+        </Button>
+      </div>
     </form>
   );
 }

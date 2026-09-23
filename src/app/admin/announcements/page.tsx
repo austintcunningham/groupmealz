@@ -46,7 +46,9 @@ export default async function AdminAnnouncementsPage() {
                     {(a.offices as { name: string } | null)?.name} · {a.status} ·{" "}
                     {new Date(a.send_at).toLocaleString()}
                   </p>
-                  {a.status === "scheduled" ? <SendAnnouncementNowButton id={a.id} /> : null}
+                  {a.status !== "sent" && a.status !== "cancelled" ? (
+                    <SendAnnouncementNowButton id={a.id} />
+                  ) : null}
                 </li>
               ))}
             </ul>
