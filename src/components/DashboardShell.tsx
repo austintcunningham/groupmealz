@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { UserRole } from "@/types/database";
-import { signOut } from "@/lib/actions/auth";
+import { SignOutForm } from "@/components/auth/SignOutForm";
 import { BRAND } from "@/lib/brand";
 
 const navByRole: Record<UserRole, { href: string; label: string }[]> = {
@@ -70,24 +70,11 @@ export function DashboardShell({
                 {link.label}
               </Link>
             ))}
-            <SignOutButton />
+            <SignOutForm />
           </nav>
         </div>
       </header>
       <main className="mx-auto max-w-6xl px-4 py-6">{children}</main>
     </div>
-  );
-}
-
-function SignOutButton() {
-  return (
-    <form action={signOut}>
-      <button
-        className="rounded-lg px-3 py-2 text-sm font-medium text-[var(--geaux-yellow-light)] transition-all hover:bg-white/10 active:scale-95"
-        type="submit"
-      >
-        Sign out
-      </button>
-    </form>
   );
 }

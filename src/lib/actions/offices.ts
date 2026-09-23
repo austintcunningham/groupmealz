@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { z } from "zod";
 import { backfillMissingOfficeSlugs } from "@/lib/offices/backfill-slugs";
 import { slugifyOfficeName } from "@/lib/offices/slug";
@@ -97,6 +98,17 @@ export async function updateOffice(
   await logAudit("update_office", "office", id);
   revalidatePath("/admin/offices");
   return { success: true, data: undefined };
+}
+
+/** HTML form action — redirects back with status (no client JS). */
+export async function generateOfficeSlugsFormAction(): Promise<void> {
+  const result = await ensureOfficeSlugs();
+  if (!result.success) {
+    redirect(`/admin/offices?slugError=${encodeURIComponent(result.error)}`);
+  }
+  redirect(
+    `/admin/offices?slugOk=${result.data.updated > 0 ? result.data.updated : "0"}`
+  );
 }
 
 export async function ensureOfficeSlugs(): Promise<ActionResult<{ updated: number }>> {

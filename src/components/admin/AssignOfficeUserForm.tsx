@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import { assignOfficeUser } from "@/lib/actions/offices";
 import { findProfileIdByEmail } from "@/lib/actions/users";
 import { Button, ErrorMessage, Input, Select, SuccessMessage } from "@/components/ui";
-import type { Office } from "@/types/database";
-
-export function AssignOfficeUserForm({ offices }: { offices: Office[] }) {
+export function AssignOfficeUserForm({
+  offices,
+}: {
+  offices: { id: string; name: string }[];
+}) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
