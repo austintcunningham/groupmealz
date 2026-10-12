@@ -488,6 +488,162 @@ export async function moveMenuItem(
   return { success: true, data: undefined };
 }
 
+const reorderIdsSchema = z.array(z.string().uuid()).min(1);
+
+async function assertCategorySiblingOrder(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  orderedIds: string[],
+  profileRole: string,
+  profileId: string
+): Promise<{ error?: string }> {
+  const { data: rows, error } = await supabase
+    .from("menu_categories")
+    .select("id, restaurant_id, parent_id")
+    .in("id", orderedIds);
+
+  if (error) return { error: error.message };
+  if (!rows?.length || rows.length !== orderedIds.length) {
+    return { error: "One or more categories were not found" };
+  }
+
+  const restaurantId = rows[0]!.restaurant_id;
+  const parentId = rows[0]!.parent_id ?? null;
+  if (
+    !rows.every(
+      (r) => r.restaurant_id === restaurantId && (r.parent_id ?? null) === parentId
+    )
+  ) {
+    return { error: "Categories must belong to the same section" };
+  }
+
+  const allowed = await assertRestaurantMenuAccess(restaurantId, profileRole, profileId);
+  if (!allowed) return { error: "Unauthorized" };
+
+  let siblingQuery = supabase
+    .from("menu_categories")
+    .select("id")
+    .eq("restaurant_id", restaurantId);
+  siblingQuery = parentId
+    ? siblingQuery.eq("parent_id", parentId)
+    : siblingQuery.is("parent_id", null);
+
+  const { data: siblings, error: sibErr } = await siblingQuery;
+  if (sibErr) return { error: sibErr.message };
+
+  const siblingIds = new Set((siblings ?? []).map((s) => s.id));
+  if (
+    orderedIds.length !== siblingIds.size ||
+    !orderedIds.every((id) => siblingIds.has(id))
+  ) {
+    return { error: "Invalid category order for this section" };
+  }
+
+  return {};
+}
+
+/** Persist drag-and-drop order for categories (top-level or sub-categories). */
+export async function reorderMenuCategories(orderedIds: string[]): Promise<ActionResult> {
+  const auth = await requireProfileRole(["admin", "restaurant_manager"]);
+  if ("error" in auth) return { success: false, error: auth.error };
+
+  const parsed = reorderIdsSchema.safeParse(orderedIds);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.errors[0]?.message ?? "Invalid order" };
+  }
+
+  const supabase = await createClient();
+  const gate = await assertCategorySiblingOrder(
+    supabase,
+    parsed.data,
+    auth.profile.role,
+    auth.profile.id
+  );
+  if (gate.error) return { success: false, error: gate.error };
+
+  const applyError = await applyCategoryDisplayOrder(supabase, parsed.data);
+  if (applyError) return { success: false, error: applyError };
+
+  revalidateMenuPaths();
+  return { success: true, data: undefined };
+}
+
+async function assertMenuItemSiblingOrder(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  orderedIds: string[],
+  profileRole: string,
+  profileId: string
+): Promise<{ error?: string }> {
+  const { data: rows, error } = await supabase
+    .from("menu_items")
+    .select("id, restaurant_id, category_id")
+    .in("id", orderedIds);
+
+  if (error) return { error: error.message };
+  if (!rows?.length || rows.length !== orderedIds.length) {
+    return { error: "One or more menu items were not found" };
+  }
+
+  const restaurantId = rows[0]!.restaurant_id;
+  const categoryId = rows[0]!.category_id ?? null;
+  if (
+    !rows.every(
+      (r) => r.restaurant_id === restaurantId && (r.category_id ?? null) === categoryId
+    )
+  ) {
+    return { error: "Items must belong to the same category" };
+  }
+
+  const allowed = await assertRestaurantMenuAccess(restaurantId, profileRole, profileId);
+  if (!allowed) return { error: "Unauthorized" };
+
+  let siblingQuery = supabase
+    .from("menu_items")
+    .select("id")
+    .eq("restaurant_id", restaurantId);
+  siblingQuery = categoryId
+    ? siblingQuery.eq("category_id", categoryId)
+    : siblingQuery.is("category_id", null);
+
+  const { data: siblings, error: sibErr } = await siblingQuery;
+  if (sibErr) return { error: sibErr.message };
+
+  const siblingIds = new Set((siblings ?? []).map((s) => s.id));
+  if (
+    orderedIds.length !== siblingIds.size ||
+    !orderedIds.every((id) => siblingIds.has(id))
+  ) {
+    return { error: "Invalid item order for this category" };
+  }
+
+  return {};
+}
+
+/** Persist drag-and-drop order for items within one category. */
+export async function reorderMenuItems(orderedIds: string[]): Promise<ActionResult> {
+  const auth = await requireProfileRole(["admin", "restaurant_manager"]);
+  if ("error" in auth) return { success: false, error: auth.error };
+
+  const parsed = reorderIdsSchema.safeParse(orderedIds);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.errors[0]?.message ?? "Invalid order" };
+  }
+
+  const supabase = await createClient();
+  const gate = await assertMenuItemSiblingOrder(
+    supabase,
+    parsed.data,
+    auth.profile.role,
+    auth.profile.id
+  );
+  if (gate.error) return { success: false, error: gate.error };
+
+  const applyError = await applyMenuItemDisplayOrder(supabase, parsed.data);
+  if (applyError) return { success: false, error: applyError };
+
+  revalidateMenuPaths();
+  return { success: true, data: undefined };
+}
+
 export async function updateMenuItem(
   input: z.infer<typeof updateMenuItemSchema>
 ): Promise<ActionResult> {

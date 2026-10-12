@@ -36,3 +36,68 @@ body {
   background: linear-gradient(90deg, var(--geaux-yellow) 0%, var(--geaux-yellow-light) 100%);
   height: 4px;
 }
+
+.menu-drag-grip {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  align-self: stretch;
+  padding: 0.35rem 0.5rem;
+  margin: -0.15rem 0;
+  border: none;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: #94a3b8;
+  cursor: grab;
+  touch-action: none;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.menu-drag-grip:hover {
+  color: var(--geaux-red);
+  background: rgb(253 185 19 / 0.15);
+}
+
+.menu-drag-grip:active,
+.menu-drag-grip-active {
+  cursor: grabbing;
+  transform: scale(0.94);
+  color: var(--geaux-red-dark);
+  background: rgb(253 185 19 / 0.35);
+  box-shadow: 0 0 0 2px var(--geaux-yellow);
+}
+
+.menu-dragging {
+  opacity: 0.35;
+  filter: grayscale(0.2);
+}
+
+.menu-drag-overlay {
+  min-width: 10rem;
+  max-width: 16rem;
+  border-radius: 0.75rem;
+  border: 2px solid var(--geaux-yellow);
+  background: white;
+  padding: 0.75rem 1rem;
+  box-shadow:
+    0 16px 40px rgb(0 0 0 / 0.18),
+    0 0 0 1px rgb(253 185 19 / 0.4);
+  transform: rotate(-1deg) scale(1.03);
+  animation: menu-drag-lift 0.2s ease-out;
+}
+
+@keyframes menu-drag-lift {
+  from {
+    opacity: 0.6;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(-1deg) scale(1.03);
+  }
+}

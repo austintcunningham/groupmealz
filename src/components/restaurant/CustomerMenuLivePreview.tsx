@@ -1,10 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
-import {
-  CustomerOrderMenu,
-  filterCustomerFacingMenu,
-} from "@/components/order/CustomerOrderMenu";
+import { filterCustomerFacingMenu } from "@/components/order/CustomerOrderMenu";
+import { DraggableCustomerMenuPreview } from "@/components/restaurant/DraggableCustomerMenuPreview";
 import type { MenuCategory, MenuItem } from "@/types/database";
 
 export function CustomerMenuLivePreview({
@@ -28,17 +26,22 @@ export function CustomerMenuLivePreview({
           Customer view (live preview)
         </p>
         <p className="text-sm text-slate-600">
-          What offices see when ordering from <strong>{restaurantName}</strong> — only{" "}
-          <strong>available</strong> items, in the same order as below, with uploaded photos shown
-          after you pick a file. Sold-out items are omitted here.
+          What offices see when ordering from <strong>{restaurantName}</strong>. Drag the{" "}
+          <span className="inline-flex translate-y-0.5 flex-col gap-0.5 align-middle">
+            <span className="block h-0.5 w-3 rounded-full bg-slate-400" />
+            <span className="block h-0.5 w-3 rounded-full bg-slate-400" />
+            <span className="block h-0.5 w-3 rounded-full bg-slate-400" />
+          </span>{" "}
+          handle to reorder categories and items — press and hold briefly, then drag. Sold-out items
+          are hidden here but stay in the list below.
         </p>
       </div>
       <div className="max-h-[min(70vh,520px)] overflow-y-auto rounded-lg border border-slate-200 bg-white p-3">
-        <CustomerOrderMenu
-          categories={visibleCats}
-          menuItems={visibleItems}
-          interactive={false}
-          emptyMessage="No available items yet — add categories and mark items as Available."
+        <DraggableCustomerMenuPreview
+          allCategories={categories}
+          allMenuItems={menuItems}
+          visibleCategories={visibleCats}
+          visibleItems={visibleItems}
         />
       </div>
     </section>
