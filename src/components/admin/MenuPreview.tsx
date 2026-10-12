@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { MenuEntreeBadge } from "@/components/menus/MenuEntreeBadge";
 import { formatCents } from "@/lib/money/format";
 import { EmptyState, Select } from "@/components/ui";
 import type { MenuCategory, MenuItem, Restaurant } from "@/types/database";
@@ -66,7 +67,10 @@ export function MenuPreview({
                       className="flex items-start justify-between rounded-lg px-2 py-1.5 transition-colors hover:bg-slate-50"
                     >
                       <div>
-                        <p className="font-medium text-slate-900">{item.name}</p>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="font-medium text-slate-900">{item.name}</p>
+                          <MenuEntreeBadge countsAsEntree={item.counts_as_entree} compact />
+                        </div>
                         {item.description ? (
                           <p className="text-sm text-slate-500">{item.description}</p>
                         ) : null}
@@ -92,9 +96,12 @@ export function MenuPreview({
                   .map((item) => (
                     <li
                       key={item.id}
-                      className="flex justify-between rounded-lg px-2 py-1.5 hover:bg-slate-50"
+                      className="flex flex-wrap items-center justify-between gap-2 rounded-lg px-2 py-1.5 hover:bg-slate-50"
                     >
-                      <span className="font-medium">{item.name}</span>
+                      <span className="flex flex-wrap items-center gap-2 font-medium">
+                        {item.name}
+                        <MenuEntreeBadge countsAsEntree={item.counts_as_entree} compact />
+                      </span>
                       <span>{formatCents(item.price_cents)}</span>
                     </li>
                   ))}

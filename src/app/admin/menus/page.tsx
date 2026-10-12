@@ -1,7 +1,7 @@
 import { DashboardShell } from "@/components/DashboardShell";
 import { Card } from "@/components/ui";
-import { MenuAdminForms } from "@/components/admin/MenuAdminForms";
 import { MenuPreview } from "@/components/admin/MenuPreview";
+import { RestaurantMenuEditor } from "@/components/restaurant/RestaurantMenuEditor";
 import { requireAdmin } from "@/lib/auth/guards";
 import { createClient } from "@/lib/supabase/server";
 
@@ -20,11 +20,17 @@ export default async function AdminMenusPage() {
     <DashboardShell role={profile.role} title="Menus">
       <div className="grid gap-6 lg:grid-cols-2">
         <Card title="Build menu">
-          <MenuAdminForms
-            restaurants={restaurants ?? []}
-            categories={categories ?? []}
-            menuItems={menuItems ?? []}
-          />
+          {restaurants?.length ? (
+            <RestaurantMenuEditor
+              restaurantId={restaurants[0].id}
+              restaurantName={restaurants[0].name}
+              restaurants={restaurants.map((r) => ({ id: r.id, name: r.name }))}
+              categories={categories ?? []}
+              menuItems={menuItems ?? []}
+            />
+          ) : (
+            <p className="text-sm text-slate-500">Create a restaurant first.</p>
+          )}
         </Card>
         <Card title="Menu preview">
           <MenuPreview
