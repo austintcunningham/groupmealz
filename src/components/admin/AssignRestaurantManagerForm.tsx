@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { assignRestaurantManagerByEmail } from "@/lib/actions/restaurants";
+import { staffInviteSuccessMessage } from "@/lib/staff/invite-messages";
 import { Button, ErrorMessage, Input, Select, SuccessMessage } from "@/components/ui";
 import type { Restaurant } from "@/types/database";
 
@@ -30,11 +31,7 @@ export function AssignRestaurantManagerForm({
         setError(result.error);
         return;
       }
-      setSuccess(
-        result.data.status === "invited"
-          ? `${result.data.email} invited — manager access applies when they create an account at /signup.`
-          : `${result.data.email} is now a manager for this restaurant.`
-      );
+      setSuccess(staffInviteSuccessMessage(result.data));
       router.refresh();
     });
   }
@@ -70,7 +67,8 @@ export function AssignRestaurantManagerForm({
         Assign or invite
       </Button>
       <p className="text-xs text-slate-500">
-        They can sign up later with this email — no need to create their account first.
+        We email them a link to sign up (or sign in if they already have an account). They must use
+        this exact email address.
       </p>
     </form>
   );

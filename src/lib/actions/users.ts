@@ -56,7 +56,14 @@ export async function findProfileIdByEmail(
 
 export async function invitePlatformAdminByEmail(
   email: string
-): Promise<ActionResult<{ status: "assigned" | "invited"; email: string }>> {
+): Promise<
+  ActionResult<{
+    status: "assigned" | "invited";
+    email: string;
+    emailSent: boolean;
+    emailError?: string;
+  }>
+> {
   const auth = await requireProfileRole(["admin"]);
   if ("error" in auth) return { success: false, error: auth.error };
 
@@ -80,5 +87,13 @@ export async function invitePlatformAdminByEmail(
   }
 
   revalidatePath("/admin/settings");
-  return { success: true, data: { status: result.status, email: result.email } };
+  return {
+    success: true,
+    data: {
+      status: result.status,
+      email: result.email,
+      emailSent: result.emailSent,
+      emailError: result.emailError,
+    },
+  };
 }

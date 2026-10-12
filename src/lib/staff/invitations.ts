@@ -1,4 +1,9 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  sendStaffAccessGrantedEmail,
+  sendStaffSignupInviteEmail,
+} from "@/lib/email/staff-invitation";
+import { BRAND } from "@/lib/brand";
 import type { UserRole } from "@/types/database";
 
 export function normalizeStaffEmail(email: string): string {
@@ -21,6 +26,40 @@ export type StaffInviteInput =
       createdBy?: string;
     };
 
+type InviteCopy = { roleTitle: string; placeName: string };
+
+async function resolveInviteCopy(input: StaffInviteInput): Promise<InviteCopy> {
+  const admin = createAdminClient();
+  switch (input.kind) {
+    case "platform_admin":
+      return { roleTitle: "Platform admin", placeName: BRAND.name };
+    case "restaurant_manager": {
+      const { data } = await admin
+        .from("restaurants")
+        .select("name")
+        .eq("id", input.restaurantId)
+        .single();
+      return {
+        roleTitle: "Restaurant manager",
+        placeName: data?.name ?? "your restaurant",
+      };
+    }
+    case "office_member": {
+      const { data } = await admin
+        .from("offices")
+        .select("name")
+        .eq("id", input.officeId)
+        .single();
+      const roleTitle = input.officeRole === "office_admin" ? "Office admin" : "Office employee";
+      return { roleTitle, placeName: data?.name ?? "your office" };
+    }
+  }
+}
+
+function appBaseUrl(): string {
+  return (process.env.NEXT_PUBLIC_APP_URL ?? "https://www.groupmeals.net").replace(/\/$/, "");
+}
+
 async function findProfileIdByEmailAdmin(
   email: string
 ): Promise<{ id: string; full_name: string; email: string } | null> {
@@ -36,13 +75,7 @@ async function findProfileIdByEmailAdmin(
 }
 
 function invitationRow(input: StaffInviteInput): Record<string, unknown> {
-  const email = normalizeStaffEmail(
-    input.kind === "platform_admin"
-      ? input.email
-      : input.kind === "restaurant_manager"
-        ? input.email
-        : input.email
-  );
+  const email = normalizeStaffEmail(input.email);
   const createdBy = input.createdBy ?? null;
 
   switch (input.kind) {
@@ -80,8 +113,8 @@ function invitationRow(input: StaffInviteInput): Record<string, unknown> {
 export async function upsertStaffInvitation(
   input: StaffInviteInput
 ): Promise<
-  | { status: "assigned"; email: string; profileId: string }
-  | { status: "invited"; email: string }
+  | { status: "assigned"; email: string; profileId: string; emailSent: boolean; emailError?: string }
+  | { status: "invited"; email: string; emailSent: boolean; emailError?: string }
   | { error: string }
 > {
   let admin;
@@ -118,9 +151,29 @@ export async function upsertStaffInvitation(
     return { error: insertError.message };
   }
 
+  let copy: InviteCopy;
+  try {
+    copy = await resolveInviteCopy(input);
+  } catch {
+    copy = { roleTitle: "Staff", placeName: BRAND.name };
+  }
+
+  const base = appBaseUrl();
+
   const existing = await findProfileIdByEmailAdmin(email);
   if (!existing) {
-    return { status: "invited", email };
+    const mail = await sendStaffSignupInviteEmail({
+      to: email,
+      roleTitle: copy.roleTitle,
+      placeName: copy.placeName,
+      signupUrl: `${base}/signup`,
+    });
+    return {
+      status: "invited",
+      email,
+      emailSent: mail.sent,
+      emailError: mail.error,
+    };
   }
 
   const { error: applyError } = await admin.rpc("apply_staff_invitations_for_user", {
@@ -132,7 +185,20 @@ export async function upsertStaffInvitation(
     return { error: applyError.message };
   }
 
-  return { status: "assigned", email, profileId: existing.id };
+  const mail = await sendStaffAccessGrantedEmail({
+    to: email,
+    roleTitle: copy.roleTitle,
+    placeName: copy.placeName,
+    loginUrl: `${base}/login`,
+  });
+
+  return {
+    status: "assigned",
+    email,
+    profileId: existing.id,
+    emailSent: mail.sent,
+    emailError: mail.error,
+  };
 }
 
 export function staffRoleLabel(role: UserRole): string {

@@ -140,7 +140,14 @@ export async function updateRestaurantBranding(
 export async function assignRestaurantManagerByEmail(
   restaurantId: string,
   email: string
-): Promise<ActionResult<{ status: "assigned" | "invited"; email: string }>> {
+): Promise<
+  ActionResult<{
+    status: "assigned" | "invited";
+    email: string;
+    emailSent: boolean;
+    emailError?: string;
+  }>
+> {
   const auth = await requireProfileRole(["admin"]);
   if ("error" in auth) return { success: false, error: auth.error };
 
@@ -164,5 +171,13 @@ export async function assignRestaurantManagerByEmail(
   revalidatePath("/admin/restaurants");
   revalidatePath("/admin/settings");
   revalidatePath("/restaurant");
-  return { success: true, data: { status: result.status, email: result.email } };
+  return {
+    success: true,
+    data: {
+      status: result.status,
+      email: result.email,
+      emailSent: result.emailSent,
+      emailError: result.emailError,
+    },
+  };
 }

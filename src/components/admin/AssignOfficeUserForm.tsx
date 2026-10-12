@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { assignOfficeUserByEmail } from "@/lib/actions/offices";
+import { staffInviteSuccessMessage } from "@/lib/staff/invite-messages";
 import { Button, ErrorMessage, Input, Select, SuccessMessage } from "@/components/ui";
 
 export function AssignOfficeUserForm({
@@ -30,11 +31,7 @@ export function AssignOfficeUserForm({
         setError(result.error);
         return;
       }
-      setSuccess(
-        result.data.status === "invited"
-          ? `${result.data.email} invited — they get this office role automatically when they sign up at /signup.`
-          : `${result.data.email} assigned to office (account already existed).`
-      );
+      setSuccess(staffInviteSuccessMessage(result.data));
       router.refresh();
     });
   }

@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { invitePlatformAdminByEmail } from "@/lib/actions/users";
+import { staffInviteSuccessMessage } from "@/lib/staff/invite-messages";
 import { Button, ErrorMessage, Input, SuccessMessage } from "@/components/ui";
 
 export function InvitePlatformAdminForm() {
@@ -22,11 +23,7 @@ export function InvitePlatformAdminForm() {
         setError(result.error);
         return;
       }
-      setSuccess(
-        result.data.status === "invited"
-          ? `${result.data.email} invited as platform admin — takes effect when they sign up.`
-          : `${result.data.email} is now a platform admin.`
-      );
+      setSuccess(staffInviteSuccessMessage(result.data));
       router.refresh();
     });
   }

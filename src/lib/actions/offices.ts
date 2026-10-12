@@ -144,7 +144,14 @@ export async function assignOfficeUserByEmail(
   officeId: string,
   email: string,
   role: "office_admin" | "employee"
-): Promise<ActionResult<{ status: "assigned" | "invited"; email: string }>> {
+): Promise<
+  ActionResult<{
+    status: "assigned" | "invited";
+    email: string;
+    emailSent: boolean;
+    emailError?: string;
+  }>
+> {
   const auth = await requireProfileRole(["admin"]);
   if ("error" in auth) return { success: false, error: auth.error };
 
@@ -170,5 +177,13 @@ export async function assignOfficeUserByEmail(
   revalidatePath("/admin/settings");
   revalidatePath("/office");
   revalidatePath("/office/employees");
-  return { success: true, data: { status: result.status, email: result.email } };
+  return {
+    success: true,
+    data: {
+      status: result.status,
+      email: result.email,
+      emailSent: result.emailSent,
+      emailError: result.emailError,
+    },
+  };
 }
