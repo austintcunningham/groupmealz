@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui";
 
 export function Modal({
@@ -15,18 +17,36 @@ export function Modal({
   children: React.ReactNode;
   wide?: boolean;
 }) {
-  if (!open) return null;
+  const [mounted, setMounted] = useState(false);
 
-  return (
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
+
+  if (!open || !mounted) return null;
+
+  return createPortal(
     <div
-      className="fixed inset-0 z-[60] flex items-end justify-center bg-black/45 p-4 sm:items-center"
-      onClick={onClose}
+      className="fixed inset-0 z-[200] flex items-end justify-center bg-black/45 p-4 sm:items-center"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
       role="presentation"
     >
       <div
-        className={`animate-fade-in flex max-h-[min(92vh,720px)] w-full flex-col overflow-hidden rounded-t-2xl bg-white shadow-xl sm:rounded-2xl ${
+        className={`flex w-full flex-col rounded-t-2xl bg-white shadow-xl sm:rounded-2xl ${
           wide ? "max-w-2xl" : "max-w-lg"
         }`}
+        style={{ maxHeight: "min(92vh, 720px)" }}
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
@@ -40,8 +60,9 @@ export function Modal({
             ✕
           </Button>
         </div>
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">{children}</div>
+        <div className="overflow-y-auto overscroll-contain px-5 py-4">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
