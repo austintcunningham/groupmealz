@@ -2,7 +2,7 @@ import { isPromoActive } from "@/lib/menus/effective-price";
 import { formatCents } from "@/lib/money/format";
 import type { MenuItem } from "@/types/database";
 
-/** Customer-facing price line — promo shows deal price + label (no strikethrough). */
+/** Customer-facing price — promo shows original (struck), deal price, and optional label. */
 export function MenuItemPromoPrice({
   item,
   lunchDate,
@@ -16,12 +16,23 @@ export function MenuItemPromoPrice({
 }) {
   const promo = isPromoActive(item, lunchDate);
 
+  if (promo) {
+    return (
+      <div className={className}>
+        <p>
+          <span className="text-slate-500 line-through">{formatCents(item.price_cents)}</span>{" "}
+          <span className="font-medium text-red-600">{formatCents(priceCents)}</span>
+        </p>
+        {item.promo_label ? (
+          <p className="mt-0.5 text-xs font-normal text-green-800">{item.promo_label}</p>
+        ) : null}
+      </div>
+    );
+  }
+
   return (
     <p className={className}>
       <span className="font-medium text-red-600">{formatCents(priceCents)}</span>
-      {promo && item.promo_label ? (
-        <span className="mt-0.5 block text-xs font-normal text-green-800">{item.promo_label}</span>
-      ) : null}
     </p>
   );
 }
