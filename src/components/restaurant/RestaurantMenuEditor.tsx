@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { MenuEntreeBadge } from "@/components/menus/MenuEntreeBadge";
+import { MenuItemPhotoUpload } from "@/components/menus/MenuItemPhotoUpload";
 import { CustomerMenuLivePreview } from "@/components/restaurant/CustomerMenuLivePreview";
 import {
   createMenuCategory,
@@ -11,6 +12,7 @@ import {
   deleteMenuItem,
   updateMenuCategory,
   updateMenuItem,
+  uploadMenuItemImage,
 } from "@/lib/actions/menus";
 import { effectivePriceCents, isPromoActive } from "@/lib/menus/effective-price";
 import { formatCents, parseDollarsToCents } from "@/lib/money/format";
@@ -58,12 +60,10 @@ function MenuItemEditorForm({
         </div>
         <Input name="name" label="Name" defaultValue={item.name} required />
         <Input name="description" label="Description" defaultValue={item.description ?? ""} />
-        <Input
-          name="image_url"
-          label="Photo URL (HTTPS, optional)"
-          type="url"
-          defaultValue={item.image_url ?? ""}
-          placeholder="https://…"
+        <MenuItemPhotoUpload
+          menuItemId={item.id}
+          imageUrl={item.image_url}
+          itemName={item.name}
         />
         {categories.length > 0 ? (
           <Select name="category_id" label="Category" defaultValue={item.category_id ?? ""}>
@@ -251,19 +251,28 @@ export function RestaurantMenuEditor({
     startTransition(async () => {
       try {
         const categoryId = String(formData.get("category_id") ?? "");
-        const imageRaw = String(formData.get("image_url") ?? "").trim();
+        const photo = formData.get("photo");
         const result = await createMenuItem({
           restaurant_id: restaurantId,
           category_id: categoryId || null,
           name: String(formData.get("item_name") ?? ""),
           description: String(formData.get("description") ?? "") || undefined,
-          image_url: imageRaw || null,
           price_cents: parseDollarsToCents(String(formData.get("price") ?? "0")),
           counts_as_entree: formData.has("counts_as_entree"),
         });
         if (!result.success) {
           setError(result.error);
           return;
+        }
+        if (photo instanceof File && photo.size > 0) {
+          const fd = new FormData();
+          fd.set("file", photo);
+          const up = await uploadMenuItemImage(result.data.id, fd);
+          if (!up.success) {
+            setError(`Item saved but photo upload failed: ${up.error}`);
+            router.refresh();
+            return;
+          }
         }
         flash("Menu item added");
         router.refresh();
@@ -294,13 +303,11 @@ export function RestaurantMenuEditor({
         const promoPriceRaw = String(formData.get("promo_price") ?? "").trim();
         const promoEnds = String(formData.get("promo_ends_at") ?? "").trim();
         const categoryId = String(formData.get("category_id") ?? "").trim();
-        const imageRaw = String(formData.get("image_url") ?? "").trim();
         const result = await updateMenuItem({
           id: itemId,
           name: String(formData.get("name") ?? ""),
           description: String(formData.get("description") ?? "") || null,
           category_id: categoryId || null,
-          image_url: imageRaw || null,
           price_cents: parseDollarsToCents(String(formData.get("price") ?? "0")),
           available: formData.get("available") === "on",
           counts_as_entree: formData.get("counts_as_entree") === "on",
@@ -375,12 +382,18 @@ export function RestaurantMenuEditor({
         <h3 className="font-medium text-slate-900">Add menu item</h3>
         <Input name="item_name" label="Name" required />
         <Input name="description" label="Description" />
-        <Input
-          name="image_url"
-          label="Photo URL (HTTPS, optional)"
-          type="url"
-          placeholder="https://…"
-        />
+        <div>
+          <label className="mb-1 block text-sm font-medium text-slate-700">
+            Photo (optional)
+          </label>
+          <input
+            type="file"
+            name="photo"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            className="text-sm text-slate-600 file:mr-2 file:rounded-md file:border-0 file:bg-[var(--geaux-red)] file:px-3 file:py-1.5 file:text-sm file:text-white"
+          />
+          <p className="mt-1 text-xs text-slate-500">Or add a photo after saving under the item.</p>
+        </div>
         <Input name="price" label="Regular price (USD)" required type="number" step="0.01" min="0" />
         <Select name="category_id" label="Category" required={restaurantCategories.length > 0}>
           {restaurantCategories.length === 0 ? (

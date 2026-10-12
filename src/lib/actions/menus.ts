@@ -8,11 +8,12 @@ import {
   requireProfileRole,
   type ActionResult,
 } from "@/lib/actions/utils";
-
-const optionalImageUrl = z
-  .union([z.string().url().max(2048), z.literal(""), z.null()])
-  .optional()
-  .transform((v) => (!v || v === "" ? null : v));
+import {
+  MENU_IMAGES_BUCKET,
+  menuImageObjectPath,
+  menuImagePathFromPublicUrl,
+  validateMenuImageFile,
+} from "@/lib/storage/menu-images";
 
 const categorySchema = z.object({
   restaurant_id: z.string().uuid(),
@@ -41,7 +42,6 @@ const menuItemSchema = z.object({
   promo_label: z.string().max(120).nullable().optional(),
   promo_price_cents: z.number().int().min(0).nullable().optional(),
   promo_ends_at: z.string().nullable().optional(),
-  image_url: optionalImageUrl,
 });
 
 const updateMenuItemSchema = z.object({
@@ -56,7 +56,6 @@ const updateMenuItemSchema = z.object({
   promo_label: z.string().max(120).nullable().optional(),
   promo_price_cents: z.number().int().min(0).nullable().optional(),
   promo_ends_at: z.string().nullable().optional(),
-  image_url: optionalImageUrl,
 });
 
 async function assertRestaurantMenuAccess(
@@ -93,6 +92,15 @@ async function getMenuItemRestaurantId(itemId: string): Promise<string | null> {
     .eq("id", itemId)
     .maybeSingle();
   return data?.restaurant_id ?? null;
+}
+
+async function removeStoredMenuImage(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  imageUrl: string | null | undefined
+): Promise<void> {
+  const path = imageUrl ? menuImagePathFromPublicUrl(imageUrl) : null;
+  if (!path) return;
+  await supabase.storage.from(MENU_IMAGES_BUCKET).remove([path]);
 }
 
 function revalidateMenuPaths() {
@@ -282,11 +290,132 @@ export async function deleteMenuItem(itemId: string): Promise<ActionResult> {
   if (!allowed) return { success: false, error: "Unauthorized" };
 
   const supabase = await createClient();
+  const { data: itemRow } = await supabase
+    .from("menu_items")
+    .select("image_url")
+    .eq("id", parsedId.data)
+    .maybeSingle();
+
   const { error } = await supabase.from("menu_items").delete().eq("id", parsedId.data);
 
   if (error) return { success: false, error: error.message };
 
+  await removeStoredMenuImage(supabase, itemRow?.image_url);
+
   await logAudit("delete_menu_item", "menu_item", parsedId.data);
+  revalidateMenuPaths();
+  return { success: true, data: undefined };
+}
+
+export async function uploadMenuItemImage(
+  menuItemId: string,
+  formData: FormData
+): Promise<ActionResult<{ url: string }>> {
+  const auth = await requireProfileRole(["admin", "restaurant_manager"]);
+  if ("error" in auth) return { success: false, error: auth.error };
+
+  const parsedId = z.string().uuid().safeParse(menuItemId);
+  if (!parsedId.success) {
+    return { success: false, error: "Invalid menu item" };
+  }
+
+  const file = formData.get("file");
+  if (!(file instanceof File)) {
+    return { success: false, error: "Choose an image file." };
+  }
+
+  const fileError = validateMenuImageFile(file);
+  if (fileError) return { success: false, error: fileError };
+
+  const supabase = await createClient();
+  const { data: item, error: fetchError } = await supabase
+    .from("menu_items")
+    .select("id, restaurant_id, image_url")
+    .eq("id", parsedId.data)
+    .maybeSingle();
+
+  if (fetchError) return { success: false, error: fetchError.message };
+  if (!item) return { success: false, error: "Menu item not found" };
+
+  const allowed = await assertRestaurantMenuAccess(
+    item.restaurant_id,
+    auth.profile.role,
+    auth.profile.id
+  );
+  if (!allowed) return { success: false, error: "Unauthorized" };
+
+  const path = menuImageObjectPath(item.restaurant_id, item.id, file.type);
+  const { error: uploadError } = await supabase.storage
+    .from(MENU_IMAGES_BUCKET)
+    .upload(path, file, {
+      cacheControl: "31536000",
+      upsert: false,
+      contentType: file.type,
+    });
+
+  if (uploadError) {
+    const hint = uploadError.message.includes("Bucket not found")
+      ? " Run migration supabase/migrations/011_menu_item_image_storage.sql in Supabase."
+      : "";
+    return { success: false, error: `${uploadError.message}${hint}` };
+  }
+
+  const { data: publicData } = supabase.storage.from(MENU_IMAGES_BUCKET).getPublicUrl(path);
+  const url = publicData.publicUrl;
+
+  const { error: updateError } = await supabase
+    .from("menu_items")
+    .update({ image_url: url })
+    .eq("id", item.id);
+
+  if (updateError) {
+    await supabase.storage.from(MENU_IMAGES_BUCKET).remove([path]);
+    return { success: false, error: updateError.message };
+  }
+
+  await removeStoredMenuImage(supabase, item.image_url);
+
+  await logAudit("upload_menu_item_image", "menu_item", item.id);
+  revalidateMenuPaths();
+  return { success: true, data: { url } };
+}
+
+export async function removeMenuItemImage(menuItemId: string): Promise<ActionResult> {
+  const auth = await requireProfileRole(["admin", "restaurant_manager"]);
+  if ("error" in auth) return { success: false, error: auth.error };
+
+  const parsedId = z.string().uuid().safeParse(menuItemId);
+  if (!parsedId.success) {
+    return { success: false, error: "Invalid menu item" };
+  }
+
+  const restaurantId = await getMenuItemRestaurantId(parsedId.data);
+  if (!restaurantId) return { success: false, error: "Menu item not found" };
+
+  const allowed = await assertRestaurantMenuAccess(
+    restaurantId,
+    auth.profile.role,
+    auth.profile.id
+  );
+  if (!allowed) return { success: false, error: "Unauthorized" };
+
+  const supabase = await createClient();
+  const { data: item } = await supabase
+    .from("menu_items")
+    .select("image_url")
+    .eq("id", parsedId.data)
+    .maybeSingle();
+
+  const { error } = await supabase
+    .from("menu_items")
+    .update({ image_url: null })
+    .eq("id", parsedId.data);
+
+  if (error) return { success: false, error: error.message };
+
+  await removeStoredMenuImage(supabase, item?.image_url);
+
+  await logAudit("remove_menu_item_image", "menu_item", parsedId.data);
   revalidateMenuPaths();
   return { success: true, data: undefined };
 }
