@@ -4,9 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export function DashboardNav({ links }: { links: { href: string; label: string }[] }) {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "";
 
   function isActive(href: string): boolean {
+    if (!pathname) return false;
     if (href === "/admin" || href === "/restaurant" || href === "/office" || href === "/app") {
       return pathname === href;
     }

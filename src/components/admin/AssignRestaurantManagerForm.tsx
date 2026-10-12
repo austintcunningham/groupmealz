@@ -16,7 +16,7 @@ export function AssignRestaurantManagerForm({
   const [success, setSuccess] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  function handleSubmit(formData: FormData) {
+  function submit(formData: FormData) {
     setError(null);
     setSuccess(null);
     const email = String(formData.get("email") ?? "");
@@ -42,7 +42,13 @@ export function AssignRestaurantManagerForm({
   if (!restaurants.length) return null;
 
   return (
-    <form action={handleSubmit} className="mt-6 space-y-3 border-t pt-6">
+    <form
+      className="mt-6 space-y-3 border-t pt-6"
+      onSubmit={(e) => {
+        e.preventDefault();
+        submit(new FormData(e.currentTarget));
+      }}
+    >
       <h3 className="font-medium text-slate-900">Assign restaurant manager</h3>
       {error ? <ErrorMessage message={error} /> : null}
       {success ? <SuccessMessage message={success} /> : null}
