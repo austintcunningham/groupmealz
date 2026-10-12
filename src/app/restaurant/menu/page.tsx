@@ -4,7 +4,6 @@ import { Card, EmptyState } from "@/components/ui";
 import { RestaurantMenuEditor } from "@/components/restaurant/RestaurantMenuEditor";
 import { requireRestaurantManager } from "@/lib/auth/guards";
 import { createClient } from "@/lib/supabase/server";
-import { getRelationName } from "@/lib/supabase/relation";
 import type { MenuCategory, MenuItem } from "@/types/database";
 
 export default async function RestaurantMenuPage() {
@@ -26,13 +25,25 @@ export default async function RestaurantMenuPage() {
         }).filter(Boolean) as { id: string; name: string }[];
 
   const restaurantId = restaurants[0]?.id;
+  const restaurantIds = restaurants.map((r) => r.id);
 
-  const [{ data: categories }, { data: menuItems }] = restaurantId
+  const [{ data: categories }, { data: menuItems }, { data: settings }] = restaurantId
     ? await Promise.all([
-        supabase.from("menu_categories").select("*").eq("restaurant_id", restaurantId).order("display_order"),
-        supabase.from("menu_items").select("*").eq("restaurant_id", restaurantId).order("display_order"),
+        supabase
+          .from("menu_categories")
+          .select("*")
+          .in("restaurant_id", restaurantIds)
+          .order("display_order"),
+        supabase
+          .from("menu_items")
+          .select("*")
+          .in("restaurant_id", restaurantIds)
+          .order("display_order"),
+        supabase.from("platform_settings").select("flat_fee_cents").limit(1).maybeSingle(),
       ])
-    : [{ data: [] }, { data: [] }];
+    : [{ data: [] }, { data: [] }, { data: null }];
+
+  const serviceFeePerEntreeCents = settings?.flat_fee_cents ?? 250;
 
   if (!restaurantId) {
     return (
@@ -57,6 +68,8 @@ export default async function RestaurantMenuPage() {
           restaurantName={name}
           categories={(categories ?? []) as MenuCategory[]}
           menuItems={(menuItems ?? []) as MenuItem[]}
+          restaurants={restaurants.length > 1 ? restaurants : undefined}
+          serviceFeePerEntreeCents={serviceFeePerEntreeCents}
         />
       </Card>
     </DashboardShell>

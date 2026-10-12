@@ -6,7 +6,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { checkoutGuest, createOrder, createPaymentIntent } from "@/lib/actions/orders";
 import { calculateOrderTotals, countBillableEntrees } from "@/lib/fees/calculate";
 import { OrderCheckoutSummary } from "@/components/order/OrderCheckoutSummary";
-import { effectivePriceCents, isPromoActive } from "@/lib/menus/effective-price";
+import { CustomerOrderMenu } from "@/components/order/CustomerOrderMenu";
+import { effectivePriceCents } from "@/lib/menus/effective-price";
 import { formatCents } from "@/lib/money/format";
 import type { PlatformSettings } from "@/types/database";
 import { isOrderingWindowOpen, formatOrderingWindow } from "@/lib/scheduling/window";
@@ -101,16 +102,13 @@ export function OrderFlowClient({
     return () => window.clearTimeout(t);
   }, [cartNotice]);
 
-  const itemsByCategory = useMemo(() => {
-    const map = new Map<string, MenuItem[]>();
-    for (const item of menuItems) {
-      const catId = item.category_id ?? "uncategorized";
-      const list = map.get(catId) ?? [];
-      list.push(item);
-      map.set(catId, list);
+  const cartQuantities = useMemo(() => {
+    const q: Record<string, number> = {};
+    for (const [id, entry] of Object.entries(cart)) {
+      q[id] = entry.quantity;
     }
-    return map;
-  }, [menuItems]);
+    return q;
+  }, [cart]);
 
   const cartLines = useMemo(() => {
     return Object.values(cart)
@@ -381,82 +379,15 @@ export function OrderFlowClient({
                 <p className="text-slate-500">No menu items available for this day.</p>
               </Card>
             ) : (
-              <>
-                {categories.map((cat) => {
-                  const items = itemsByCategory.get(cat.id) ?? [];
-                  if (!items.length) return null;
-                  return (
-                    <Card key={cat.id} title={cat.name}>
-                      <div className="space-y-4">
-                        {items.map((item) => {
-                          const qty = cart[item.id]?.quantity ?? 0;
-                          return (
-                            <div
-                              key={item.id}
-                              className="flex justify-between gap-4 border-b border-slate-100 pb-4 last:border-0"
-                            >
-                              <div>
-                                <h3 className="font-semibold">{item.name}</h3>
-                                {isPromoActive(item, schedule.lunch_date) ? (
-                                  <p className="text-sm text-slate-600">
-                                    <span className="line-through">{formatCents(item.price_cents)}</span>{" "}
-                                    <span className="font-medium text-red-600">
-                                      {formatCents(effectivePriceCents(item, schedule.lunch_date))}
-                                    </span>
-                                    {item.promo_label ? (
-                                      <span className="ml-1 text-xs text-green-700">{item.promo_label}</span>
-                                    ) : null}
-                                  </p>
-                                ) : (
-                                  <p className="font-medium text-red-600">{formatCents(item.price_cents)}</p>
-                                )}
-                                {serviceFeePerEntree != null &&
-                                (item.counts_as_entree ?? true) ? (
-                                  <p className="text-xs text-slate-500">
-                                    + {formatCents(serviceFeePerEntree)} service fee per entrée
-                                  </p>
-                                ) : null}
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <button type="button" onClick={() => updateQty(item.id, qty - 1)} className="qty-btn">
-                                  −
-                                </button>
-                                <span className="w-6 text-center font-bold">{qty}</span>
-                                <button type="button" onClick={() => updateQty(item.id, qty + 1)} className="qty-btn">
-                                  +
-                                </button>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </Card>
-                  );
-                })}
-                {(itemsByCategory.get("uncategorized") ?? []).length > 0 ? (
-                  <Card title="Menu">
-                    {(itemsByCategory.get("uncategorized") ?? []).map((item) => {
-                      const qty = cart[item.id]?.quantity ?? 0;
-                      return (
-                        <div key={item.id} className="flex justify-between py-2">
-                          <span>
-                            {item.name} — {formatCents(item.price_cents)}
-                          </span>
-                          <div className="flex items-center gap-2">
-                            <button type="button" onClick={() => updateQty(item.id, qty - 1)} className="qty-btn">
-                              −
-                            </button>
-                            <span>{qty}</span>
-                            <button type="button" onClick={() => updateQty(item.id, qty + 1)} className="qty-btn">
-                              +
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </Card>
-                ) : null}
-              </>
+              <CustomerOrderMenu
+                categories={categories}
+                menuItems={menuItems}
+                lunchDate={schedule.lunch_date}
+                serviceFeePerEntree={serviceFeePerEntree}
+                interactive
+                quantities={cartQuantities}
+                onQuantityChange={updateQty}
+              />
             )}
           </div>
           <Card title="Your cart" className="sticky top-4 h-fit">

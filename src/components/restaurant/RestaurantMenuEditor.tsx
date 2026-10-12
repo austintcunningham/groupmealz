@@ -3,10 +3,12 @@
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { MenuEntreeBadge } from "@/components/menus/MenuEntreeBadge";
+import { CustomerMenuLivePreview } from "@/components/restaurant/CustomerMenuLivePreview";
 import {
   createMenuCategory,
   createMenuItem,
   deleteMenuCategory,
+  deleteMenuItem,
   updateMenuCategory,
   updateMenuItem,
 } from "@/lib/actions/menus";
@@ -17,12 +19,16 @@ import type { MenuCategory, MenuItem } from "@/types/database";
 
 function MenuItemEditorForm({
   item,
+  categories,
   isPending,
   onSave,
+  onDelete,
 }: {
   item: MenuItem;
+  categories: MenuCategory[];
   isPending: boolean;
   onSave: (itemId: string, formData: FormData) => void;
+  onDelete: (itemId: string, itemName: string) => void;
 }) {
   const promo = isPromoActive(item);
   const charge = effectivePriceCents(item);
@@ -52,6 +58,22 @@ function MenuItemEditorForm({
         </div>
         <Input name="name" label="Name" defaultValue={item.name} required />
         <Input name="description" label="Description" defaultValue={item.description ?? ""} />
+        <Input
+          name="image_url"
+          label="Photo URL (HTTPS, optional)"
+          type="url"
+          defaultValue={item.image_url ?? ""}
+          placeholder="https://…"
+        />
+        {categories.length > 0 ? (
+          <Select name="category_id" label="Category" defaultValue={item.category_id ?? ""}>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+          </Select>
+        ) : null}
         <Input
           name="price"
           label="Regular price (USD)"
@@ -109,9 +131,20 @@ function MenuItemEditorForm({
             defaultValue={item.promo_ends_at ?? ""}
           />
         </div>
-        <Button type="submit" variant="secondary" size="sm" loading={isPending}>
-          Save item
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button type="submit" variant="secondary" size="sm" loading={isPending}>
+            Save item
+          </Button>
+          <Button
+            type="button"
+            variant="danger"
+            size="sm"
+            loading={isPending}
+            onClick={() => onDelete(item.id, item.name)}
+          >
+            Delete item
+          </Button>
+        </div>
       </form>
     </li>
   );
@@ -123,12 +156,14 @@ export function RestaurantMenuEditor({
   categories,
   menuItems,
   restaurants,
+  serviceFeePerEntreeCents = 250,
 }: {
   restaurantId: string;
   restaurantName: string;
   categories: MenuCategory[];
   menuItems: MenuItem[];
   restaurants?: { id: string; name: string }[];
+  serviceFeePerEntreeCents?: number;
 }) {
   const router = useRouter();
   const [restaurantId, setRestaurantId] = useState(initialRestaurantId);
@@ -216,11 +251,13 @@ export function RestaurantMenuEditor({
     startTransition(async () => {
       try {
         const categoryId = String(formData.get("category_id") ?? "");
+        const imageRaw = String(formData.get("image_url") ?? "").trim();
         const result = await createMenuItem({
           restaurant_id: restaurantId,
           category_id: categoryId || null,
           name: String(formData.get("item_name") ?? ""),
           description: String(formData.get("description") ?? "") || undefined,
+          image_url: imageRaw || null,
           price_cents: parseDollarsToCents(String(formData.get("price") ?? "0")),
           counts_as_entree: formData.has("counts_as_entree"),
         });
@@ -236,16 +273,34 @@ export function RestaurantMenuEditor({
     });
   }
 
+  function removeItem(itemId: string, itemName: string) {
+    if (!window.confirm(`Delete menu item "${itemName}"? This cannot be undone.`)) return;
+    setError(null);
+    startTransition(async () => {
+      const result = await deleteMenuItem(itemId);
+      if (!result.success) {
+        setError(result.error);
+        return;
+      }
+      flash("Item deleted");
+      router.refresh();
+    });
+  }
+
   function saveItem(itemId: string, formData: FormData) {
     setError(null);
     startTransition(async () => {
       try {
         const promoPriceRaw = String(formData.get("promo_price") ?? "").trim();
         const promoEnds = String(formData.get("promo_ends_at") ?? "").trim();
+        const categoryId = String(formData.get("category_id") ?? "").trim();
+        const imageRaw = String(formData.get("image_url") ?? "").trim();
         const result = await updateMenuItem({
           id: itemId,
           name: String(formData.get("name") ?? ""),
           description: String(formData.get("description") ?? "") || null,
+          category_id: categoryId || null,
+          image_url: imageRaw || null,
           price_cents: parseDollarsToCents(String(formData.get("price") ?? "0")),
           available: formData.get("available") === "on",
           counts_as_entree: formData.get("counts_as_entree") === "on",
@@ -284,6 +339,13 @@ export function RestaurantMenuEditor({
       {error ? <ErrorMessage message={error} /> : null}
       {success ? <SuccessMessage message={success} /> : null}
 
+      <CustomerMenuLivePreview
+        categories={restaurantCategories}
+        menuItems={restaurantItems}
+        restaurantName={restaurantName}
+        serviceFeePerEntreeCents={serviceFeePerEntreeCents}
+      />
+
       <p className="text-sm text-slate-600">
         Items marked <strong>Entrée</strong> include the per-entrée service fee at checkout. Sides
         and drinks should be <strong>Not entrée</strong>.
@@ -313,6 +375,12 @@ export function RestaurantMenuEditor({
         <h3 className="font-medium text-slate-900">Add menu item</h3>
         <Input name="item_name" label="Name" required />
         <Input name="description" label="Description" />
+        <Input
+          name="image_url"
+          label="Photo URL (HTTPS, optional)"
+          type="url"
+          placeholder="https://…"
+        />
         <Input name="price" label="Regular price (USD)" required type="number" step="0.01" min="0" />
         <Select name="category_id" label="Category" required={restaurantCategories.length > 0}>
           {restaurantCategories.length === 0 ? (
@@ -379,8 +447,10 @@ export function RestaurantMenuEditor({
                         <MenuItemEditorForm
                           key={item.id}
                           item={item}
+                          categories={restaurantCategories}
                           isPending={isPending}
                           onSave={saveItem}
+                          onDelete={removeItem}
                         />
                       ))}
                     </ul>
@@ -399,8 +469,10 @@ export function RestaurantMenuEditor({
                     <MenuItemEditorForm
                       key={item.id}
                       item={item}
+                      categories={restaurantCategories}
                       isPending={isPending}
                       onSave={saveItem}
+                      onDelete={removeItem}
                     />
                   ))}
                 </ul>

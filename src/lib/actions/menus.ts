@@ -9,6 +9,11 @@ import {
   type ActionResult,
 } from "@/lib/actions/utils";
 
+const optionalImageUrl = z
+  .union([z.string().url().max(2048), z.literal(""), z.null()])
+  .optional()
+  .transform((v) => (!v || v === "" ? null : v));
+
 const categorySchema = z.object({
   restaurant_id: z.string().uuid(),
   name: z.string().min(1),
@@ -36,6 +41,7 @@ const menuItemSchema = z.object({
   promo_label: z.string().max(120).nullable().optional(),
   promo_price_cents: z.number().int().min(0).nullable().optional(),
   promo_ends_at: z.string().nullable().optional(),
+  image_url: optionalImageUrl,
 });
 
 const updateMenuItemSchema = z.object({
@@ -50,6 +56,7 @@ const updateMenuItemSchema = z.object({
   promo_label: z.string().max(120).nullable().optional(),
   promo_price_cents: z.number().int().min(0).nullable().optional(),
   promo_ends_at: z.string().nullable().optional(),
+  image_url: optionalImageUrl,
 });
 
 async function assertRestaurantMenuAccess(
@@ -251,6 +258,35 @@ export async function updateMenuItem(
   if (error) return { success: false, error: error.message };
 
   await logAudit("update_menu_item", "menu_item", id);
+  revalidateMenuPaths();
+  return { success: true, data: undefined };
+}
+
+export async function deleteMenuItem(itemId: string): Promise<ActionResult> {
+  const auth = await requireProfileRole(["admin", "restaurant_manager"]);
+  if ("error" in auth) return { success: false, error: auth.error };
+
+  const parsedId = z.string().uuid().safeParse(itemId);
+  if (!parsedId.success) {
+    return { success: false, error: "Invalid menu item" };
+  }
+
+  const restaurantId = await getMenuItemRestaurantId(parsedId.data);
+  if (!restaurantId) return { success: false, error: "Menu item not found" };
+
+  const allowed = await assertRestaurantMenuAccess(
+    restaurantId,
+    auth.profile.role,
+    auth.profile.id
+  );
+  if (!allowed) return { success: false, error: "Unauthorized" };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("menu_items").delete().eq("id", parsedId.data);
+
+  if (error) return { success: false, error: error.message };
+
+  await logAudit("delete_menu_item", "menu_item", parsedId.data);
   revalidateMenuPaths();
   return { success: true, data: undefined };
 }
