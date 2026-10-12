@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { checkoutGuest, createOrder, createPaymentIntent } from "@/lib/actions/orders";
 import { calculateOrderTotals, countBillableEntrees } from "@/lib/fees/calculate";
 import { OrderCheckoutSummary } from "@/components/order/OrderCheckoutSummary";
+import { effectivePriceCents, isPromoActive } from "@/lib/menus/effective-price";
 import { formatCents } from "@/lib/money/format";
 import type { PlatformSettings } from "@/types/database";
 import { isOrderingWindowOpen, formatOrderingWindow } from "@/lib/scheduling/window";
@@ -117,14 +118,15 @@ export function OrderFlowClient({
       .map((entry) => {
         const item = menuItems.find((m) => m.id === entry.menuItemId);
         if (!item) return null;
+        const unit = effectivePriceCents(item, schedule.lunch_date);
         return {
           ...entry,
           name: item.name,
-          lineTotal: item.price_cents * entry.quantity,
+          lineTotal: unit * entry.quantity,
         };
       })
       .filter(Boolean) as Array<CartEntry & { name: string; lineTotal: number }>;
-  }, [cart, menuItems]);
+  }, [cart, menuItems, schedule.lunch_date]);
 
   const subtotal = cartLines.reduce((s, l) => s + l.lineTotal, 0);
   const entreeCount = countBillableEntrees(
@@ -395,7 +397,19 @@ export function OrderFlowClient({
                             >
                               <div>
                                 <h3 className="font-semibold">{item.name}</h3>
-                                <p className="font-medium text-red-600">{formatCents(item.price_cents)}</p>
+                                {isPromoActive(item, schedule.lunch_date) ? (
+                                  <p className="text-sm text-slate-600">
+                                    <span className="line-through">{formatCents(item.price_cents)}</span>{" "}
+                                    <span className="font-medium text-red-600">
+                                      {formatCents(effectivePriceCents(item, schedule.lunch_date))}
+                                    </span>
+                                    {item.promo_label ? (
+                                      <span className="ml-1 text-xs text-green-700">{item.promo_label}</span>
+                                    ) : null}
+                                  </p>
+                                ) : (
+                                  <p className="font-medium text-red-600">{formatCents(item.price_cents)}</p>
+                                )}
                                 {serviceFeePerEntree != null &&
                                 (item.counts_as_entree ?? true) ? (
                                   <p className="text-xs text-slate-500">

@@ -1,9 +1,11 @@
+import Link from "next/link";
 import { DashboardShell } from "@/components/DashboardShell";
 import { Card, EmptyState } from "@/components/ui";
+import { RestaurantMenuEditor } from "@/components/restaurant/RestaurantMenuEditor";
 import { requireRestaurantManager } from "@/lib/auth/guards";
-import { formatCents } from "@/lib/money/format";
 import { createClient } from "@/lib/supabase/server";
 import { getRelationName } from "@/lib/supabase/relation";
+import type { MenuCategory, MenuItem } from "@/types/database";
 
 export default async function RestaurantMenuPage() {
   const profile = await requireRestaurantManager();
@@ -11,38 +13,51 @@ export default async function RestaurantMenuPage() {
 
   const { data: links } = await supabase
     .from("restaurant_users")
-    .select("restaurant_id, restaurants(name)")
+    .select("restaurant_id, restaurants(id, name)")
     .eq("user_id", profile.id);
 
-  const restaurantId = links?.[0]?.restaurant_id;
-  const { data: items } = restaurantId
-    ? await supabase
-        .from("menu_items")
-        .select("*, menu_categories(name)")
-        .eq("restaurant_id", restaurantId)
-        .order("display_order")
-    : { data: [] };
+  let restaurants: { id: string; name: string }[] =
+    profile.role === "admin"
+      ? ((await supabase.from("restaurants").select("id, name").order("name")).data ?? [])
+      : (links ?? []).map((l) => {
+          const r = l.restaurants as { id: string; name: string } | { id: string; name: string }[] | null;
+          const row = Array.isArray(r) ? r[0] : r;
+          return row ? { id: row.id, name: row.name } : null;
+        }).filter(Boolean) as { id: string; name: string }[];
+
+  const restaurantId = restaurants[0]?.id;
+
+  const [{ data: categories }, { data: menuItems }] = restaurantId
+    ? await Promise.all([
+        supabase.from("menu_categories").select("*").eq("restaurant_id", restaurantId).order("display_order"),
+        supabase.from("menu_items").select("*").eq("restaurant_id", restaurantId).order("display_order"),
+      ])
+    : [{ data: [] }, { data: [] }];
+
+  if (!restaurantId) {
+    return (
+      <DashboardShell role={profile.role} title="Menu">
+        <EmptyState message="No restaurant assigned." />
+      </DashboardShell>
+    );
+  }
+
+  const name = restaurants.find((r) => r.id === restaurantId)?.name ?? "Menu";
 
   return (
     <DashboardShell role={profile.role} title="Menu">
-      <Card title={getRelationName(links?.[0]?.restaurants) ?? "Menu"}>
-        {!items?.length ? (
-          <EmptyState message="No menu items." />
-        ) : (
-          <ul className="divide-y divide-slate-100">
-            {items.map((item) => (
-              <li key={item.id} className="flex justify-between py-3 text-sm">
-                <div>
-                  <p className="font-medium">{item.name}</p>
-                  <p className="text-slate-500">
-                    {getRelationName(item.menu_categories) ?? "Uncategorized"}
-                  </p>
-                </div>
-                <span>{formatCents(item.price_cents)}</span>
-              </li>
-            ))}
-          </ul>
-        )}
+      {profile.role === "admin" && restaurants.length > 1 ? (
+        <p className="mb-4 text-sm text-slate-600">
+          Also see <Link href="/admin/menus" className="text-[var(--geaux-red)] hover:underline">Admin → Menus</Link> for all restaurants.
+        </p>
+      ) : null}
+      <Card title={name}>
+        <RestaurantMenuEditor
+          restaurantId={restaurantId}
+          restaurantName={name}
+          categories={(categories ?? []) as MenuCategory[]}
+          menuItems={(menuItems ?? []) as MenuItem[]}
+        />
       </Card>
     </DashboardShell>
   );

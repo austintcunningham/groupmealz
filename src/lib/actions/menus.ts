@@ -26,18 +26,74 @@ const menuItemSchema = z.object({
   available: z.boolean().optional(),
   display_order: z.number().int().optional(),
   counts_as_entree: z.boolean().optional(),
+  promo_label: z.string().max(120).nullable().optional(),
+  promo_price_cents: z.number().int().min(0).nullable().optional(),
+  promo_ends_at: z.string().nullable().optional(),
 });
+
+const updateMenuItemSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().min(1).optional(),
+  description: z.string().nullable().optional(),
+  price_cents: z.number().int().min(0).optional(),
+  category_id: z.string().uuid().nullable().optional(),
+  available: z.boolean().optional(),
+  active: z.boolean().optional(),
+  counts_as_entree: z.boolean().optional(),
+  promo_label: z.string().max(120).nullable().optional(),
+  promo_price_cents: z.number().int().min(0).nullable().optional(),
+  promo_ends_at: z.string().nullable().optional(),
+});
+
+async function assertRestaurantMenuAccess(
+  restaurantId: string,
+  role: string,
+  userId: string
+): Promise<boolean> {
+  if (role === "admin") return true;
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("restaurant_users")
+    .select("id")
+    .eq("restaurant_id", restaurantId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  return Boolean(data);
+}
+
+async function getMenuItemRestaurantId(itemId: string): Promise<string | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("menu_items")
+    .select("restaurant_id")
+    .eq("id", itemId)
+    .maybeSingle();
+  return data?.restaurant_id ?? null;
+}
+
+function revalidateMenuPaths() {
+  revalidatePath("/admin/menus");
+  revalidatePath("/restaurant/menu");
+  revalidatePath("/order");
+}
 
 export async function createMenuCategory(
   input: z.infer<typeof categorySchema>
 ): Promise<ActionResult<{ id: string }>> {
-  const auth = await requireProfileRole(["admin"]);
+  const auth = await requireProfileRole(["admin", "restaurant_manager"]);
   if ("error" in auth) return { success: false, error: auth.error };
 
   const parsed = categorySchema.safeParse(input);
   if (!parsed.success) {
     return { success: false, error: parsed.error.errors[0]?.message ?? "Invalid input" };
   }
+
+  const allowed = await assertRestaurantMenuAccess(
+    parsed.data.restaurant_id,
+    auth.profile.role,
+    auth.profile.id
+  );
+  if (!allowed) return { success: false, error: "Unauthorized" };
 
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -49,20 +105,27 @@ export async function createMenuCategory(
   if (error) return { success: false, error: error.message };
 
   await logAudit("create_menu_category", "menu_category", data.id);
-  revalidatePath("/admin/menus");
+  revalidateMenuPaths();
   return { success: true, data: { id: data.id } };
 }
 
 export async function createMenuItem(
   input: z.infer<typeof menuItemSchema>
 ): Promise<ActionResult<{ id: string }>> {
-  const auth = await requireProfileRole(["admin"]);
+  const auth = await requireProfileRole(["admin", "restaurant_manager"]);
   if ("error" in auth) return { success: false, error: auth.error };
 
   const parsed = menuItemSchema.safeParse(input);
   if (!parsed.success) {
     return { success: false, error: parsed.error.errors[0]?.message ?? "Invalid input" };
   }
+
+  const allowed = await assertRestaurantMenuAccess(
+    parsed.data.restaurant_id,
+    auth.profile.role,
+    auth.profile.id
+  );
+  if (!allowed) return { success: false, error: "Unauthorized" };
 
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -74,6 +137,38 @@ export async function createMenuItem(
   if (error) return { success: false, error: error.message };
 
   await logAudit("create_menu_item", "menu_item", data.id);
-  revalidatePath("/admin/menus");
+  revalidateMenuPaths();
   return { success: true, data: { id: data.id } };
+}
+
+export async function updateMenuItem(
+  input: z.infer<typeof updateMenuItemSchema>
+): Promise<ActionResult> {
+  const auth = await requireProfileRole(["admin", "restaurant_manager"]);
+  if ("error" in auth) return { success: false, error: auth.error };
+
+  const parsed = updateMenuItemSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.errors[0]?.message ?? "Invalid input" };
+  }
+
+  const restaurantId = await getMenuItemRestaurantId(parsed.data.id);
+  if (!restaurantId) return { success: false, error: "Menu item not found" };
+
+  const allowed = await assertRestaurantMenuAccess(
+    restaurantId,
+    auth.profile.role,
+    auth.profile.id
+  );
+  if (!allowed) return { success: false, error: "Unauthorized" };
+
+  const { id, ...patch } = parsed.data;
+  const supabase = await createClient();
+  const { error } = await supabase.from("menu_items").update(patch).eq("id", id);
+
+  if (error) return { success: false, error: error.message };
+
+  await logAudit("update_menu_item", "menu_item", id);
+  revalidateMenuPaths();
+  return { success: true, data: undefined };
 }

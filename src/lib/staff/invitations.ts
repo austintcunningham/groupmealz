@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
+  sendRestaurantManagerInviteEmail,
   sendStaffAccessGrantedEmail,
   sendStaffSignupInviteEmail,
 } from "@/lib/email/staff-invitation";
@@ -162,12 +163,21 @@ export async function upsertStaffInvitation(
 
   const existing = await findProfileIdByEmailAdmin(email);
   if (!existing) {
-    const mail = await sendStaffSignupInviteEmail({
-      to: email,
-      roleTitle: copy.roleTitle,
-      placeName: copy.placeName,
-      signupUrl: `${base}/signup`,
-    });
+    const mail =
+      input.kind === "restaurant_manager"
+        ? await sendRestaurantManagerInviteEmail({
+            to: email,
+            restaurantName: copy.placeName,
+            signupUrl: `${base}/signup`,
+            baseUrl: base,
+            isExistingAccount: false,
+          })
+        : await sendStaffSignupInviteEmail({
+            to: email,
+            roleTitle: copy.roleTitle,
+            placeName: copy.placeName,
+            signupUrl: `${base}/signup`,
+          });
     return {
       status: "invited",
       email,
@@ -185,12 +195,22 @@ export async function upsertStaffInvitation(
     return { error: applyError.message };
   }
 
-  const mail = await sendStaffAccessGrantedEmail({
-    to: email,
-    roleTitle: copy.roleTitle,
-    placeName: copy.placeName,
-    loginUrl: `${base}/login`,
-  });
+  const mail =
+    input.kind === "restaurant_manager"
+      ? await sendRestaurantManagerInviteEmail({
+          to: email,
+          restaurantName: copy.placeName,
+          signupUrl: `${base}/signup`,
+          loginUrl: `${base}/login`,
+          baseUrl: base,
+          isExistingAccount: true,
+        })
+      : await sendStaffAccessGrantedEmail({
+          to: email,
+          roleTitle: copy.roleTitle,
+          placeName: copy.placeName,
+          loginUrl: `${base}/login`,
+        });
 
   return {
     status: "assigned",

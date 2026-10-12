@@ -113,6 +113,9 @@ export interface MenuItem {
   description: string | null;
   price_cents: number;
   counts_as_entree?: boolean;
+  promo_label?: string | null;
+  promo_price_cents?: number | null;
+  promo_ends_at?: string | null;
   active: boolean;
   available: boolean;
   display_order: number;

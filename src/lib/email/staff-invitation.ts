@@ -1,4 +1,5 @@
 import { BRAND } from "@/lib/brand";
+import { buildRestaurantManagerInviteHtml } from "@/lib/email/restaurant-manager-onboarding";
 import { htmlToPlainText } from "@/lib/email/html-utils";
 import { emailPrimaryButton, wrapBrandedEmail } from "@/lib/email/layout";
 import { getEmailFromAddress, getReplyToAddress, getResendClient } from "@/lib/email/resend-client";
@@ -65,6 +66,40 @@ export async function sendStaffSignupInviteEmail(input: {
     to: input.to,
     replyTo: getReplyToAddress(),
     subject: `${BRAND.name} — you're invited as ${input.roleTitle}`,
+    html,
+    text: htmlToPlainText(html),
+  });
+
+  if (error) return { sent: false, error: error.message };
+  return { sent: true };
+}
+
+export async function sendRestaurantManagerInviteEmail(input: {
+  to: string;
+  restaurantName: string;
+  signupUrl: string;
+  loginUrl?: string;
+  baseUrl: string;
+  isExistingAccount: boolean;
+}): Promise<{ sent: boolean; error?: string }> {
+  const resend = getResendClient();
+  if (!resend) {
+    return { sent: false, error: "RESEND_API_KEY missing on server" };
+  }
+
+  const html = buildRestaurantManagerInviteHtml({
+    restaurantName: input.restaurantName,
+    signupUrl: input.signupUrl,
+    loginUrl: input.loginUrl ?? input.signupUrl.replace(/\/signup\/?$/, "/login"),
+    isExistingAccount: input.isExistingAccount,
+    baseUrl: input.baseUrl,
+  });
+
+  const { error } = await resend.emails.send({
+    from: getEmailFromAddress(),
+    to: input.to,
+    replyTo: getReplyToAddress(),
+    subject: `${BRAND.name} — set up ${input.restaurantName} (menu, branding & deals)`,
     html,
     text: htmlToPlainText(html),
   });

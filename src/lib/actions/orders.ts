@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { calculateOrderTotals, countBillableEntrees } from "@/lib/fees/calculate";
+import { effectivePriceCents } from "@/lib/menus/effective-price";
 import { sendRestaurantOrderEmail } from "@/lib/email/restaurant";
 import { getOrCreateStripeCustomer, savePaymentMethodRecord } from "@/lib/stripe/customers";
 import { isOrderingWindowOpen } from "@/lib/scheduling/window";
@@ -86,12 +87,13 @@ async function buildOrderFromItems(
   const lineItems = items.map((item) => {
     const menuItem = menuMap.get(item.menuItemId);
     if (!menuItem) throw new Error("Invalid menu item");
-    const lineTotal = menuItem.price_cents * item.quantity;
+    const unitCents = effectivePriceCents(menuItem, schedule.lunch_date);
+    const lineTotal = unitCents * item.quantity;
     subtotalCents += lineTotal;
     return {
       menu_item_id: menuItem.id,
       item_name_snapshot: menuItem.name,
-      base_price_cents: menuItem.price_cents,
+      base_price_cents: unitCents,
       quantity: item.quantity,
       special_instructions: item.specialInstructions ?? null,
       line_total_cents: lineTotal,
