@@ -55,7 +55,8 @@ export function filterEditorMenuCategories(
     }
   }
 
-  return categories.filter((c) => c.active && needed.has(c.id));
+  // Editor shows categories even if marked inactive, so items stay editable.
+  return categories.filter((c) => needed.has(c.id));
 }
 
 export function filterCustomerFacingCategories(

@@ -29,7 +29,6 @@ import {
   topLevelCategories,
 } from "@/lib/menus/category-tree";
 import { reorderMenuCategories, reorderMenuItems } from "@/lib/actions/menus";
-import { Button } from "@/components/ui";
 import { mergeVisibleReorder, reorderIdsInList, sortMenuItems } from "@/lib/menus/sort";
 import type {
   MenuCategory,
@@ -146,6 +145,20 @@ export function DraggableCustomerMenuPreview({
   const orphanSubs = visibleCategories.filter(
     (c) => c.parent_id && !visibleCategories.some((p) => p.id === c.parent_id)
   );
+
+  const visibleCategoryIds = useMemo(
+    () => new Set(visibleCategories.map((c) => c.id)),
+    [visibleCategories]
+  );
+
+  const itemsMissingCategory = useMemo(() => {
+    if (!editorMode) return [];
+    return sortMenuItems(
+      visibleItems.filter(
+        (i) => i.category_id && !visibleCategoryIds.has(i.category_id)
+      )
+    );
+  }, [editorMode, visibleCategoryIds, visibleItems]);
 
   function siblingsCategories(parentId: string | null) {
     return allCategories.filter((c) => (c.parent_id ?? null) === parentId);
@@ -264,19 +277,8 @@ export function DraggableCustomerMenuPreview({
                   cart={{}}
                   simpleLineKey={buildCartLineKey(item.id, null, [])}
                   simpleQty={0}
+                  onEdit={onEditItem ? () => onEditItem(item.id) : undefined}
                 />
-                {onEditItem ? (
-                  <div className="mt-2 flex justify-end border-t border-slate-100 pt-2">
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => onEditItem(item.id)}
-                    >
-                      Edit
-                    </Button>
-                  </div>
-                ) : null}
               </div>
             </SortableRow>
           ))}
@@ -345,7 +347,7 @@ export function DraggableCustomerMenuPreview({
             return (
               <div
                 key={top.id}
-                className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
+                className={`rounded-xl border border-slate-200 bg-white shadow-sm ${editorMode ? "" : "overflow-hidden"}`}
               >
                 <SortableRow id={toDragId("top-cat", top.id)} label={top.name} className="border-b border-slate-100 bg-slate-50/50 px-3 py-2">
                   <h2 className="py-1 text-lg font-semibold text-slate-900">{top.name}</h2>
@@ -356,7 +358,7 @@ export function DraggableCustomerMenuPreview({
                       {subBlocks.map(({ sub, items }) => (
                         <div
                           key={sub.id}
-                          className="overflow-hidden rounded-lg border border-dashed border-slate-200 bg-slate-50/80"
+                          className={`rounded-lg border border-dashed border-slate-200 bg-slate-50/80 ${editorMode ? "" : "overflow-hidden"}`}
                         >
                           <SortableRow
                             id={toDragId("sub-cat", sub.id)}
@@ -409,6 +411,18 @@ export function DraggableCustomerMenuPreview({
             <div className="px-4 py-3">
               {renderItemList(itemsByCategory.get("uncategorized") ?? [])}
             </div>
+          </div>
+        ) : null}
+
+        {itemsMissingCategory.length > 0 ? (
+          <div className="rounded-xl border border-amber-200 bg-amber-50/40 shadow-sm">
+            <div className="border-b border-amber-100 px-4 py-3">
+              <h2 className="text-lg font-semibold text-slate-900">Needs category</h2>
+              <p className="text-xs text-slate-600">
+                These items point at a missing or inactive category — use Edit to reassign.
+              </p>
+            </div>
+            <div className="px-4 py-3">{renderItemList(itemsMissingCategory)}</div>
           </div>
         ) : null}
       </div>

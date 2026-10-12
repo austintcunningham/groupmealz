@@ -20,7 +20,7 @@ import {
 } from "@/lib/menus/item-options";
 import { sortMenuItems } from "@/lib/menus/sort";
 import { formatCents } from "@/lib/money/format";
-import { Card } from "@/components/ui";
+import { Button, Card } from "@/components/ui";
 import type { MenuCategory, MenuItem, MenuItemIngredient, MenuItemSize } from "@/types/database";
 
 function lunchDateForPromos(explicit?: string): string {
@@ -49,6 +49,7 @@ export function CustomerMenuItemDisplay({
   simpleQty,
   onSimpleQtyChange,
   onAddConfigured,
+  onEdit,
 }: {
   item: MenuItem;
   lunchDate: string;
@@ -62,6 +63,8 @@ export function CustomerMenuItemDisplay({
   simpleQty: number;
   onSimpleQtyChange?: (lineKey: string, nextQty: number) => void;
   onAddConfigured?: (line: Omit<CustomerCartLine, "lineKey" | "quantity">) => void;
+  /** Menu editor: edit control shown beside the item name (always visible). */
+  onEdit?: () => void;
 }) {
   const hasOptions = menuItemHasOptions(sizes, ingredients);
   const [sizeId, setSizeId] = useState<string | null>(() => defaultSizeId(sizes));
@@ -133,7 +136,14 @@ export function CustomerMenuItemDisplay({
       <div className="flex items-start gap-3 sm:gap-4">
         <MenuItemPhoto imageUrl={item.image_url} itemName={item.name} size="lg" showPlaceholder />
         <div className="flex min-w-0 flex-1 flex-col justify-center">
-          <h3 className="font-semibold leading-snug text-slate-900">{item.name}</h3>
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="font-semibold leading-snug text-slate-900">{item.name}</h3>
+            {onEdit ? (
+              <Button type="button" variant="secondary" size="sm" className="shrink-0" onClick={onEdit}>
+                Edit
+              </Button>
+            ) : null}
+          </div>
           {item.description ? (
             <p className="mt-0.5 line-clamp-2 text-sm text-slate-600">{item.description}</p>
           ) : null}
