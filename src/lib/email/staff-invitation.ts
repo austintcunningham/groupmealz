@@ -11,6 +11,10 @@ export type StaffEmailDispatchResult = {
   from?: string;
 };
 
+type StaffEmailExtras = {
+  bcc?: string;
+};
+
 function fromResend(result: SendViaResendResult): StaffEmailDispatchResult {
   if (result.sent) {
     return { sent: true, id: result.id, from: result.from };
@@ -63,31 +67,37 @@ export function buildStaffAccessGrantedHtml(input: {
   });
 }
 
-export async function sendStaffSignupInviteEmail(input: {
-  to: string;
-  roleTitle: string;
-  placeName: string;
-  signupUrl: string;
-}): Promise<StaffEmailDispatchResult> {
+export async function sendStaffSignupInviteEmail(
+  input: {
+    to: string;
+    roleTitle: string;
+    placeName: string;
+    signupUrl: string;
+  } & StaffEmailExtras
+): Promise<StaffEmailDispatchResult> {
   const html = buildStaffSignupInviteHtml(input);
   return fromResend(
     await sendViaResend({
       to: input.to,
+      bcc: input.bcc,
       subject: `${BRAND.name} — you're invited as ${input.roleTitle}`,
       html,
       text: htmlToPlainText(html),
+      tags: [{ name: "type", value: "staff-invite" }],
     })
   );
 }
 
-export async function sendRestaurantManagerInviteEmail(input: {
-  to: string;
-  restaurantName: string;
-  signupUrl: string;
-  loginUrl?: string;
-  baseUrl: string;
-  isExistingAccount: boolean;
-}): Promise<StaffEmailDispatchResult> {
+export async function sendRestaurantManagerInviteEmail(
+  input: {
+    to: string;
+    restaurantName: string;
+    signupUrl: string;
+    loginUrl?: string;
+    baseUrl: string;
+    isExistingAccount: boolean;
+  } & StaffEmailExtras
+): Promise<StaffEmailDispatchResult> {
   const html = buildRestaurantManagerInviteHtml({
     restaurantName: input.restaurantName,
     signupUrl: input.signupUrl,
@@ -99,26 +109,32 @@ export async function sendRestaurantManagerInviteEmail(input: {
   return fromResend(
     await sendViaResend({
       to: input.to,
+      bcc: input.bcc,
       subject: `${BRAND.name} — set up ${input.restaurantName} (menu, branding & deals)`,
       html,
       text: htmlToPlainText(html),
+      tags: [{ name: "type", value: "restaurant-manager-invite" }],
     })
   );
 }
 
-export async function sendStaffAccessGrantedEmail(input: {
-  to: string;
-  roleTitle: string;
-  placeName: string;
-  loginUrl: string;
-}): Promise<StaffEmailDispatchResult> {
+export async function sendStaffAccessGrantedEmail(
+  input: {
+    to: string;
+    roleTitle: string;
+    placeName: string;
+    loginUrl: string;
+  } & StaffEmailExtras
+): Promise<StaffEmailDispatchResult> {
   const html = buildStaffAccessGrantedHtml(input);
   return fromResend(
     await sendViaResend({
       to: input.to,
+      bcc: input.bcc,
       subject: `${BRAND.name} — your manager access is ready`,
       html,
       text: htmlToPlainText(html),
+      tags: [{ name: "type", value: "staff-access-granted" }],
     })
   );
 }

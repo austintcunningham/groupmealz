@@ -1,7 +1,7 @@
 export const BRAND = {
   name: "Group Meals",
   tagline: "Scheduled office lunch, done right.",
-  supportEmail: "support@groupmealz.com",
+  supportEmail: "support@groupmeals.net",
   /** Verified sending domain in Resend (EMAIL_FROM must use this). */
   mailDomain: "groupmeals.net",
 } as const;

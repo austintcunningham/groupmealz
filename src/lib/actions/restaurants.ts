@@ -160,15 +160,27 @@ export async function assignRestaurantManagerByEmail(
     return { success: false, error: "Email is required." };
   }
 
-  const result = await upsertStaffInvitation({
-    kind: "restaurant_manager",
-    email: normalized,
-    restaurantId,
-    createdBy: auth.profile.id,
-  });
+  const result = await upsertStaffInvitation(
+    {
+      kind: "restaurant_manager",
+      email: normalized,
+      restaurantId,
+      createdBy: auth.profile.id,
+    },
+    { notifyEmail: auth.profile.email }
+  );
 
   if ("error" in result) {
     return { success: false, error: result.error };
+  }
+
+  const { staffInviteEmailFailureMessage } = await import("@/lib/staff/invite-messages");
+  const emailFail = staffInviteEmailFailureMessage(result);
+  if (emailFail) {
+    return {
+      success: false,
+      error: `Manager access is saved, but the invitation email failed: ${emailFail}`,
+    };
   }
 
   revalidatePath("/admin/restaurants");
@@ -232,11 +244,18 @@ export async function resendRestaurantManagerInviteEmail(
       email: normalized,
       restaurantId,
     },
-    Boolean(profile)
+    Boolean(profile),
+    auth.profile.email
   );
 
   if ("error" in mail) {
     return { success: false, error: mail.error };
+  }
+
+  const { staffInviteEmailFailureMessage } = await import("@/lib/staff/invite-messages");
+  const emailFail = staffInviteEmailFailureMessage(mail);
+  if (emailFail) {
+    return { success: false, error: emailFail };
   }
 
   return {

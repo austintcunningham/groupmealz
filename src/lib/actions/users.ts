@@ -84,14 +84,26 @@ export async function invitePlatformAdminByEmail(
     return { success: false, error: "You are already a platform admin." };
   }
 
-  const result = await upsertStaffInvitation({
-    kind: "platform_admin",
-    email: normalized,
-    createdBy: auth.profile.id,
-  });
+  const result = await upsertStaffInvitation(
+    {
+      kind: "platform_admin",
+      email: normalized,
+      createdBy: auth.profile.id,
+    },
+    { notifyEmail: auth.profile.email }
+  );
 
   if ("error" in result) {
     return { success: false, error: result.error };
+  }
+
+  const { staffInviteEmailFailureMessage } = await import("@/lib/staff/invite-messages");
+  const emailFail = staffInviteEmailFailureMessage(result);
+  if (emailFail) {
+    return {
+      success: false,
+      error: `Admin invite is saved, but the email failed: ${emailFail}`,
+    };
   }
 
   revalidatePath("/admin/settings");
@@ -151,9 +163,15 @@ export async function resendStaffInvitationById(
     return { success: false, error: "Unsupported invitation type." };
   }
 
-  const mail = await sendStaffInvitationEmail(input, false);
+  const mail = await sendStaffInvitationEmail(input, false, auth.profile.email);
   if ("error" in mail) {
     return { success: false, error: mail.error };
+  }
+
+  const { staffInviteEmailFailureMessage } = await import("@/lib/staff/invite-messages");
+  const emailFail = staffInviteEmailFailureMessage(mail);
+  if (emailFail) {
+    return { success: false, error: emailFail };
   }
 
   return {

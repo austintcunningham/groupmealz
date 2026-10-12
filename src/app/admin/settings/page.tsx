@@ -1,5 +1,6 @@
 import { DashboardShell } from "@/components/DashboardShell";
 import { Card } from "@/components/ui";
+import { AdminEmailDiagnosticsForm } from "@/components/admin/AdminEmailDiagnosticsForm";
 import { InvitePlatformAdminForm } from "@/components/admin/InvitePlatformAdminForm";
 import { PendingStaffInvitations } from "@/components/admin/PendingStaffInvitations";
 import { PlatformSettingsForm } from "@/components/admin/PlatformSettingsForm";
@@ -29,6 +30,9 @@ export default async function AdminSettingsPage() {
           )}
         </Card>
         <div className="space-y-6">
+          <Card title="Email delivery">
+            <AdminEmailDiagnosticsForm />
+          </Card>
           <Card title="Platform admins">
             <InvitePlatformAdminForm />
           </Card>

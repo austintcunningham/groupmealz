@@ -1,3 +1,14 @@
+export function staffInviteEmailFailureMessage(result: {
+  emailSent: boolean;
+  emailError?: string;
+}): string | null {
+  if (result.emailSent) return null;
+  return (
+    result.emailError ??
+    "Email was not sent. In Vercel → Production env, set RESEND_API_KEY and EMAIL_FROM (e.g. orders@groupmeals.net on your verified domain), redeploy, then run Admin → Settings → Email delivery → Send test."
+  );
+}
+
 export function staffInviteSuccessMessage(data: {
   status: "assigned" | "invited";
   email: string;
@@ -15,11 +26,11 @@ export function staffInviteSuccessMessage(data: {
   const emailPart = (() => {
     if (data.emailSent) {
       const idPart = data.emailId ? ` Resend ID: ${data.emailId}.` : "";
-      return `Invitation email queued.${idPart} Ask them to check spam and Promotions.`;
+      return `Invitation email queued.${idPart} You should receive a BCC copy at your admin email. Ask them to check spam.`;
     }
     if (data.emailError) {
       const fromPart = data.emailFrom ? ` Sent-from: ${data.emailFrom}.` : "";
-      return `Email was not sent (${data.emailError}).${fromPart} Fix Resend / EMAIL_FROM on Vercel, then try Resend email.`;
+      return `Email was not sent (${data.emailError}).${fromPart}`;
     }
     return "Email was not sent (Resend not configured).";
   })();

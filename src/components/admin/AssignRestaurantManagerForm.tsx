@@ -60,10 +60,9 @@ export function AssignRestaurantManagerForm({
         return;
       }
       const d = result.data;
-      const msg = d.emailSent
-        ? `Invitation email queued again.${d.emailId ? ` Resend ID: ${d.emailId}.` : ""} Ask them to check spam.`
-        : `Email was not sent (${d.emailError ?? "unknown error"}).`;
-      setSuccess(msg);
+      setSuccess(
+        `Invitation email queued again.${d.emailId ? ` Resend ID: ${d.emailId}.` : ""} Check your inbox for the BCC copy.`
+      );
     });
   }
 

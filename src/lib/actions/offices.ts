@@ -164,16 +164,28 @@ export async function assignOfficeUserByEmail(
     return { success: false, error: "Email is required." };
   }
 
-  const result = await upsertStaffInvitation({
-    kind: "office_member",
-    email: normalized,
-    officeId,
-    officeRole: role,
-    createdBy: auth.profile.id,
-  });
+  const result = await upsertStaffInvitation(
+    {
+      kind: "office_member",
+      email: normalized,
+      officeId,
+      officeRole: role,
+      createdBy: auth.profile.id,
+    },
+    { notifyEmail: auth.profile.email }
+  );
 
   if ("error" in result) {
     return { success: false, error: result.error };
+  }
+
+  const { staffInviteEmailFailureMessage } = await import("@/lib/staff/invite-messages");
+  const emailFail = staffInviteEmailFailureMessage(result);
+  if (emailFail) {
+    return {
+      success: false,
+      error: `Office access is saved, but the invitation email failed: ${emailFail}`,
+    };
   }
 
   revalidatePath("/admin/offices");

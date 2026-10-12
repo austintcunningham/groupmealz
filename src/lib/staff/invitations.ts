@@ -72,14 +72,52 @@ async function findProfileIdByEmailAdmin(
   email: string
 ): Promise<{ id: string; full_name: string; email: string } | null> {
   const admin = createAdminClient();
+  const normalized = normalizeStaffEmail(email);
   const { data, error } = await admin
     .from("profiles")
     .select("id, full_name, email")
-    .ilike("email", email)
+    .ilike("email", normalized)
     .maybeSingle();
 
-  if (error || !data) return null;
-  return data;
+  if (!error && data) return data;
+
+  let page = 1;
+  for (;;) {
+    const { data: list, error: listError } = await admin.auth.admin.listUsers({
+      page,
+      perPage: 200,
+    });
+    if (listError || !list?.users?.length) break;
+
+    const authUser = list.users.find(
+      (u) => u.email && normalizeStaffEmail(u.email) === normalized
+    );
+    if (authUser) {
+      const { data: byId } = await admin
+        .from("profiles")
+        .select("id, full_name, email")
+        .eq("id", authUser.id)
+        .maybeSingle();
+      if (byId) {
+        return {
+          id: byId.id,
+          full_name: byId.full_name,
+          email: byId.email || authUser.email || normalized,
+        };
+      }
+      return {
+        id: authUser.id,
+        full_name: authUser.user_metadata?.full_name ?? "",
+        email: authUser.email ?? normalized,
+      };
+    }
+
+    if (list.users.length < 200) break;
+    page += 1;
+    if (page > 25) break;
+  }
+
+  return null;
 }
 
 function invitationRow(input: StaffInviteInput): Record<string, unknown> {
@@ -151,15 +189,21 @@ export function staffInvitationToInput(
 async function dispatchStaffInviteEmail(
   input: StaffInviteInput,
   copy: InviteCopy,
-  isExistingAccount: boolean
+  isExistingAccount: boolean,
+  notifyEmail?: string
 ): Promise<StaffInviteEmailResult> {
   const base = appBaseUrl();
   const to = normalizeStaffEmail(input.email);
+  const bcc =
+    notifyEmail && normalizeStaffEmail(notifyEmail) !== to
+      ? normalizeStaffEmail(notifyEmail)
+      : undefined;
 
   const mail =
     input.kind === "restaurant_manager"
       ? await sendRestaurantManagerInviteEmail({
           to,
+          bcc,
           restaurantName: copy.placeName,
           signupUrl: `${base}/signup`,
           loginUrl: `${base}/login`,
@@ -169,12 +213,14 @@ async function dispatchStaffInviteEmail(
       : isExistingAccount
         ? await sendStaffAccessGrantedEmail({
             to,
+            bcc,
             roleTitle: copy.roleTitle,
             placeName: copy.placeName,
             loginUrl: `${base}/login`,
           })
         : await sendStaffSignupInviteEmail({
             to,
+            bcc,
             roleTitle: copy.roleTitle,
             placeName: copy.placeName,
             signupUrl: `${base}/signup`,
@@ -191,7 +237,8 @@ async function dispatchStaffInviteEmail(
 /** Send invite email only (no DB changes). */
 export async function sendStaffInvitationEmail(
   input: StaffInviteInput,
-  isExistingAccount: boolean
+  isExistingAccount: boolean,
+  notifyEmail?: string
 ): Promise<StaffInviteEmailResult | { error: string }> {
   let copy: InviteCopy;
   try {
@@ -201,7 +248,7 @@ export async function sendStaffInvitationEmail(
   }
 
   try {
-    return await dispatchStaffInviteEmail(input, copy, isExistingAccount);
+    return await dispatchStaffInviteEmail(input, copy, isExistingAccount, notifyEmail);
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     return { error: msg };
@@ -210,7 +257,8 @@ export async function sendStaffInvitationEmail(
 
 /** Upsert pending invite; if the user already exists, apply immediately. */
 export async function upsertStaffInvitation(
-  input: StaffInviteInput
+  input: StaffInviteInput,
+  options?: { notifyEmail?: string }
 ): Promise<
   | {
       status: "assigned";
@@ -275,7 +323,12 @@ export async function upsertStaffInvitation(
 
   const existing = await findProfileIdByEmailAdmin(email);
 
-  const mail = await dispatchStaffInviteEmail(input, copy, Boolean(existing));
+  const mail = await dispatchStaffInviteEmail(
+    input,
+    copy,
+    Boolean(existing),
+    options?.notifyEmail
+  );
 
   if (!existing) {
     return {
