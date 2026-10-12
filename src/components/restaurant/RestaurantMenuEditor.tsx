@@ -838,12 +838,8 @@ export function RestaurantMenuEditor({
               if (!showSection) return null;
               const treeItemCount = countItemsInCategoryTree(cat.id, true);
               return (
-                <details
-                  key={cat.id}
-                  open={Boolean(itemSearchQuery.trim())}
-                  className="group rounded-xl border border-slate-200 bg-slate-50/80 [&>summary]:list-none [&>summary::-webkit-details-marker]:hidden"
-                >
-                  <summary className="flex cursor-pointer flex-wrap items-end gap-2 border-b border-slate-200 p-4">
+                <section key={cat.id} className="rounded-xl border border-slate-200 bg-slate-50/80">
+                  <div className="flex flex-wrap items-end gap-2 border-b border-slate-200 p-4">
                     <MenuReorderButtons
                       label={`${cat.name} category`}
                       loading={isPending}
@@ -877,10 +873,7 @@ export function RestaurantMenuEditor({
                     >
                       Delete category
                     </Button>
-                    <span className="w-full text-xs text-slate-500 group-open:hidden sm:w-auto">
-                      {treeItemCount} item{treeItemCount === 1 ? "" : "s"} — tap to expand
-                    </span>
-                  </summary>
+                  </div>
                   <div className="space-y-6 p-4">
                     {subs.map((sub, subIndex) => renderSubCategorySection(sub, subIndex, subs))}
                     <form
@@ -917,7 +910,7 @@ export function RestaurantMenuEditor({
                       <p className="text-sm text-slate-500">No items in this category yet.</p>
                     ) : null}
                   </div>
-                </details>
+                </section>
               );
             })}
 
