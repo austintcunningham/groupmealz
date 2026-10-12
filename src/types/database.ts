@@ -65,8 +65,10 @@ export interface Restaurant {
   slug: string;
   description: string | null;
   logo_url: string | null;
-  banner_url?: string | null;
-  branding_status?: BrandingStatus;
+  banner_url: string | null;
+  pending_logo_url: string | null;
+  pending_banner_url: string | null;
+  branding_status: BrandingStatus;
   street_address: string | null;
   city: string | null;
   state: string | null;
@@ -201,6 +203,7 @@ export interface Order {
   stripe_payment_intent_id: string | null;
   payment_status: string | null;
   review_invitation_sent_at?: string | null;
+  customer_note?: string | null;
   created_at: string;
   updated_at: string;
 }

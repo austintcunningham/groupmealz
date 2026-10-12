@@ -1,6 +1,6 @@
+import Link from "next/link";
 import { DashboardShell } from "@/components/DashboardShell";
 import { Card } from "@/components/ui";
-import { MenuPreview } from "@/components/admin/MenuPreview";
 import { RestaurantMenuEditor } from "@/components/restaurant/RestaurantMenuEditor";
 import { requireAdmin } from "@/lib/auth/guards";
 import { loadMenuItemOptionsForItemIds } from "@/lib/menus/load-item-options";
@@ -26,13 +26,20 @@ export default async function AdminMenusPage() {
 
   return (
     <DashboardShell role={profile.role} title="Menus">
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card title="Build menu (admin can edit any restaurant)">
-          <p className="mb-4 text-sm text-slate-600">
-            Use <strong>Find a menu item</strong> at the top of this panel to jump to a sub in the
-            editor — especially helpful for large menus like Firehouse.
-          </p>
-          {restaurants?.length ? (
+      <div className="mx-auto max-w-4xl space-y-4">
+        <p className="text-sm text-slate-600">
+          Edit any restaurant&apos;s menu. The <strong>customer view</strong> preview and{" "}
+          <strong>Find a menu item</strong> search are at the top of the editor. For a full-screen
+          order flow preview, use{" "}
+          <Link href="/admin/simulate-order/fhs-g" className="font-medium text-[var(--geaux-red)] hover:underline">
+            order simulation
+          </Link>
+          .
+        </p>
+        <Card title="Menu editor">
+          {!restaurants?.length ? (
+            <p className="text-sm text-slate-500">Create a restaurant first.</p>
+          ) : (
             <RestaurantMenuEditor
               restaurantId={restaurants[0].id}
               restaurantName={restaurants[0].name}
@@ -44,18 +51,7 @@ export default async function AdminMenusPage() {
               sizesByMenuItemId={menuOptions.sizesByMenuItemId}
               ingredientsByMenuItemId={menuOptions.ingredientsByMenuItemId}
             />
-          ) : (
-            <p className="text-sm text-slate-500">Create a restaurant first.</p>
           )}
-        </Card>
-        <Card title="Menu preview">
-          <MenuPreview
-            restaurants={restaurants ?? []}
-            categories={categories ?? []}
-            menuItems={menuItems ?? []}
-            sizesByMenuItemId={menuOptions.sizesByMenuItemId}
-            ingredientsByMenuItemId={menuOptions.ingredientsByMenuItemId}
-          />
         </Card>
       </div>
     </DashboardShell>

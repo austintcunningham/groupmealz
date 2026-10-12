@@ -12,8 +12,8 @@ export default async function AdminBrandingReviewPage() {
   const supabase = await createClient();
   const { data: restaurants } = await supabase.from("restaurants").select("*").order("name");
 
-  const pending = (restaurants ?? []).filter((r) => brandingNeedsReview(r as Restaurant));
-  const others = (restaurants ?? []).filter((r) => !brandingNeedsReview(r as Restaurant));
+  const pending = (restaurants ?? []).filter((r) => brandingNeedsReview(r));
+  const others = (restaurants ?? []).filter((r) => !brandingNeedsReview(r));
 
   return (
     <DashboardShell role={profile.role} title="Branding review">
