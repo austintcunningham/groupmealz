@@ -15,7 +15,7 @@ const sizes: Record<LogoSize, { width: number; height: number }> = {
 const surfaceWrap: Record<"default" | "light", string> = {
   default: "inline-flex shrink-0",
   light:
-    "inline-flex shrink-0 rounded-lg bg-[var(--geaux-cream)] px-2.5 py-1 shadow-sm ring-1 ring-black/10",
+    "inline-flex shrink-0 rounded-lg bg-white px-3 py-1.5 shadow-md ring-1 ring-black/15",
 };
 
 export function GroupMealsLogo({
@@ -41,7 +41,7 @@ export function GroupMealsLogo({
       width={width}
       height={height}
       priority={priority}
-      className={`h-auto max-w-full object-contain ${className}`}
+      className={`h-auto max-w-full object-contain ${surface === "light" ? "contrast-[1.07] saturate-[1.12]" : ""} ${className}`}
     />
   );
 

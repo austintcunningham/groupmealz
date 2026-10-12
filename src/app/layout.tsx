@@ -9,7 +9,11 @@ export const metadata: Metadata = {
   },
   description: BRAND.tagline,
   icons: {
-    icon: BRAND.faviconPath,
+    icon: [
+      { url: BRAND.faviconPath, sizes: "any" },
+      { url: "/brand/favicon-16.png", sizes: "16x16", type: "image/png" },
+      { url: BRAND.iconMarkPath, sizes: "32x32", type: "image/png" },
+    ],
     apple: BRAND.appleTouchIconPath,
   },
   openGraph: {

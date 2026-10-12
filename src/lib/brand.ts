@@ -6,7 +6,9 @@ export const BRAND = {
   mailDomain: "groupmeals.net",
   /** Optimized transparent PNG in /public */
   logoPath: "/brand/group-meals-logo.png",
-  faviconPath: "/brand/favicon-32.png",
+  /** Square speech-bubble mark only (not the wide wordmark). */
+  iconMarkPath: "/brand/favicon-32.png",
+  faviconPath: "/favicon.ico",
   appleTouchIconPath: "/brand/apple-touch-icon.png",
 } as const;
 
