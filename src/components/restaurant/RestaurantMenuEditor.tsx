@@ -18,14 +18,19 @@ import {
   uploadMenuItemImage,
 } from "@/lib/actions/menus";
 import { effectivePriceCents, isPromoActive } from "@/lib/menus/effective-price";
-import { sortMenuCategories, sortMenuItems } from "@/lib/menus/sort";
+import {
+  categorySelectOptions,
+  subcategoriesFor,
+  topLevelCategories,
+} from "@/lib/menus/category-tree";
+import { sortMenuItems } from "@/lib/menus/sort";
 import { formatCents, parseDollarsToCents } from "@/lib/money/format";
 import { Button, ErrorMessage, Input, Select, SuccessMessage } from "@/components/ui";
 import type { MenuCategory, MenuItem } from "@/types/database";
 
 function MenuItemEditorForm({
   item,
-  categories,
+  categoryOptions,
   isPending,
   onSave,
   onDelete,
@@ -35,7 +40,7 @@ function MenuItemEditorForm({
   disableMoveDown,
 }: {
   item: MenuItem;
-  categories: MenuCategory[];
+  categoryOptions: { id: string; label: string }[];
   isPending: boolean;
   onSave: (itemId: string, formData: FormData) => void;
   onDelete: (itemId: string, itemName: string) => void;
@@ -85,11 +90,11 @@ function MenuItemEditorForm({
           imageUrl={item.image_url}
           itemName={item.name}
         />
-        {categories.length > 0 ? (
+        {categoryOptions.length > 0 ? (
           <Select name="category_id" label="Category" defaultValue={item.category_id ?? ""}>
-            {categories.map((cat) => (
+            {categoryOptions.map((cat) => (
               <option key={cat.id} value={cat.id}>
-                {cat.name}
+                {cat.label}
               </option>
             ))}
           </Select>
@@ -195,8 +200,18 @@ export function RestaurantMenuEditor({
     restaurants?.find((r) => r.id === restaurantId)?.name ?? initialRestaurantName;
 
   const restaurantCategories = useMemo(
-    () => sortMenuCategories(categories.filter((c) => c.restaurant_id === restaurantId)),
+    () => categories.filter((c) => c.restaurant_id === restaurantId),
     [categories, restaurantId]
+  );
+
+  const topCategories = useMemo(
+    () => topLevelCategories(restaurantCategories),
+    [restaurantCategories]
+  );
+
+  const itemCategoryOptions = useMemo(
+    () => categorySelectOptions(restaurantCategories),
+    [restaurantCategories]
   );
 
   const restaurantItems = useMemo(
@@ -241,15 +256,35 @@ export function RestaurantMenuEditor({
   function addCategory(formData: FormData) {
     setError(null);
     startTransition(async () => {
+      const parentRaw = String(formData.get("parent_id") ?? "").trim();
       const result = await createMenuCategory({
         restaurant_id: restaurantId,
         name: String(formData.get("category_name") ?? ""),
+        parent_id: parentRaw || null,
       });
       if (!result.success) {
         setError(result.error);
         return;
       }
-      flash("Category added");
+      flash(parentRaw ? "Sub-category added" : "Category added");
+      router.refresh();
+    });
+  }
+
+  function addSubCategory(parentId: string, name: string) {
+    if (!name.trim()) return;
+    setError(null);
+    startTransition(async () => {
+      const result = await createMenuCategory({
+        restaurant_id: restaurantId,
+        name: name.trim(),
+        parent_id: parentId,
+      });
+      if (!result.success) {
+        setError(result.error);
+        return;
+      }
+      flash("Sub-category added");
       router.refresh();
     });
   }
@@ -268,11 +303,29 @@ export function RestaurantMenuEditor({
     });
   }
 
-  function removeCategory(categoryId: string, categoryName: string, itemCount: number) {
-    const msg =
-      itemCount > 0
-        ? `Delete category "${categoryName}"? ${itemCount} item(s) will move to Uncategorized.`
-        : `Delete category "${categoryName}"?`;
+  function countItemsInCategoryTree(categoryId: string, includeSubs: boolean): number {
+    let n = restaurantItems.filter((i) => i.category_id === categoryId).length;
+    if (includeSubs) {
+      for (const sub of subcategoriesFor(restaurantCategories, categoryId)) {
+        n += restaurantItems.filter((i) => i.category_id === sub.id).length;
+      }
+    }
+    return n;
+  }
+
+  function removeCategory(
+    categoryId: string,
+    categoryName: string,
+    itemCount: number,
+    subCount: number
+  ) {
+    let msg = `Delete "${categoryName}"?`;
+    if (subCount > 0) {
+      msg += ` ${subCount} sub-categor${subCount === 1 ? "y" : "ies"} will be removed.`;
+    }
+    if (itemCount > 0) {
+      msg += ` ${itemCount} item(s) will move to Uncategorized.`;
+    }
     if (!window.confirm(msg)) return;
 
     setError(null);
@@ -368,6 +421,74 @@ export function RestaurantMenuEditor({
     });
   }
 
+  function renderItemList(items: MenuItem[]) {
+    if (!items.length) {
+      return <p className="py-2 text-sm text-slate-500">No items here yet.</p>;
+    }
+    return (
+      <ul className="space-y-3">
+        {items.map((item, itemIndex) => (
+          <MenuItemEditorForm
+            key={item.id}
+            item={item}
+            categoryOptions={itemCategoryOptions}
+            isPending={isPending}
+            onSave={saveItem}
+            onDelete={removeItem}
+            disableMoveUp={itemIndex === 0}
+            disableMoveDown={itemIndex === items.length - 1}
+            onMoveUp={() => moveItem(item.id, "up")}
+            onMoveDown={() => moveItem(item.id, "down")}
+          />
+        ))}
+      </ul>
+    );
+  }
+
+  function renderSubCategorySection(sub: MenuCategory, subIndex: number, subs: MenuCategory[]) {
+    const items = sortMenuItems(restaurantItems.filter((i) => i.category_id === sub.id));
+    return (
+      <div key={sub.id} className="ml-2 border-l-2 border-[var(--geaux-yellow)] pl-4 sm:ml-4">
+        <div className="mb-3 flex flex-wrap items-end gap-2">
+          <MenuReorderButtons
+            label={`${sub.name} sub-category`}
+            loading={isPending}
+            disableUp={subIndex === 0}
+            disableDown={subIndex === subs.length - 1}
+            onMoveUp={() => moveCategory(sub.id, "up")}
+            onMoveDown={() => moveCategory(sub.id, "down")}
+          />
+          <form
+            className="flex min-w-0 flex-1 flex-wrap items-end gap-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+              saveCategoryName(sub.id, new FormData(e.currentTarget));
+            }}
+          >
+            <div className="min-w-[10rem] flex-1">
+              <Input name="name" label="Sub-category" defaultValue={sub.name} required />
+            </div>
+            <Button type="submit" variant="secondary" size="sm" loading={isPending}>
+              Save
+            </Button>
+          </form>
+          <Button
+            type="button"
+            variant="danger"
+            size="sm"
+            loading={isPending}
+            onClick={() =>
+              removeCategory(sub.id, sub.name, items.length, 0)
+            }
+          >
+            Delete
+          </Button>
+        </div>
+        {renderItemList(items)}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       {restaurants && restaurants.length > 1 ? (
@@ -395,8 +516,8 @@ export function RestaurantMenuEditor({
       />
 
       <p className="text-sm text-slate-600">
-        Items marked <strong>Entrée</strong> include the per-entrée service fee at checkout. Use{" "}
-        <strong>↑ ↓</strong> on categories and items to match the customer menu order.
+        Use <strong>sub-categories</strong> under each top section (e.g. Hot / Cold subs).{" "}
+        <strong>↑ ↓</strong> reorders categories, sub-categories, and items on the customer menu.
       </p>
 
       <form
@@ -408,6 +529,14 @@ export function RestaurantMenuEditor({
       >
         <h3 className="font-medium text-slate-900">Add category</h3>
         <Input name="category_name" required placeholder="Sandwiches, Bowls, Sides…" />
+        <Select name="parent_id" label="Under (optional)" defaultValue="">
+          <option value="">Top-level category</option>
+          {topCategories.map((cat) => (
+            <option key={cat.id} value={cat.id}>
+              Sub-category of {cat.name}
+            </option>
+          ))}
+        </Select>
         <Button type="submit" size="sm" loading={isPending}>
           Add category
         </Button>
@@ -436,13 +565,13 @@ export function RestaurantMenuEditor({
           <p className="mt-1 text-xs text-slate-500">Or add a photo after saving under the item.</p>
         </div>
         <Input name="price" label="Regular price (USD)" required type="number" step="0.01" min="0" />
-        <Select name="category_id" label="Category" required={restaurantCategories.length > 0}>
-          {restaurantCategories.length === 0 ? (
+        <Select name="category_id" label="Category" required={itemCategoryOptions.length > 0}>
+          {itemCategoryOptions.length === 0 ? (
             <option value="">Add a category first</option>
           ) : (
-            restaurantCategories.map((cat) => (
+            itemCategoryOptions.map((cat) => (
               <option key={cat.id} value={cat.id}>
-                {cat.name}
+                {cat.label}
               </option>
             ))
           )}
@@ -464,10 +593,12 @@ export function RestaurantMenuEditor({
           <p className="text-sm text-slate-500">No categories or items yet.</p>
         ) : (
           <div className="space-y-8">
-            {restaurantCategories.map((cat, catIndex) => {
-              const items = sortMenuItems(
+            {topCategories.map((cat, catIndex) => {
+              const subs = subcategoriesFor(restaurantCategories, cat.id);
+              const topItems = sortMenuItems(
                 restaurantItems.filter((i) => i.category_id === cat.id)
               );
+              const treeItemCount = countItemsInCategoryTree(cat.id, true);
               return (
                 <section key={cat.id} className="rounded-xl border border-slate-200 bg-slate-50/80">
                   <div className="flex flex-wrap items-end gap-2 border-b border-slate-200 p-4">
@@ -475,7 +606,7 @@ export function RestaurantMenuEditor({
                       label={`${cat.name} category`}
                       loading={isPending}
                       disableUp={catIndex === 0}
-                      disableDown={catIndex === restaurantCategories.length - 1}
+                      disableDown={catIndex === topCategories.length - 1}
                       onMoveUp={() => moveCategory(cat.id, "up")}
                       onMoveDown={() => moveCategory(cat.id, "down")}
                     />
@@ -498,31 +629,49 @@ export function RestaurantMenuEditor({
                       variant="danger"
                       size="sm"
                       loading={isPending}
-                      onClick={() => removeCategory(cat.id, cat.name, items.length)}
+                      onClick={() =>
+                        removeCategory(cat.id, cat.name, treeItemCount, subs.length)
+                      }
                     >
                       Delete category
                     </Button>
                   </div>
-                  {items.length === 0 ? (
-                    <p className="p-4 text-sm text-slate-500">No items in this category.</p>
-                  ) : (
-                    <ul className="space-y-3 p-4">
-                      {items.map((item, itemIndex) => (
-                        <MenuItemEditorForm
-                          key={item.id}
-                          item={item}
-                          categories={restaurantCategories}
-                          isPending={isPending}
-                          onSave={saveItem}
-                          onDelete={removeItem}
-                          disableMoveUp={itemIndex === 0}
-                          disableMoveDown={itemIndex === items.length - 1}
-                          onMoveUp={() => moveItem(item.id, "up")}
-                          onMoveDown={() => moveItem(item.id, "down")}
+                  <div className="space-y-6 p-4">
+                    {subs.map((sub, subIndex) => renderSubCategorySection(sub, subIndex, subs))}
+                    <form
+                      className="flex flex-wrap items-end gap-2 rounded-lg border border-dashed border-slate-200 bg-white p-3"
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        const fd = new FormData(e.currentTarget);
+                        addSubCategory(cat.id, String(fd.get("sub_name") ?? ""));
+                        e.currentTarget.reset();
+                      }}
+                    >
+                      <div className="min-w-[10rem] flex-1">
+                        <Input
+                          name="sub_name"
+                          label={`Add sub-category under ${cat.name}`}
+                          placeholder="Hot subs, Cold subs…"
+                          required
                         />
-                      ))}
-                    </ul>
-                  )}
+                      </div>
+                      <Button type="submit" variant="secondary" size="sm" loading={isPending}>
+                        Add sub-category
+                      </Button>
+                    </form>
+                    {topItems.length > 0 ? (
+                      <div className={subs.length ? "border-t border-slate-200 pt-4" : undefined}>
+                        {subs.length > 0 ? (
+                          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                            Items in {cat.name} (not in a sub-category)
+                          </p>
+                        ) : null}
+                        {renderItemList(topItems)}
+                      </div>
+                    ) : subs.length === 0 ? (
+                      <p className="text-sm text-slate-500">No items in this category yet.</p>
+                    ) : null}
+                  </div>
                 </section>
               );
             })}
@@ -532,22 +681,7 @@ export function RestaurantMenuEditor({
                 <h4 className="border-b border-slate-200 px-4 py-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
                   Uncategorized
                 </h4>
-                <ul className="space-y-3 p-4">
-                  {uncategorizedItems.map((item, itemIndex) => (
-                    <MenuItemEditorForm
-                      key={item.id}
-                      item={item}
-                      categories={restaurantCategories}
-                      isPending={isPending}
-                      onSave={saveItem}
-                      onDelete={removeItem}
-                      disableMoveUp={itemIndex === 0}
-                      disableMoveDown={itemIndex === uncategorizedItems.length - 1}
-                      onMoveUp={() => moveItem(item.id, "up")}
-                      onMoveDown={() => moveItem(item.id, "down")}
-                    />
-                  ))}
-                </ul>
+                <div className="p-4">{renderItemList(uncategorizedItems)}</div>
               </section>
             ) : null}
           </div>

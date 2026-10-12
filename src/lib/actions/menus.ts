@@ -19,6 +19,7 @@ import {
 const categorySchema = z.object({
   restaurant_id: z.string().uuid(),
   name: z.string().min(1),
+  parent_id: z.string().uuid().nullable().optional(),
   display_order: z.number().int().optional(),
   active: z.boolean().optional(),
 });
@@ -26,6 +27,7 @@ const categorySchema = z.object({
 const updateMenuCategorySchema = z.object({
   id: z.string().uuid(),
   name: z.string().min(1).optional(),
+  parent_id: z.string().uuid().nullable().optional(),
   display_order: z.number().int().optional(),
   active: z.boolean().optional(),
 });
@@ -110,17 +112,51 @@ function revalidateMenuPaths() {
   revalidatePath("/order");
 }
 
+async function validateCategoryParent(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  restaurantId: string,
+  parentId: string | null | undefined,
+  categoryId?: string
+): Promise<string | null> {
+  if (parentId === undefined) return null;
+  if (parentId === null) return null;
+  if (categoryId && parentId === categoryId) {
+    return "A category cannot be its own parent.";
+  }
+  const { data: parent, error } = await supabase
+    .from("menu_categories")
+    .select("id, restaurant_id, parent_id")
+    .eq("id", parentId)
+    .maybeSingle();
+  if (error) return error.message;
+  if (!parent || parent.restaurant_id !== restaurantId) {
+    return "Parent category not found.";
+  }
+  if (parent.parent_id) {
+    return "Sub-categories can only go one level deep — pick a top-level category.";
+  }
+  return null;
+}
+
 async function nextCategoryDisplayOrder(
   supabase: Awaited<ReturnType<typeof createClient>>,
-  restaurantId: string
+  restaurantId: string,
+  parentId: string | null = null
 ): Promise<number> {
-  const { data } = await supabase
+  let query = supabase
     .from("menu_categories")
     .select("display_order")
     .eq("restaurant_id", restaurantId)
     .order("display_order", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    .limit(1);
+
+  if (parentId) {
+    query = query.eq("parent_id", parentId);
+  } else {
+    query = query.is("parent_id", null);
+  }
+
+  const { data } = await query.maybeSingle();
   return (data?.display_order ?? -1) + 1;
 }
 
@@ -193,13 +229,21 @@ export async function createMenuCategory(
   if (!allowed) return { success: false, error: "Unauthorized" };
 
   const supabase = await createClient();
+  const parentId = parsed.data.parent_id ?? null;
+  const parentError = await validateCategoryParent(
+    supabase,
+    parsed.data.restaurant_id,
+    parentId
+  );
+  if (parentError) return { success: false, error: parentError };
+
   const display_order =
     parsed.data.display_order ??
-    (await nextCategoryDisplayOrder(supabase, parsed.data.restaurant_id));
+    (await nextCategoryDisplayOrder(supabase, parsed.data.restaurant_id, parentId));
 
   const { data, error } = await supabase
     .from("menu_categories")
-    .insert({ ...parsed.data, display_order })
+    .insert({ ...parsed.data, parent_id: parentId, display_order })
     .select("id")
     .single();
 
@@ -237,6 +281,30 @@ export async function updateMenuCategory(
   }
 
   const supabase = await createClient();
+
+  if (patch.parent_id !== undefined) {
+    const parentError = await validateCategoryParent(
+      supabase,
+      restaurantId,
+      patch.parent_id,
+      id
+    );
+    if (parentError) return { success: false, error: parentError };
+
+    if (patch.parent_id) {
+      const { count } = await supabase
+        .from("menu_categories")
+        .select("id", { count: "exact", head: true })
+        .eq("parent_id", id);
+      if ((count ?? 0) > 0) {
+        return {
+          success: false,
+          error: "Move or delete sub-categories first — this category has sub-sections.",
+        };
+      }
+    }
+  }
+
   const { error } = await supabase.from("menu_categories").update(patch).eq("id", id);
 
   if (error) return { success: false, error: error.message };
@@ -330,10 +398,27 @@ export async function moveMenuCategory(
   if (!allowed) return { success: false, error: "Unauthorized" };
 
   const supabase = await createClient();
-  const { data: rows, error: fetchError } = await supabase
+  const { data: self, error: selfError } = await supabase
     .from("menu_categories")
-    .select("id, display_order, name")
+    .select("id, parent_id")
+    .eq("id", categoryId)
+    .maybeSingle();
+
+  if (selfError) return { success: false, error: selfError.message };
+  if (!self) return { success: false, error: "Category not found" };
+
+  let query = supabase
+    .from("menu_categories")
+    .select("id, display_order, name, parent_id")
     .eq("restaurant_id", restaurantId);
+
+  if (self.parent_id) {
+    query = query.eq("parent_id", self.parent_id);
+  } else {
+    query = query.is("parent_id", null);
+  }
+
+  const { data: rows, error: fetchError } = await query;
 
   if (fetchError) return { success: false, error: fetchError.message };
 

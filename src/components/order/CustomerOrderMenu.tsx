@@ -1,10 +1,15 @@
 "use client";
 
-import Image from "next/image";
+import { MenuItemPhoto } from "@/components/order/MenuItemPhoto";
+import {
+  filterCustomerFacingCategories,
+  subcategoriesFor,
+  topLevelCategories,
+} from "@/lib/menus/category-tree";
 import { effectivePriceCents, isPromoActive } from "@/lib/menus/effective-price";
+import { sortMenuItems } from "@/lib/menus/sort";
 import { formatCents } from "@/lib/money/format";
 import { Card } from "@/components/ui";
-import { sortMenuCategories, sortMenuItems } from "@/lib/menus/sort";
 import type { MenuCategory, MenuItem } from "@/types/database";
 
 function lunchDateForPromos(explicit?: string): string {
@@ -32,23 +37,12 @@ function MenuItemRow({
   const qty = quantity ?? 0;
 
   return (
-    <div className="flex gap-4 border-b border-slate-100 pb-4 last:border-0 last:pb-0">
-      {item.image_url ? (
-        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-slate-100">
-          <Image
-            src={item.image_url}
-            alt=""
-            fill
-            className="object-cover"
-            sizes="80px"
-            unoptimized
-          />
-        </div>
-      ) : null}
-      <div className="min-w-0 flex-1">
-        <h3 className="font-semibold text-slate-900">{item.name}</h3>
+    <div className="flex items-stretch gap-3 border-b border-slate-100 py-3 last:border-0 last:pb-0 sm:gap-4">
+      <MenuItemPhoto imageUrl={item.image_url} itemName={item.name} showPlaceholder />
+      <div className="flex min-w-0 flex-1 flex-col justify-center">
+        <h3 className="font-semibold leading-snug text-slate-900">{item.name}</h3>
         {item.description ? (
-          <p className="mt-0.5 text-sm text-slate-600">{item.description}</p>
+          <p className="mt-0.5 line-clamp-2 text-sm text-slate-600">{item.description}</p>
         ) : null}
         {promo ? (
           <p className="mt-1 text-sm text-slate-600">
@@ -92,6 +86,39 @@ function MenuItemRow({
   );
 }
 
+function ItemList({
+  items,
+  promoDate,
+  serviceFeePerEntree,
+  quantities,
+  onQuantityChange,
+  interactive,
+}: {
+  items: MenuItem[];
+  promoDate: string;
+  serviceFeePerEntree: number | null;
+  quantities?: Record<string, number>;
+  onQuantityChange?: (menuItemId: string, nextQty: number) => void;
+  interactive: boolean;
+}) {
+  if (!items.length) return null;
+  return (
+    <div className="space-y-0">
+      {items.map((item) => (
+        <MenuItemRow
+          key={item.id}
+          item={item}
+          lunchDate={promoDate}
+          serviceFeePerEntree={serviceFeePerEntree}
+          quantity={quantities?.[item.id] ?? 0}
+          onQuantityChange={onQuantityChange}
+          interactive={interactive}
+        />
+      ))}
+    </div>
+  );
+}
+
 export function CustomerOrderMenu({
   categories,
   menuItems,
@@ -113,8 +140,6 @@ export function CustomerOrderMenu({
 }) {
   const promoDate = lunchDateForPromos(lunchDate);
 
-  const sortedCategories = sortMenuCategories(categories);
-
   const itemsByCategory = new Map<string, MenuItem[]>();
   for (const item of sortMenuItems(menuItems)) {
     const catId = item.category_id ?? "uncategorized";
@@ -127,44 +152,72 @@ export function CustomerOrderMenu({
     return <p className="text-sm text-slate-500">{emptyMessage}</p>;
   }
 
+  const tops = topLevelCategories(categories);
+  const orphanSubs = categories.filter(
+    (c) => c.parent_id && !categories.some((p) => p.id === c.parent_id)
+  );
+
+  const listProps = {
+    promoDate,
+    serviceFeePerEntree,
+    quantities,
+    onQuantityChange,
+    interactive,
+  };
+
   return (
     <div className="space-y-6">
-      {sortedCategories.map((cat) => {
-        const items = itemsByCategory.get(cat.id) ?? [];
-        if (!items.length) return null;
+      {tops.map((top) => {
+        const subs = subcategoriesFor(categories, top.id);
+        const topItems = itemsByCategory.get(top.id) ?? [];
+        const subBlocks = subs
+          .map((sub) => ({
+            sub,
+            items: itemsByCategory.get(sub.id) ?? [],
+          }))
+          .filter((b) => b.items.length > 0);
+
+        if (!topItems.length && !subBlocks.length) return null;
+
         return (
-          <Card key={cat.id} title={cat.name}>
-            <div className="space-y-4">
-              {items.map((item) => (
-                <MenuItemRow
-                  key={item.id}
-                  item={item}
-                  lunchDate={promoDate}
-                  serviceFeePerEntree={serviceFeePerEntree}
-                  quantity={quantities?.[item.id] ?? 0}
-                  onQuantityChange={onQuantityChange}
-                  interactive={interactive}
-                />
+          <Card key={top.id} title={top.name}>
+            <div className="space-y-5">
+              {subBlocks.map(({ sub, items }) => (
+                <div key={sub.id}>
+                  <h3 className="mb-2 border-b border-slate-100 pb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    {sub.name}
+                  </h3>
+                  <ItemList items={items} {...listProps} />
+                </div>
               ))}
+              {topItems.length > 0 ? (
+                <div className={subBlocks.length ? "border-t border-slate-100 pt-3" : undefined}>
+                  {subBlocks.length > 0 ? (
+                    <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      Other
+                    </h3>
+                  ) : null}
+                  <ItemList items={topItems} {...listProps} />
+                </div>
+              ) : null}
             </div>
           </Card>
         );
       })}
+
+      {orphanSubs.map((sub) => {
+        const items = itemsByCategory.get(sub.id) ?? [];
+        if (!items.length) return null;
+        return (
+          <Card key={sub.id} title={sub.name}>
+            <ItemList items={items} {...listProps} />
+          </Card>
+        );
+      })}
+
       {(itemsByCategory.get("uncategorized") ?? []).length > 0 ? (
         <Card title="Menu">
-          <div className="space-y-4">
-            {(itemsByCategory.get("uncategorized") ?? []).map((item) => (
-              <MenuItemRow
-                key={item.id}
-                item={item}
-                lunchDate={promoDate}
-                serviceFeePerEntree={serviceFeePerEntree}
-                quantity={quantities?.[item.id] ?? 0}
-                onQuantityChange={onQuantityChange}
-                interactive={interactive}
-              />
-            ))}
-          </div>
+          <ItemList items={itemsByCategory.get("uncategorized") ?? []} {...listProps} />
         </Card>
       ) : null}
     </div>
@@ -177,11 +230,6 @@ export function filterCustomerFacingMenu(
   menuItems: MenuItem[]
 ): { categories: MenuCategory[]; menuItems: MenuItem[] } {
   const visibleItems = menuItems.filter((i) => i.active && i.available);
-  const categoryIds = new Set(
-    visibleItems.map((i) => i.category_id).filter(Boolean) as string[]
-  );
-  const visibleCategories = categories.filter(
-    (c) => c.active && (categoryIds.has(c.id) || visibleItems.some((i) => i.category_id === c.id))
-  );
+  const visibleCategories = filterCustomerFacingCategories(categories, visibleItems);
   return { categories: visibleCategories, menuItems: visibleItems };
 }

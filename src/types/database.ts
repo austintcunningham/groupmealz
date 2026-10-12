@@ -101,6 +101,7 @@ export interface MenuCategory {
   id: string;
   restaurant_id: string;
   name: string;
+  parent_id?: string | null;
   display_order: number;
   active: boolean;
 }
