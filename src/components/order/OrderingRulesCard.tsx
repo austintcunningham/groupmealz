@@ -24,11 +24,21 @@ export function OrderingRulesCard({
   });
 
   return (
-    <div className="rounded-xl border border-[var(--geaux-yellow)] bg-white p-4 shadow-sm">
-      <h3 className="text-sm font-bold uppercase tracking-wide text-[var(--geaux-red)]">
-        How ordering works
-      </h3>
-      <ul className="mt-3 space-y-2 text-sm text-slate-700">
+    <details className="geaux-info-panel group open:shadow-[var(--geaux-shadow-md)] transition-shadow duration-200">
+      <summary className="cursor-pointer list-none px-5 py-4 marker:content-none [&::-webkit-details-marker]:hidden">
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="text-sm font-bold uppercase tracking-wide text-[var(--geaux-red)]">
+            How ordering works
+          </h3>
+          <span className="text-xs font-medium text-slate-500 transition-transform duration-200 group-open:rotate-180">
+            ▾
+          </span>
+        </div>
+        <p className="mt-1 text-xs text-slate-500 group-open:hidden">
+          Tap to see order windows, fees, and payment details
+        </p>
+      </summary>
+      <ul className="space-y-2.5 border-t border-amber-100/80 px-5 pb-5 pt-3 text-sm leading-relaxed text-slate-700">
         <li>
           <strong>When you can order:</strong> Only while this day shows{" "}
           <span className="font-semibold text-green-700">Open</span> on the calendar{" "}
@@ -60,6 +70,6 @@ export function OrderingRulesCard({
           <strong>No account needed:</strong> Use your name and email for this order only.
         </li>
       </ul>
-    </div>
+    </details>
   );
 }

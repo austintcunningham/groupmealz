@@ -47,8 +47,8 @@ const sections = [
 
 export default function FaqPage() {
   return (
-    <div className="min-h-screen bg-[var(--geaux-cream)]">
-      <header className="geaux-header-gradient text-white shadow-lg">
+    <div className="min-h-screen">
+      <header className="geaux-header-gradient text-white">
         <div className="geaux-accent-bar" />
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-4 py-5">
           <GroupMealsLogo size="md" href="/login" surface="light" />
@@ -57,13 +57,13 @@ export default function FaqPage() {
           </Link>
         </div>
       </header>
-      <main className="mx-auto max-w-3xl px-4 py-10">
-        <h1 className="text-3xl font-bold text-slate-900">FAQ</h1>
+      <main className="geaux-main-enter mx-auto max-w-3xl px-4 py-10 pb-16">
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900">FAQ</h1>
         <p className="mt-2 text-slate-600">
           Answers about ordering, fees, delivery, and getting your office or restaurant on {BRAND.name}.
         </p>
-        <nav className="mt-8 rounded-xl border border-slate-200 bg-white p-4">
-          <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">On this page</p>
+        <nav className="mt-8 rounded-[var(--geaux-radius-lg)] border border-[var(--geaux-border)] bg-white p-5 shadow-[var(--geaux-shadow-sm)]">
+          <p className="geaux-section-label mb-2">On this page</p>
           <ul className="space-y-1 text-sm">
             {sections.map((s) => (
               <li key={s.title}>
@@ -76,13 +76,17 @@ export default function FaqPage() {
         </nav>
         <div className="mt-10 space-y-10">
           {sections.map((s) => (
-            <section key={s.title} id={slug(s.title)} className="scroll-mt-6">
-              <h2 className="text-xl font-bold text-slate-900">{s.title}</h2>
-              <p className="mt-3 leading-relaxed text-slate-700">{s.body}</p>
+            <section
+              key={s.title}
+              id={slug(s.title)}
+              className="scroll-mt-6 rounded-[var(--geaux-radius-lg)] border border-[var(--geaux-border)] bg-white/80 p-6 shadow-[var(--geaux-shadow-sm)]"
+            >
+              <h2 className="text-xl font-semibold tracking-tight text-slate-900">{s.title}</h2>
+              <p className="mt-3 leading-relaxed text-slate-600">{s.body}</p>
             </section>
           ))}
         </div>
-        <div className="mt-12 rounded-xl border-2 border-[var(--geaux-yellow)] bg-white p-6 text-center">
+        <div className="geaux-info-panel mt-12 p-8 text-center">
           <p className="font-semibold text-slate-900">Still have questions?</p>
           <a
             href={`mailto:${BRAND.supportEmail}`}

@@ -41,9 +41,9 @@ export default async function OfficeOrderPage({
 
   if (!ctx.schedule) {
     return (
-      <div className="min-h-screen bg-[var(--geaux-cream)]">
+      <div className="min-h-screen">
         {header}
-        <main className="mx-auto max-w-6xl px-4 py-6">
+        <main className="geaux-main-enter mx-auto max-w-6xl px-4 py-8 pb-16">
           <Card title="No lunches scheduled">
             <p className="text-slate-600">Check back soon — your office hasn&apos;t posted this week&apos;s menu yet.</p>
           </Card>
@@ -53,9 +53,9 @@ export default async function OfficeOrderPage({
   }
 
   return (
-    <div className="min-h-screen bg-[var(--geaux-cream)]">
+    <div className="min-h-screen">
       {header}
-      <main className="mx-auto max-w-6xl px-4 py-6">
+      <main className="geaux-main-enter mx-auto max-w-6xl px-4 py-8 pb-16">
         <Suspense fallback={<p className="text-sm text-slate-500">Loading menu…</p>}>
           <OrderFlowClient
             office={office}

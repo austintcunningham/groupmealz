@@ -51,8 +51,8 @@ export function DashboardShell({
   const links = navByRole[role] ?? [];
 
   return (
-    <div className="min-h-screen bg-[var(--geaux-cream)]">
-      <header className="geaux-header-gradient text-white shadow-md">
+    <div className="min-h-screen">
+      <header className="geaux-header-gradient text-white">
         <div className="geaux-accent-bar" />
         <div className="mx-auto max-w-6xl px-4 pt-3">
           <div className="flex items-start justify-between gap-3">
@@ -69,7 +69,7 @@ export function DashboardShell({
           </div>
         </div>
       </header>
-      <main className="mx-auto max-w-6xl px-4 py-6">{children}</main>
+      <main className="geaux-main-enter mx-auto max-w-6xl px-4 py-8 pb-12">{children}</main>
     </div>
   );
 }

@@ -14,21 +14,21 @@ export default async function OrderLandingPage() {
     .order("name");
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[var(--geaux-cream)] p-4">
-      <div className="w-full max-w-md">
-        <div className="geaux-header-gradient rounded-t-xl px-6 py-6 text-center">
+    <div className="flex min-h-screen items-center justify-center p-4 sm:p-6">
+      <div className="geaux-auth-stack w-full max-w-md animate-fade-in">
+        <div className="geaux-header-gradient px-6 py-7 text-center">
           <div className="flex justify-center">
             <GroupMealsLogo size="lg" priority href="/" surface="light" />
           </div>
-          <p className="mt-3 text-sm text-white/85">Order lunch — no account required</p>
+          <p className="mt-3 text-sm text-white/90">Order lunch — no account required</p>
         </div>
-        <Card className="rounded-t-none" title="Choose your office">
+        <Card className="geaux-card-panel !rounded-none !shadow-none hover:!shadow-none" title="Choose your office">
           {!offices?.length ? (
             <p className="text-sm text-slate-600">No offices are set up for ordering yet.</p>
           ) : offices.length === 1 && offices[0].slug ? (
             <Link
               href={officeOrderPath(offices[0].slug)}
-              className="block rounded-lg bg-[var(--geaux-red)] px-4 py-3 text-center font-semibold text-white hover:bg-[var(--geaux-red-dark)]"
+              className="block rounded-xl bg-[var(--geaux-red)] px-4 py-3.5 text-center font-semibold text-white shadow-[var(--geaux-shadow-sm)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[var(--geaux-red-dark)] hover:shadow-[var(--geaux-shadow-md)]"
             >
               Order at {offices[0].name} →
             </Link>

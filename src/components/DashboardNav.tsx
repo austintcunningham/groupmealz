@@ -25,10 +25,10 @@ export function DashboardNav({ links }: { links: { href: string; label: string }
           <Link
             key={link.href}
             href={link.href}
-            className={`shrink-0 whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+            className={`shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-medium transition-all duration-200 ${
               active
-                ? "bg-white/20 text-[var(--geaux-yellow)]"
-                : "text-white/90 hover:bg-white/10 hover:text-[var(--geaux-yellow-light)]"
+                ? "bg-white/95 text-[var(--geaux-red-dark)] shadow-sm"
+                : "text-white/90 hover:bg-white/15 hover:text-white"
             }`}
           >
             {link.label}

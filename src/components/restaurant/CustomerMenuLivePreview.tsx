@@ -20,7 +20,7 @@ export function CustomerMenuLivePreview({
   );
 
   return (
-    <section className="rounded-xl border-2 border-[var(--geaux-yellow)] bg-[var(--geaux-cream)] p-4">
+    <section className="rounded-[var(--geaux-radius-lg)] border border-[var(--geaux-yellow)]/60 bg-white/70 p-4 shadow-[var(--geaux-shadow-sm)]">
       <div className="mb-4">
         <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
           Customer view (live preview)

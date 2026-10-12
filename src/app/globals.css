@@ -9,32 +9,138 @@
   --geaux-yellow-light: #FFE082;
   --geaux-cream: #FFFBF5;
   --geaux-charcoal: #1A1A1A;
+  --geaux-border: rgb(226 232 240 / 0.9);
+  --geaux-shadow-sm: 0 1px 2px rgb(15 23 42 / 0.04), 0 1px 3px rgb(15 23 42 / 0.06);
+  --geaux-shadow-md: 0 4px 14px rgb(15 23 42 / 0.07), 0 2px 4px rgb(15 23 42 / 0.04);
+  --geaux-shadow-lg: 0 12px 32px rgb(15 23 42 / 0.08), 0 4px 8px rgb(15 23 42 / 0.04);
+  --geaux-radius: 1rem;
+  --geaux-radius-lg: 1.25rem;
   --background: var(--geaux-cream);
   --foreground: var(--geaux-charcoal);
 }
 
-body {
+body.geaux-body {
   background: var(--background);
   color: var(--foreground);
   font-family: "Segoe UI", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+body.geaux-body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgb(253 185 19 / 0.12), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 100% 0%, rgb(214 40 40 / 0.05), transparent 50%),
+    var(--geaux-cream);
+}
+
+::selection {
+  background: rgb(253 185 19 / 0.35);
+  color: var(--geaux-charcoal);
 }
 
 @keyframes fade-in {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-soft {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .animate-fade-in {
-  animation: fade-in 0.2s ease-out;
+  animation: fade-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.geaux-main-enter {
+  animation: fade-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both;
+}
+
+.geaux-auth-stack {
+  filter: drop-shadow(0 20px 40px rgb(15 23 42 / 0.12));
+}
+
+.geaux-auth-stack > .geaux-header-gradient {
+  border-radius: var(--geaux-radius-lg) var(--geaux-radius-lg) 0 0;
+}
+
+.geaux-auth-stack .geaux-card-panel {
+  border-radius: 0 0 var(--geaux-radius-lg) var(--geaux-radius-lg);
+  border-top: none;
+}
+
+.geaux-section-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.qty-btn {
+  height: 2.75rem;
+  width: 2.75rem;
+  border-radius: 0.75rem;
+  border: 2px solid var(--geaux-yellow);
+  background: white;
+  font-weight: 700;
+  color: var(--geaux-charcoal);
+  box-shadow: var(--geaux-shadow-sm);
+  transition:
+    transform 0.15s ease,
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.qty-btn:hover {
+  background: var(--geaux-yellow-light);
+  transform: scale(1.04);
+  box-shadow: var(--geaux-shadow-md);
+}
+
+.qty-btn:active {
+  transform: scale(0.96);
 }
 
 .geaux-header-gradient {
   background: linear-gradient(135deg, #9b1c1c 0%, var(--geaux-red-dark) 42%, #5c1010 100%);
+  box-shadow: 0 4px 20px rgb(92 16 16 / 0.25);
 }
 
 .geaux-accent-bar {
   background: linear-gradient(90deg, var(--geaux-yellow) 0%, var(--geaux-yellow-light) 100%);
   height: 4px;
+}
+
+.geaux-info-panel {
+  border-radius: var(--geaux-radius-lg);
+  border: 1px solid rgb(253 185 19 / 0.45);
+  background: linear-gradient(180deg, #ffffff 0%, rgb(255 251 245 / 0.6) 100%);
+  box-shadow: var(--geaux-shadow-sm);
+}
+
+.geaux-hero-restaurant {
+  overflow: hidden;
+  border-radius: var(--geaux-radius-lg);
+  border: 1px solid rgb(254 202 202 / 0.6);
+  background: white;
+  box-shadow: var(--geaux-shadow-md);
 }
 
 .menu-drag-grip {

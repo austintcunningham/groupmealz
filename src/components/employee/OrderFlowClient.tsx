@@ -263,8 +263,8 @@ export function OrderFlowClient({
 
   const restaurant = schedule.restaurants;
   return (
-    <div className="space-y-6 pb-24 sm:pb-6">
-      <Card className="overflow-hidden border-red-200 p-0">
+    <div className="geaux-main-enter space-y-6 pb-24 sm:pb-8">
+      <div className="geaux-hero-restaurant">
         {restaurant?.banner_url && restaurant.branding_status !== "rejected" ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -296,7 +296,7 @@ export function OrderFlowClient({
           })}
         </p>
         </div>
-      </Card>
+      </div>
 
       <OrderingRulesCard schedule={schedule} advanceOrderHours={advanceOrderHours} />
 
@@ -311,12 +311,12 @@ export function OrderFlowClient({
                 type="button"
                 disabled={disabled}
                 onClick={() => day.schedule && pickDay(day.lunchDate)}
-                className={`rounded-xl border p-3 text-left text-sm transition-all active:scale-[0.98] ${
+                className={`rounded-xl border p-3 text-left text-sm transition-all duration-200 active:scale-[0.98] ${
                   active
-                    ? "border-[var(--geaux-red)] bg-red-50 ring-2 ring-[var(--geaux-yellow)]"
+                    ? "border-[var(--geaux-red)] bg-red-50/80 shadow-[var(--geaux-shadow-md)] ring-2 ring-[var(--geaux-yellow)]"
                     : disabled
-                      ? "cursor-not-allowed border-slate-100 bg-slate-50 opacity-60"
-                      : "border-slate-200 bg-white hover:-translate-y-0.5 hover:border-[var(--geaux-yellow)] hover:shadow-md"
+                      ? "cursor-not-allowed border-slate-100 bg-slate-50/80 opacity-60"
+                      : "border-[var(--geaux-border)] bg-white shadow-[var(--geaux-shadow-sm)] hover:-translate-y-0.5 hover:border-[var(--geaux-yellow)] hover:shadow-[var(--geaux-shadow-md)]"
                 }`}
               >
                 <p className="font-semibold text-slate-800">{day.label}</p>
@@ -465,7 +465,7 @@ export function OrderFlowClient({
       ) : null}
 
       {orderingOpen && step === "menu" && cartLines.length > 0 ? (
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white p-3 shadow-lg sm:hidden">
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200/80 bg-white/95 p-3 shadow-[var(--geaux-shadow-lg)] backdrop-blur-md sm:hidden">
           <div className="flex items-center justify-between gap-3">
             <div className="text-sm">
               <p className="font-semibold text-slate-900">
@@ -493,24 +493,6 @@ export function OrderFlowClient({
         </Card>
       ) : null}
 
-      <style jsx global>{`
-        .qty-btn {
-          height: 2.75rem;
-          width: 2.75rem;
-          border-radius: 0.5rem;
-          border: 2px solid #fdb913;
-          background: #fffbf5;
-          font-weight: 700;
-          transition: all 0.15s;
-        }
-        .qty-btn:hover {
-          background: #fdb913;
-          transform: scale(1.05);
-        }
-        .qty-btn:active {
-          transform: scale(0.95);
-        }
-      `}</style>
     </div>
   );
 }
