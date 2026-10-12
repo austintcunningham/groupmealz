@@ -43,18 +43,22 @@ export function DashboardNav({
 
   if (groups?.length) {
     return (
-      <nav className="space-y-2 pb-1" aria-label="Dashboard sections">
-        {groups.map((group) => (
-          <div key={group.label}>
-            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-white/50">
-              {group.label}
-            </p>
-            <div className="flex gap-1 overflow-x-auto overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {group.links.map((link) => (
-                <NavPill key={link.href} link={link} active={isActive(link.href)} />
-              ))}
-            </div>
-          </div>
+      <nav
+        className="flex items-center gap-1 overflow-x-auto overscroll-x-contain pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        aria-label="Dashboard sections"
+      >
+        {groups.map((group, groupIndex) => (
+          <span key={group.label} className="contents">
+            {groupIndex > 0 ? (
+              <span
+                className="mx-0.5 h-5 w-px shrink-0 self-center bg-white/25"
+                aria-hidden
+              />
+            ) : null}
+            {group.links.map((link) => (
+              <NavPill key={link.href} link={link} active={isActive(link.href)} />
+            ))}
+          </span>
         ))}
       </nav>
     );

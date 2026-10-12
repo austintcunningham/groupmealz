@@ -3,36 +3,37 @@ import { SignOutForm } from "@/components/auth/SignOutForm";
 import { GroupMealsLogo } from "@/components/brand/GroupMealsLogo";
 import { DashboardNav, type DashboardNavGroup } from "@/components/DashboardNav";
 
+/** Same order as before the audit — grouped in code only for maintainability. */
 const adminNavGroups: DashboardNavGroup[] = [
   {
     label: "Overview",
     links: [{ href: "/admin", label: "Dashboard" }],
   },
   {
-    label: "Operate",
-    links: [
-      { href: "/admin/schedules", label: "Schedules" },
-      { href: "/admin/orders", label: "Orders" },
-      { href: "/admin/announcements", label: "ROTD emails" },
-      { href: "/admin/simulate-order", label: "Order simulation" },
-    ],
-  },
-  {
     label: "Partners",
     links: [
       { href: "/admin/restaurants", label: "Restaurants" },
+      { href: "/admin/branding", label: "Branding review" },
       { href: "/admin/offices", label: "Offices" },
       { href: "/admin/menus", label: "Menus" },
-      { href: "/admin/branding", label: "Branding review" },
     ],
   },
   {
-    label: "Business",
+    label: "Operate",
     links: [
+      { href: "/admin/schedules", label: "Schedules" },
+      { href: "/admin/announcements", label: "ROTD emails" },
+      { href: "/admin/orders", label: "Orders" },
       { href: "/admin/payouts", label: "Payouts" },
+    ],
+  },
+  {
+    label: "More",
+    links: [
       { href: "/admin/reviews", label: "Feedback" },
       { href: "/admin/settings", label: "Settings" },
       { href: "/admin/email-preview", label: "Email preview" },
+      { href: "/admin/simulate-order", label: "Order simulation" },
     ],
   },
 ];
