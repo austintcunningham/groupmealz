@@ -5,7 +5,7 @@ import {
   sendStaffSignupInviteEmail,
 } from "@/lib/email/staff-invitation";
 import { BRAND } from "@/lib/brand";
-import type { UserRole } from "@/types/database";
+import type { StaffInvitation, UserRole } from "@/types/database";
 
 export function normalizeStaffEmail(email: string): string {
   return email.trim().toLowerCase();
@@ -28,6 +28,13 @@ export type StaffInviteInput =
     };
 
 type InviteCopy = { roleTitle: string; placeName: string };
+
+export type StaffInviteEmailResult = {
+  emailSent: boolean;
+  emailError?: string;
+  emailId?: string;
+  emailFrom?: string;
+};
 
 async function resolveInviteCopy(input: StaffInviteInput): Promise<InviteCopy> {
   const admin = createAdminClient();
@@ -110,12 +117,119 @@ function invitationRow(input: StaffInviteInput): Record<string, unknown> {
   }
 }
 
+export function staffInvitationToInput(
+  row: Pick<
+    StaffInvitation,
+    "email" | "profile_role" | "office_id" | "office_user_role" | "restaurant_id"
+  >
+): StaffInviteInput | null {
+  if (row.profile_role === "admin") {
+    return { kind: "platform_admin", email: row.email };
+  }
+  if (row.profile_role === "restaurant_manager" && row.restaurant_id) {
+    return {
+      kind: "restaurant_manager",
+      email: row.email,
+      restaurantId: row.restaurant_id,
+    };
+  }
+  if (
+    row.office_id &&
+    row.office_user_role &&
+    (row.profile_role === "office_admin" || row.profile_role === "employee")
+  ) {
+    return {
+      kind: "office_member",
+      email: row.email,
+      officeId: row.office_id,
+      officeRole: row.office_user_role,
+    };
+  }
+  return null;
+}
+
+async function dispatchStaffInviteEmail(
+  input: StaffInviteInput,
+  copy: InviteCopy,
+  isExistingAccount: boolean
+): Promise<StaffInviteEmailResult> {
+  const base = appBaseUrl();
+  const to = normalizeStaffEmail(input.email);
+
+  const mail =
+    input.kind === "restaurant_manager"
+      ? await sendRestaurantManagerInviteEmail({
+          to,
+          restaurantName: copy.placeName,
+          signupUrl: `${base}/signup`,
+          loginUrl: `${base}/login`,
+          baseUrl: base,
+          isExistingAccount,
+        })
+      : isExistingAccount
+        ? await sendStaffAccessGrantedEmail({
+            to,
+            roleTitle: copy.roleTitle,
+            placeName: copy.placeName,
+            loginUrl: `${base}/login`,
+          })
+        : await sendStaffSignupInviteEmail({
+            to,
+            roleTitle: copy.roleTitle,
+            placeName: copy.placeName,
+            signupUrl: `${base}/signup`,
+          });
+
+  return {
+    emailSent: mail.sent,
+    emailError: mail.error,
+    emailId: mail.id,
+    emailFrom: mail.from,
+  };
+}
+
+/** Send invite email only (no DB changes). */
+export async function sendStaffInvitationEmail(
+  input: StaffInviteInput,
+  isExistingAccount: boolean
+): Promise<StaffInviteEmailResult | { error: string }> {
+  let copy: InviteCopy;
+  try {
+    copy = await resolveInviteCopy(input);
+  } catch {
+    copy = { roleTitle: "Staff", placeName: BRAND.name };
+  }
+
+  try {
+    return await dispatchStaffInviteEmail(input, copy, isExistingAccount);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return { error: msg };
+  }
+}
+
 /** Upsert pending invite; if the user already exists, apply immediately. */
 export async function upsertStaffInvitation(
   input: StaffInviteInput
 ): Promise<
-  | { status: "assigned"; email: string; profileId: string; emailSent: boolean; emailError?: string }
-  | { status: "invited"; email: string; emailSent: boolean; emailError?: string }
+  | {
+      status: "assigned";
+      email: string;
+      profileId: string;
+      emailSent: boolean;
+      emailError?: string;
+      emailId?: string;
+      emailFrom?: string;
+      applyError?: string;
+    }
+  | {
+      status: "invited";
+      email: string;
+      emailSent: boolean;
+      emailError?: string;
+      emailId?: string;
+      emailFrom?: string;
+    }
   | { error: string }
 > {
   let admin;
@@ -159,30 +273,18 @@ export async function upsertStaffInvitation(
     copy = { roleTitle: "Staff", placeName: BRAND.name };
   }
 
-  const base = appBaseUrl();
-
   const existing = await findProfileIdByEmailAdmin(email);
+
+  const mail = await dispatchStaffInviteEmail(input, copy, Boolean(existing));
+
   if (!existing) {
-    const mail =
-      input.kind === "restaurant_manager"
-        ? await sendRestaurantManagerInviteEmail({
-            to: email,
-            restaurantName: copy.placeName,
-            signupUrl: `${base}/signup`,
-            baseUrl: base,
-            isExistingAccount: false,
-          })
-        : await sendStaffSignupInviteEmail({
-            to: email,
-            roleTitle: copy.roleTitle,
-            placeName: copy.placeName,
-            signupUrl: `${base}/signup`,
-          });
     return {
       status: "invited",
       email,
-      emailSent: mail.sent,
-      emailError: mail.error,
+      emailSent: mail.emailSent,
+      emailError: mail.emailError,
+      emailId: mail.emailId,
+      emailFrom: mail.emailFrom,
     };
   }
 
@@ -192,32 +294,26 @@ export async function upsertStaffInvitation(
   });
 
   if (applyError) {
-    return { error: applyError.message };
+    return {
+      status: "assigned",
+      email,
+      profileId: existing.id,
+      emailSent: mail.emailSent,
+      emailError: mail.emailError,
+      emailId: mail.emailId,
+      emailFrom: mail.emailFrom,
+      applyError: applyError.message,
+    };
   }
-
-  const mail =
-    input.kind === "restaurant_manager"
-      ? await sendRestaurantManagerInviteEmail({
-          to: email,
-          restaurantName: copy.placeName,
-          signupUrl: `${base}/signup`,
-          loginUrl: `${base}/login`,
-          baseUrl: base,
-          isExistingAccount: true,
-        })
-      : await sendStaffAccessGrantedEmail({
-          to: email,
-          roleTitle: copy.roleTitle,
-          placeName: copy.placeName,
-          loginUrl: `${base}/login`,
-        });
 
   return {
     status: "assigned",
     email,
     profileId: existing.id,
-    emailSent: mail.sent,
-    emailError: mail.error,
+    emailSent: mail.emailSent,
+    emailError: mail.emailError,
+    emailId: mail.emailId,
+    emailFrom: mail.emailFrom,
   };
 }
 

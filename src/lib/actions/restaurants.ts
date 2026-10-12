@@ -146,6 +146,9 @@ export async function assignRestaurantManagerByEmail(
     email: string;
     emailSent: boolean;
     emailError?: string;
+    emailId?: string;
+    emailFrom?: string;
+    applyError?: string;
   }>
 > {
   const auth = await requireProfileRole(["admin"]);
@@ -178,6 +181,72 @@ export async function assignRestaurantManagerByEmail(
       email: result.email,
       emailSent: result.emailSent,
       emailError: result.emailError,
+      emailId: result.emailId,
+      emailFrom: result.emailFrom,
+      applyError: "applyError" in result ? result.applyError : undefined,
+    },
+  };
+}
+
+/** Resend manager onboarding email without changing DB (existing account). */
+export async function resendRestaurantManagerInviteEmail(
+  restaurantId: string,
+  email: string
+): Promise<
+  ActionResult<{
+    email: string;
+    emailSent: boolean;
+    emailError?: string;
+    emailId?: string;
+    emailFrom?: string;
+  }>
+> {
+  const auth = await requireProfileRole(["admin"]);
+  if ("error" in auth) return { success: false, error: auth.error };
+
+  const { normalizeStaffEmail, sendStaffInvitationEmail } = await import(
+    "@/lib/staff/invitations"
+  );
+  const normalized = normalizeStaffEmail(email);
+  if (!normalized) {
+    return { success: false, error: "Email is required." };
+  }
+
+  const { createAdminClient } = await import("@/lib/supabase/admin");
+  let admin;
+  try {
+    admin = createAdminClient();
+  } catch {
+    return { success: false, error: "Missing SUPABASE_SERVICE_ROLE_KEY on the server." };
+  }
+
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("id")
+    .ilike("email", normalized)
+    .maybeSingle();
+
+  const mail = await sendStaffInvitationEmail(
+    {
+      kind: "restaurant_manager",
+      email: normalized,
+      restaurantId,
+    },
+    Boolean(profile)
+  );
+
+  if ("error" in mail) {
+    return { success: false, error: mail.error };
+  }
+
+  return {
+    success: true,
+    data: {
+      email: normalized,
+      emailSent: mail.emailSent,
+      emailError: mail.emailError,
+      emailId: mail.emailId,
+      emailFrom: mail.emailFrom,
     },
   };
 }

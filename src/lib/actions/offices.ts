@@ -150,6 +150,9 @@ export async function assignOfficeUserByEmail(
     email: string;
     emailSent: boolean;
     emailError?: string;
+    emailId?: string;
+    emailFrom?: string;
+    applyError?: string;
   }>
 > {
   const auth = await requireProfileRole(["admin"]);
@@ -184,6 +187,9 @@ export async function assignOfficeUserByEmail(
       email: result.email,
       emailSent: result.emailSent,
       emailError: result.emailError,
+      emailId: result.emailId,
+      emailFrom: result.emailFrom,
+      applyError: "applyError" in result ? result.applyError : undefined,
     },
   };
 }

@@ -2,7 +2,21 @@ import { BRAND } from "@/lib/brand";
 import { buildRestaurantManagerInviteHtml } from "@/lib/email/restaurant-manager-onboarding";
 import { htmlToPlainText } from "@/lib/email/html-utils";
 import { emailPrimaryButton, wrapBrandedEmail } from "@/lib/email/layout";
-import { getEmailFromAddress, getReplyToAddress, getResendClient } from "@/lib/email/resend-client";
+import { sendViaResend, type SendViaResendResult } from "@/lib/email/resend-client";
+
+export type StaffEmailDispatchResult = {
+  sent: boolean;
+  error?: string;
+  id?: string;
+  from?: string;
+};
+
+function fromResend(result: SendViaResendResult): StaffEmailDispatchResult {
+  if (result.sent) {
+    return { sent: true, id: result.id, from: result.from };
+  }
+  return { sent: false, error: result.error, from: result.from };
+}
 
 export function buildStaffSignupInviteHtml(input: {
   roleTitle: string;
@@ -54,24 +68,16 @@ export async function sendStaffSignupInviteEmail(input: {
   roleTitle: string;
   placeName: string;
   signupUrl: string;
-}): Promise<{ sent: boolean; error?: string }> {
-  const resend = getResendClient();
-  if (!resend) {
-    return { sent: false, error: "RESEND_API_KEY missing on server" };
-  }
-
+}): Promise<StaffEmailDispatchResult> {
   const html = buildStaffSignupInviteHtml(input);
-  const { error } = await resend.emails.send({
-    from: getEmailFromAddress(),
-    to: input.to,
-    replyTo: getReplyToAddress(),
-    subject: `${BRAND.name} — you're invited as ${input.roleTitle}`,
-    html,
-    text: htmlToPlainText(html),
-  });
-
-  if (error) return { sent: false, error: error.message };
-  return { sent: true };
+  return fromResend(
+    await sendViaResend({
+      to: input.to,
+      subject: `${BRAND.name} — you're invited as ${input.roleTitle}`,
+      html,
+      text: htmlToPlainText(html),
+    })
+  );
 }
 
 export async function sendRestaurantManagerInviteEmail(input: {
@@ -81,12 +87,7 @@ export async function sendRestaurantManagerInviteEmail(input: {
   loginUrl?: string;
   baseUrl: string;
   isExistingAccount: boolean;
-}): Promise<{ sent: boolean; error?: string }> {
-  const resend = getResendClient();
-  if (!resend) {
-    return { sent: false, error: "RESEND_API_KEY missing on server" };
-  }
-
+}): Promise<StaffEmailDispatchResult> {
   const html = buildRestaurantManagerInviteHtml({
     restaurantName: input.restaurantName,
     signupUrl: input.signupUrl,
@@ -95,17 +96,14 @@ export async function sendRestaurantManagerInviteEmail(input: {
     baseUrl: input.baseUrl,
   });
 
-  const { error } = await resend.emails.send({
-    from: getEmailFromAddress(),
-    to: input.to,
-    replyTo: getReplyToAddress(),
-    subject: `${BRAND.name} — set up ${input.restaurantName} (menu, branding & deals)`,
-    html,
-    text: htmlToPlainText(html),
-  });
-
-  if (error) return { sent: false, error: error.message };
-  return { sent: true };
+  return fromResend(
+    await sendViaResend({
+      to: input.to,
+      subject: `${BRAND.name} — set up ${input.restaurantName} (menu, branding & deals)`,
+      html,
+      text: htmlToPlainText(html),
+    })
+  );
 }
 
 export async function sendStaffAccessGrantedEmail(input: {
@@ -113,22 +111,14 @@ export async function sendStaffAccessGrantedEmail(input: {
   roleTitle: string;
   placeName: string;
   loginUrl: string;
-}): Promise<{ sent: boolean; error?: string }> {
-  const resend = getResendClient();
-  if (!resend) {
-    return { sent: false, error: "RESEND_API_KEY missing on server" };
-  }
-
+}): Promise<StaffEmailDispatchResult> {
   const html = buildStaffAccessGrantedHtml(input);
-  const { error } = await resend.emails.send({
-    from: getEmailFromAddress(),
-    to: input.to,
-    replyTo: getReplyToAddress(),
-    subject: `${BRAND.name} — your manager access is ready`,
-    html,
-    text: htmlToPlainText(html),
-  });
-
-  if (error) return { sent: false, error: error.message };
-  return { sent: true };
+  return fromResend(
+    await sendViaResend({
+      to: input.to,
+      subject: `${BRAND.name} — your manager access is ready`,
+      html,
+      text: htmlToPlainText(html),
+    })
+  );
 }

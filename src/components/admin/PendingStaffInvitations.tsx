@@ -1,3 +1,4 @@
+import { ResendStaffInviteButton } from "@/components/admin/ResendStaffInviteButton";
 import { EmptyState } from "@/components/ui";
 import type { StaffInvitation } from "@/types/database";
 
@@ -41,9 +42,12 @@ export function PendingStaffInvitations({
             <p className="font-medium text-slate-900">{row.email}</p>
             <p className="text-slate-500">{describeInvite(row)}</p>
           </div>
-          <p className="text-xs text-slate-400">
-            Waiting for signup · {new Date(row.created_at).toLocaleDateString()}
-          </p>
+          <div className="flex flex-col items-end gap-1">
+            <p className="text-xs text-slate-400">
+              Waiting for signup · {new Date(row.created_at).toLocaleDateString()}
+            </p>
+            <ResendStaffInviteButton invitationId={row.id} />
+          </div>
         </li>
       ))}
     </ul>
