@@ -5,7 +5,7 @@ with numbered as (
     id,
     row_number() over (
       partition by restaurant_id
-      order by display_order, name, created_at
+      order by display_order, name, id
     ) - 1 as rn
   from public.menu_categories
 )
