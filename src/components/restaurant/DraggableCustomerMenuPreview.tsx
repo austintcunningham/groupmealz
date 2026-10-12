@@ -19,7 +19,8 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { useMemo, useState, useTransition, type ReactNode } from "react";
+import { useMemo, useRef, useState, useTransition, type ReactNode } from "react";
+import { usePreviewEdgeAutoScroll } from "@/components/restaurant/usePreviewEdgeAutoScroll";
 import { useRouter } from "next/navigation";
 import { MenuItemPhoto } from "@/components/order/MenuItemPhoto";
 import {
@@ -125,9 +126,12 @@ export function DraggableCustomerMenuPreview({
   visibleItems: MenuItem[];
 }) {
   const router = useRouter();
+  const scrollRef = useRef<HTMLDivElement>(null);
   const [isPending, startTransition] = useTransition();
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
+
+  usePreviewEdgeAutoScroll(scrollRef, activeDragId != null);
 
   const promoDate = new Date().toISOString().slice(0, 10);
 
@@ -281,13 +285,18 @@ export function DraggableCustomerMenuPreview({
   }
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
+    <div
+      ref={scrollRef}
+      className="max-h-[min(70vh,520px)] overflow-y-auto overscroll-y-contain rounded-lg border border-slate-200 bg-white p-3"
     >
-      <div className={`space-y-6 ${isPending ? "pointer-events-none opacity-75" : ""}`}>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        autoScroll={false}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+        <div className={`space-y-6 ${isPending ? "pointer-events-none opacity-75" : ""}`}>
         {status ? (
           <p
             className={`animate-fade-in text-xs font-medium ${status.includes("saved") ? "text-green-700" : "text-red-600"}`}
@@ -387,6 +396,7 @@ export function DraggableCustomerMenuPreview({
           </div>
         ) : null}
       </DragOverlay>
-    </DndContext>
+      </DndContext>
+    </div>
   );
 }

@@ -36,14 +36,12 @@ export function CustomerMenuLivePreview({
           are hidden here but stay in the list below.
         </p>
       </div>
-      <div className="max-h-[min(70vh,520px)] overflow-y-auto rounded-lg border border-slate-200 bg-white p-3">
-        <DraggableCustomerMenuPreview
-          allCategories={categories}
-          allMenuItems={menuItems}
-          visibleCategories={visibleCats}
-          visibleItems={visibleItems}
-        />
-      </div>
+      <DraggableCustomerMenuPreview
+        allCategories={categories}
+        allMenuItems={menuItems}
+        visibleCategories={visibleCats}
+        visibleItems={visibleItems}
+      />
     </section>
   );
 }
