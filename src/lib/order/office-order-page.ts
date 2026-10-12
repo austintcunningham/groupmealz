@@ -90,13 +90,15 @@ export async function loadOfficeOrderContext(office: Office, selectedDate: strin
       .from("menu_categories")
       .select("*")
       .eq("restaurant_id", schedule.restaurant_id)
-      .eq("active", true),
+      .eq("active", true)
+      .order("display_order"),
     supabase
       .from("menu_items")
       .select("*")
       .eq("restaurant_id", schedule.restaurant_id)
       .eq("active", true)
-      .eq("available", true),
+      .eq("available", true)
+      .order("display_order"),
   ]);
 
   return {

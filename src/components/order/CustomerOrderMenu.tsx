@@ -4,6 +4,7 @@ import Image from "next/image";
 import { effectivePriceCents, isPromoActive } from "@/lib/menus/effective-price";
 import { formatCents } from "@/lib/money/format";
 import { Card } from "@/components/ui";
+import { sortMenuCategories, sortMenuItems } from "@/lib/menus/sort";
 import type { MenuCategory, MenuItem } from "@/types/database";
 
 function lunchDateForPromos(explicit?: string): string {
@@ -112,12 +113,10 @@ export function CustomerOrderMenu({
 }) {
   const promoDate = lunchDateForPromos(lunchDate);
 
-  const sortedCategories = [...categories].sort(
-    (a, b) => a.display_order - b.display_order || a.name.localeCompare(b.name)
-  );
+  const sortedCategories = sortMenuCategories(categories);
 
   const itemsByCategory = new Map<string, MenuItem[]>();
-  for (const item of menuItems) {
+  for (const item of sortMenuItems(menuItems)) {
     const catId = item.category_id ?? "uncategorized";
     const list = itemsByCategory.get(catId) ?? [];
     list.push(item);

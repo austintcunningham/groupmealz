@@ -8,6 +8,7 @@ import {
   requireProfileRole,
   type ActionResult,
 } from "@/lib/actions/utils";
+import { moveIdInList, sortMenuCategories, sortMenuItems } from "@/lib/menus/sort";
 import {
   MENU_IMAGES_BUCKET,
   menuImageObjectPath,
@@ -109,6 +110,70 @@ function revalidateMenuPaths() {
   revalidatePath("/order");
 }
 
+async function nextCategoryDisplayOrder(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  restaurantId: string
+): Promise<number> {
+  const { data } = await supabase
+    .from("menu_categories")
+    .select("display_order")
+    .eq("restaurant_id", restaurantId)
+    .order("display_order", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return (data?.display_order ?? -1) + 1;
+}
+
+async function nextMenuItemDisplayOrder(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  restaurantId: string,
+  categoryId: string | null
+): Promise<number> {
+  let query = supabase
+    .from("menu_items")
+    .select("display_order")
+    .eq("restaurant_id", restaurantId)
+    .order("display_order", { ascending: false })
+    .limit(1);
+
+  if (categoryId) {
+    query = query.eq("category_id", categoryId);
+  } else {
+    query = query.is("category_id", null);
+  }
+
+  const { data } = await query.maybeSingle();
+  return (data?.display_order ?? -1) + 1;
+}
+
+async function applyCategoryDisplayOrder(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  orderedIds: string[]
+): Promise<string | null> {
+  for (let i = 0; i < orderedIds.length; i++) {
+    const { error } = await supabase
+      .from("menu_categories")
+      .update({ display_order: i })
+      .eq("id", orderedIds[i]);
+    if (error) return error.message;
+  }
+  return null;
+}
+
+async function applyMenuItemDisplayOrder(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  orderedIds: string[]
+): Promise<string | null> {
+  for (let i = 0; i < orderedIds.length; i++) {
+    const { error } = await supabase
+      .from("menu_items")
+      .update({ display_order: i })
+      .eq("id", orderedIds[i]);
+    if (error) return error.message;
+  }
+  return null;
+}
+
 export async function createMenuCategory(
   input: z.infer<typeof categorySchema>
 ): Promise<ActionResult<{ id: string }>> {
@@ -128,9 +193,13 @@ export async function createMenuCategory(
   if (!allowed) return { success: false, error: "Unauthorized" };
 
   const supabase = await createClient();
+  const display_order =
+    parsed.data.display_order ??
+    (await nextCategoryDisplayOrder(supabase, parsed.data.restaurant_id));
+
   const { data, error } = await supabase
     .from("menu_categories")
-    .insert(parsed.data)
+    .insert({ ...parsed.data, display_order })
     .select("id")
     .single();
 
@@ -225,9 +294,14 @@ export async function createMenuItem(
   if (!allowed) return { success: false, error: "Unauthorized" };
 
   const supabase = await createClient();
+  const categoryId = parsed.data.category_id ?? null;
+  const display_order =
+    parsed.data.display_order ??
+    (await nextMenuItemDisplayOrder(supabase, parsed.data.restaurant_id, categoryId));
+
   const { data, error } = await supabase
     .from("menu_items")
-    .insert(parsed.data)
+    .insert({ ...parsed.data, display_order })
     .select("id")
     .single();
 
@@ -236,6 +310,97 @@ export async function createMenuItem(
   await logAudit("create_menu_item", "menu_item", data.id);
   revalidateMenuPaths();
   return { success: true, data: { id: data.id } };
+}
+
+export async function moveMenuCategory(
+  categoryId: string,
+  direction: "up" | "down"
+): Promise<ActionResult> {
+  const auth = await requireProfileRole(["admin", "restaurant_manager"]);
+  if ("error" in auth) return { success: false, error: auth.error };
+
+  const restaurantId = await getCategoryRestaurantId(categoryId);
+  if (!restaurantId) return { success: false, error: "Category not found" };
+
+  const allowed = await assertRestaurantMenuAccess(
+    restaurantId,
+    auth.profile.role,
+    auth.profile.id
+  );
+  if (!allowed) return { success: false, error: "Unauthorized" };
+
+  const supabase = await createClient();
+  const { data: rows, error: fetchError } = await supabase
+    .from("menu_categories")
+    .select("id, display_order, name")
+    .eq("restaurant_id", restaurantId);
+
+  if (fetchError) return { success: false, error: fetchError.message };
+
+  const ordered = sortMenuCategories(rows as import("@/types/database").MenuCategory[]);
+  const ids = ordered.map((c) => c.id);
+  const nextIds = moveIdInList(ids, categoryId, direction);
+  if (nextIds.join() === ids.join()) {
+    return { success: true, data: undefined };
+  }
+
+  const applyError = await applyCategoryDisplayOrder(supabase, nextIds);
+  if (applyError) return { success: false, error: applyError };
+
+  revalidateMenuPaths();
+  return { success: true, data: undefined };
+}
+
+export async function moveMenuItem(
+  itemId: string,
+  direction: "up" | "down"
+): Promise<ActionResult> {
+  const auth = await requireProfileRole(["admin", "restaurant_manager"]);
+  if ("error" in auth) return { success: false, error: auth.error };
+
+  const supabase = await createClient();
+  const { data: item, error: itemError } = await supabase
+    .from("menu_items")
+    .select("id, restaurant_id, category_id")
+    .eq("id", itemId)
+    .maybeSingle();
+
+  if (itemError) return { success: false, error: itemError.message };
+  if (!item) return { success: false, error: "Menu item not found" };
+
+  const allowed = await assertRestaurantMenuAccess(
+    item.restaurant_id,
+    auth.profile.role,
+    auth.profile.id
+  );
+  if (!allowed) return { success: false, error: "Unauthorized" };
+
+  let query = supabase
+    .from("menu_items")
+    .select("id, display_order, name, category_id")
+    .eq("restaurant_id", item.restaurant_id);
+
+  if (item.category_id) {
+    query = query.eq("category_id", item.category_id);
+  } else {
+    query = query.is("category_id", null);
+  }
+
+  const { data: rows, error: fetchError } = await query;
+  if (fetchError) return { success: false, error: fetchError.message };
+
+  const ordered = sortMenuItems(rows as import("@/types/database").MenuItem[]);
+  const ids = ordered.map((i) => i.id);
+  const nextIds = moveIdInList(ids, itemId, direction);
+  if (nextIds.join() === ids.join()) {
+    return { success: true, data: undefined };
+  }
+
+  const applyError = await applyMenuItemDisplayOrder(supabase, nextIds);
+  if (applyError) return { success: false, error: applyError };
+
+  revalidateMenuPaths();
+  return { success: true, data: undefined };
 }
 
 export async function updateMenuItem(
@@ -261,7 +426,25 @@ export async function updateMenuItem(
 
   const { id, ...patch } = parsed.data;
   const supabase = await createClient();
-  const { error } = await supabase.from("menu_items").update(patch).eq("id", id);
+
+  const updatePayload: Record<string, unknown> = { ...patch };
+
+  if (patch.category_id !== undefined) {
+    const { data: current } = await supabase
+      .from("menu_items")
+      .select("category_id")
+      .eq("id", id)
+      .maybeSingle();
+    if (current && current.category_id !== patch.category_id) {
+      updatePayload.display_order = await nextMenuItemDisplayOrder(
+        supabase,
+        restaurantId,
+        patch.category_id
+      );
+    }
+  }
+
+  const { error } = await supabase.from("menu_items").update(updatePayload).eq("id", id);
 
   if (error) return { success: false, error: error.message };
 

@@ -31,7 +31,8 @@ export function CustomerMenuLivePreview({
         </p>
         <p className="text-sm text-slate-600">
           What offices see when ordering from <strong>{restaurantName}</strong> — only{" "}
-          <strong>available</strong> items. Sold-out or hidden items are omitted here.
+          <strong>available</strong> items, in the same order as below, with uploaded photos shown
+          after you pick a file. Sold-out items are omitted here.
         </p>
       </div>
       <div className="max-h-[min(70vh,520px)] overflow-y-auto rounded-lg border border-slate-200 bg-white p-3">

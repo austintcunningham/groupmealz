@@ -4,17 +4,21 @@ import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { MenuEntreeBadge } from "@/components/menus/MenuEntreeBadge";
 import { MenuItemPhotoUpload } from "@/components/menus/MenuItemPhotoUpload";
+import { MenuReorderButtons } from "@/components/menus/MenuReorderButtons";
 import { CustomerMenuLivePreview } from "@/components/restaurant/CustomerMenuLivePreview";
 import {
   createMenuCategory,
   createMenuItem,
   deleteMenuCategory,
   deleteMenuItem,
+  moveMenuCategory,
+  moveMenuItem,
   updateMenuCategory,
   updateMenuItem,
   uploadMenuItemImage,
 } from "@/lib/actions/menus";
 import { effectivePriceCents, isPromoActive } from "@/lib/menus/effective-price";
+import { sortMenuCategories, sortMenuItems } from "@/lib/menus/sort";
 import { formatCents, parseDollarsToCents } from "@/lib/money/format";
 import { Button, ErrorMessage, Input, Select, SuccessMessage } from "@/components/ui";
 import type { MenuCategory, MenuItem } from "@/types/database";
@@ -25,20 +29,36 @@ function MenuItemEditorForm({
   isPending,
   onSave,
   onDelete,
+  onMoveUp,
+  onMoveDown,
+  disableMoveUp,
+  disableMoveDown,
 }: {
   item: MenuItem;
   categories: MenuCategory[];
   isPending: boolean;
   onSave: (itemId: string, formData: FormData) => void;
   onDelete: (itemId: string, itemName: string) => void;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+  disableMoveUp: boolean;
+  disableMoveDown: boolean;
 }) {
   const promo = isPromoActive(item);
   const charge = effectivePriceCents(item);
 
   return (
-    <li className="rounded-lg border border-slate-200 bg-white p-4">
+    <li className="flex gap-2 rounded-lg border border-slate-200 bg-white p-4">
+      <MenuReorderButtons
+        label={item.name}
+        loading={isPending}
+        disableUp={disableMoveUp}
+        disableDown={disableMoveDown}
+        onMoveUp={onMoveUp}
+        onMoveDown={onMoveDown}
+      />
       <form
-        className="space-y-3"
+        className="min-w-0 flex-1 space-y-3"
         onSubmit={(e) => {
           e.preventDefault();
           onSave(item.id, new FormData(e.currentTarget));
@@ -175,10 +195,7 @@ export function RestaurantMenuEditor({
     restaurants?.find((r) => r.id === restaurantId)?.name ?? initialRestaurantName;
 
   const restaurantCategories = useMemo(
-    () =>
-      categories
-        .filter((c) => c.restaurant_id === restaurantId)
-        .sort((a, b) => a.display_order - b.display_order || a.name.localeCompare(b.name)),
+    () => sortMenuCategories(categories.filter((c) => c.restaurant_id === restaurantId)),
     [categories, restaurantId]
   );
 
@@ -188,9 +205,33 @@ export function RestaurantMenuEditor({
   );
 
   const uncategorizedItems = useMemo(
-    () => restaurantItems.filter((i) => !i.category_id),
+    () => sortMenuItems(restaurantItems.filter((i) => !i.category_id)),
     [restaurantItems]
   );
+
+  function moveCategory(categoryId: string, direction: "up" | "down") {
+    setError(null);
+    startTransition(async () => {
+      const result = await moveMenuCategory(categoryId, direction);
+      if (!result.success) {
+        setError(result.error);
+        return;
+      }
+      router.refresh();
+    });
+  }
+
+  function moveItem(itemId: string, direction: "up" | "down") {
+    setError(null);
+    startTransition(async () => {
+      const result = await moveMenuItem(itemId, direction);
+      if (!result.success) {
+        setError(result.error);
+        return;
+      }
+      router.refresh();
+    });
+  }
 
   function flash(message: string) {
     setSuccess(message);
@@ -354,8 +395,8 @@ export function RestaurantMenuEditor({
       />
 
       <p className="text-sm text-slate-600">
-        Items marked <strong>Entrée</strong> include the per-entrée service fee at checkout. Sides
-        and drinks should be <strong>Not entrée</strong>.
+        Items marked <strong>Entrée</strong> include the per-entrée service fee at checkout. Use{" "}
+        <strong>↑ ↓</strong> on categories and items to match the customer menu order.
       </p>
 
       <form
@@ -423,11 +464,21 @@ export function RestaurantMenuEditor({
           <p className="text-sm text-slate-500">No categories or items yet.</p>
         ) : (
           <div className="space-y-8">
-            {restaurantCategories.map((cat) => {
-              const items = restaurantItems.filter((i) => i.category_id === cat.id);
+            {restaurantCategories.map((cat, catIndex) => {
+              const items = sortMenuItems(
+                restaurantItems.filter((i) => i.category_id === cat.id)
+              );
               return (
                 <section key={cat.id} className="rounded-xl border border-slate-200 bg-slate-50/80">
                   <div className="flex flex-wrap items-end gap-2 border-b border-slate-200 p-4">
+                    <MenuReorderButtons
+                      label={`${cat.name} category`}
+                      loading={isPending}
+                      disableUp={catIndex === 0}
+                      disableDown={catIndex === restaurantCategories.length - 1}
+                      onMoveUp={() => moveCategory(cat.id, "up")}
+                      onMoveDown={() => moveCategory(cat.id, "down")}
+                    />
                     <form
                       className="flex min-w-0 flex-1 flex-wrap items-end gap-2"
                       onSubmit={(e) => {
@@ -456,7 +507,7 @@ export function RestaurantMenuEditor({
                     <p className="p-4 text-sm text-slate-500">No items in this category.</p>
                   ) : (
                     <ul className="space-y-3 p-4">
-                      {items.map((item) => (
+                      {items.map((item, itemIndex) => (
                         <MenuItemEditorForm
                           key={item.id}
                           item={item}
@@ -464,6 +515,10 @@ export function RestaurantMenuEditor({
                           isPending={isPending}
                           onSave={saveItem}
                           onDelete={removeItem}
+                          disableMoveUp={itemIndex === 0}
+                          disableMoveDown={itemIndex === items.length - 1}
+                          onMoveUp={() => moveItem(item.id, "up")}
+                          onMoveDown={() => moveItem(item.id, "down")}
                         />
                       ))}
                     </ul>
@@ -478,7 +533,7 @@ export function RestaurantMenuEditor({
                   Uncategorized
                 </h4>
                 <ul className="space-y-3 p-4">
-                  {uncategorizedItems.map((item) => (
+                  {uncategorizedItems.map((item, itemIndex) => (
                     <MenuItemEditorForm
                       key={item.id}
                       item={item}
@@ -486,6 +541,10 @@ export function RestaurantMenuEditor({
                       isPending={isPending}
                       onSave={saveItem}
                       onDelete={removeItem}
+                      disableMoveUp={itemIndex === 0}
+                      disableMoveDown={itemIndex === uncategorizedItems.length - 1}
+                      onMoveUp={() => moveItem(item.id, "up")}
+                      onMoveDown={() => moveItem(item.id, "down")}
                     />
                   ))}
                 </ul>
