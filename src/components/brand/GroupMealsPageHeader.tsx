@@ -15,7 +15,7 @@ export function GroupMealsPageHeader({
       <div
         className={`mx-auto flex max-w-6xl flex-col items-center px-4 text-center ${compact ? "py-3" : "py-5"}`}
       >
-        <GroupMealsLogo size={compact ? "md" : "lg"} priority href="/" />
+        <GroupMealsLogo size={compact ? "md" : "lg"} priority href="/" surface="light" />
         <p className={`mt-2 text-white/85 ${compact ? "text-xs" : "text-sm"}`}>
           {subtitle ?? BRAND.tagline}
         </p>

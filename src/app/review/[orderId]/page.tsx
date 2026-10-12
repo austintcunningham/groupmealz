@@ -42,7 +42,7 @@ export default async function ReviewOrderPage({
       <div className="mx-auto max-w-lg">
         <div className="geaux-header-gradient rounded-t-xl px-6 py-5 text-center">
           <div className="flex justify-center">
-            <GroupMealsLogo size="md" href="/" />
+            <GroupMealsLogo size="md" href="/" surface="light" />
           </div>
           <h1 className="mt-3 text-xl font-semibold text-white">Rate your lunch</h1>
         </div>

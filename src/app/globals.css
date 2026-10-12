@@ -29,7 +29,7 @@ body {
 }
 
 .geaux-header-gradient {
-  background: linear-gradient(135deg, var(--geaux-red) 0%, var(--geaux-red-dark) 60%, #8B0000 100%);
+  background: linear-gradient(135deg, #9b1c1c 0%, var(--geaux-red-dark) 42%, #5c1010 100%);
 }
 
 .geaux-accent-bar {

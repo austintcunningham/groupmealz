@@ -14,7 +14,7 @@ export function AuthPageShell({
       <div className="w-full max-w-md">
         <div className="geaux-header-gradient rounded-t-xl px-6 py-6 text-center">
           <div className="flex justify-center">
-            <GroupMealsLogo size="lg" priority href="/" />
+            <GroupMealsLogo size="lg" priority href="/" surface="light" />
           </div>
           <p className="mt-3 text-sm text-white/85">{BRAND.tagline}</p>
         </div>

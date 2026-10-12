@@ -29,7 +29,7 @@ export default async function OfficeOrderPage({
       <div className="geaux-accent-bar" />
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
         <div className="min-w-0">
-          <GroupMealsLogo size="md" href="/order" priority />
+          <GroupMealsLogo size="md" href="/order" priority surface="light" />
           <p className="mt-1 truncate text-sm text-white/85">{office.name}</p>
         </div>
         <Link href="/login" className="shrink-0 text-sm text-white/90 hover:text-[var(--geaux-yellow)]">

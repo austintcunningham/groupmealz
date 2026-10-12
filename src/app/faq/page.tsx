@@ -51,7 +51,7 @@ export default function FaqPage() {
       <header className="geaux-header-gradient text-white shadow-lg">
         <div className="geaux-accent-bar" />
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-4 py-5">
-          <GroupMealsLogo size="md" href="/login" />
+          <GroupMealsLogo size="md" href="/login" surface="light" />
           <Link href="/login" className="text-sm font-medium text-white/90 hover:text-[var(--geaux-yellow)]">
             Sign in
           </Link>

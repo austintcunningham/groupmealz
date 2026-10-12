@@ -14,7 +14,7 @@ export default async function CheckoutSuccessPage({
       <div className="w-full max-w-md">
         <div className="geaux-header-gradient rounded-t-xl px-6 py-5 text-center">
           <div className="flex justify-center">
-            <GroupMealsLogo size="md" href="/" />
+            <GroupMealsLogo size="md" href="/" surface="light" />
           </div>
         </div>
         <Card className="rounded-t-none">

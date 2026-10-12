@@ -11,18 +11,28 @@ const sizes: Record<LogoSize, { width: number; height: number }> = {
   lg: { width: 240, height: 59 },
 };
 
+/** `light` = cream chip behind logo on red/dark headers (matches email header). */
+const surfaceWrap: Record<"default" | "light", string> = {
+  default: "inline-flex shrink-0",
+  light:
+    "inline-flex shrink-0 rounded-lg bg-[var(--geaux-cream)] px-2.5 py-1 shadow-sm ring-1 ring-black/10",
+};
+
 export function GroupMealsLogo({
   size = "md",
   href = "/",
   className = "",
   priority = false,
+  surface = "default",
 }: {
   size?: LogoSize;
   href?: string | null;
   className?: string;
   priority?: boolean;
+  surface?: "default" | "light";
 }) {
   const { width, height } = sizes[size];
+  const wrapClass = surfaceWrap[surface];
 
   const img = (
     <Image
@@ -36,11 +46,11 @@ export function GroupMealsLogo({
   );
 
   if (href == null) {
-    return <span className="inline-flex shrink-0">{img}</span>;
+    return <span className={wrapClass}>{img}</span>;
   }
 
   return (
-    <Link href={href} className="inline-flex shrink-0">
+    <Link href={href} className={wrapClass}>
       {img}
     </Link>
   );

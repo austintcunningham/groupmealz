@@ -57,7 +57,7 @@ export function DashboardShell({
         <div className="mx-auto max-w-6xl px-4 pt-3">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
-              <GroupMealsLogo size="sm" href="/" />
+              <GroupMealsLogo size="sm" href="/" surface="light" />
               <h1 className="mt-1 truncate text-lg font-semibold leading-tight text-white/95">
                 {title}
               </h1>
