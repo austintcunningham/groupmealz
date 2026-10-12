@@ -27,6 +27,8 @@ export default async function RestaurantMenuPage() {
   const restaurantId = restaurants[0]?.id;
   const restaurantIds = restaurants.map((r) => r.id);
 
+  const isAdmin = profile.role === "admin";
+
   const [{ data: categories }, { data: menuItems }, { data: settings }] = restaurantId
     ? await Promise.all([
         supabase
@@ -39,11 +41,11 @@ export default async function RestaurantMenuPage() {
           .select("*")
           .in("restaurant_id", restaurantIds)
           .order("display_order"),
-        supabase.from("platform_settings").select("flat_fee_cents").limit(1).maybeSingle(),
+        isAdmin
+          ? supabase.from("platform_settings").select("flat_fee_cents").limit(1).maybeSingle()
+          : Promise.resolve({ data: null }),
       ])
     : [{ data: [] }, { data: [] }, { data: null }];
-
-  const serviceFeePerEntreeCents = settings?.flat_fee_cents ?? 250;
 
   if (!restaurantId) {
     return (
@@ -69,7 +71,8 @@ export default async function RestaurantMenuPage() {
           categories={(categories ?? []) as MenuCategory[]}
           menuItems={(menuItems ?? []) as MenuItem[]}
           restaurants={restaurants.length > 1 ? restaurants : undefined}
-          serviceFeePerEntreeCents={serviceFeePerEntreeCents}
+          showPlatformFeeHints={isAdmin}
+          serviceFeePerEntreeCents={isAdmin ? (settings?.flat_fee_cents ?? 250) : undefined}
         />
       </Card>
     </DashboardShell>

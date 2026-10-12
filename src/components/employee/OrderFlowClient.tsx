@@ -383,7 +383,6 @@ export function OrderFlowClient({
                 categories={categories}
                 menuItems={menuItems}
                 lunchDate={schedule.lunch_date}
-                serviceFeePerEntree={serviceFeePerEntree}
                 interactive
                 quantities={cartQuantities}
                 onQuantityChange={updateQty}

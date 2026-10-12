@@ -11,12 +11,10 @@ export function CustomerMenuLivePreview({
   categories,
   menuItems,
   restaurantName,
-  serviceFeePerEntreeCents = 250,
 }: {
   categories: MenuCategory[];
   menuItems: MenuItem[];
   restaurantName: string;
-  serviceFeePerEntreeCents?: number;
 }) {
   const { categories: visibleCats, menuItems: visibleItems } = useMemo(
     () => filterCustomerFacingMenu(categories, menuItems),
@@ -39,7 +37,6 @@ export function CustomerMenuLivePreview({
         <CustomerOrderMenu
           categories={visibleCats}
           menuItems={visibleItems}
-          serviceFeePerEntree={serviceFeePerEntreeCents}
           interactive={false}
           emptyMessage="No available items yet — add categories and mark items as Available."
         />

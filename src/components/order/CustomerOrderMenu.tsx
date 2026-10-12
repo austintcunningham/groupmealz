@@ -20,14 +20,12 @@ function lunchDateForPromos(explicit?: string): string {
 function MenuItemRow({
   item,
   lunchDate,
-  serviceFeePerEntree,
   quantity,
   onQuantityChange,
   interactive,
 }: {
   item: MenuItem;
   lunchDate: string;
-  serviceFeePerEntree: number | null;
   quantity?: number;
   onQuantityChange?: (menuItemId: string, nextQty: number) => void;
   interactive: boolean;
@@ -55,11 +53,6 @@ function MenuItemRow({
         ) : (
           <p className="mt-1 font-medium text-red-600">{formatCents(item.price_cents)}</p>
         )}
-        {serviceFeePerEntree != null && (item.counts_as_entree ?? true) ? (
-          <p className="text-xs text-slate-500">
-            + {formatCents(serviceFeePerEntree)} service fee per entrée
-          </p>
-        ) : null}
       </div>
       {interactive && onQuantityChange ? (
         <div className="flex shrink-0 items-center gap-2 self-center">
@@ -89,14 +82,12 @@ function MenuItemRow({
 function ItemList({
   items,
   promoDate,
-  serviceFeePerEntree,
   quantities,
   onQuantityChange,
   interactive,
 }: {
   items: MenuItem[];
   promoDate: string;
-  serviceFeePerEntree: number | null;
   quantities?: Record<string, number>;
   onQuantityChange?: (menuItemId: string, nextQty: number) => void;
   interactive: boolean;
@@ -109,7 +100,6 @@ function ItemList({
           key={item.id}
           item={item}
           lunchDate={promoDate}
-          serviceFeePerEntree={serviceFeePerEntree}
           quantity={quantities?.[item.id] ?? 0}
           onQuantityChange={onQuantityChange}
           interactive={interactive}
@@ -123,7 +113,6 @@ export function CustomerOrderMenu({
   categories,
   menuItems,
   lunchDate,
-  serviceFeePerEntree = null,
   interactive = true,
   quantities,
   onQuantityChange,
@@ -132,7 +121,6 @@ export function CustomerOrderMenu({
   categories: MenuCategory[];
   menuItems: MenuItem[];
   lunchDate?: string;
-  serviceFeePerEntree?: number | null;
   interactive?: boolean;
   quantities?: Record<string, number>;
   onQuantityChange?: (menuItemId: string, nextQty: number) => void;
@@ -159,7 +147,6 @@ export function CustomerOrderMenu({
 
   const listProps = {
     promoDate,
-    serviceFeePerEntree,
     quantities,
     onQuantityChange,
     interactive,

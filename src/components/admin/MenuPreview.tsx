@@ -12,12 +12,10 @@ export function MenuPreview({
   restaurants,
   categories,
   menuItems,
-  serviceFeePerEntreeCents = 250,
 }: {
   restaurants: Restaurant[];
   categories: MenuCategory[];
   menuItems: MenuItem[];
-  serviceFeePerEntreeCents?: number;
 }) {
   const [restaurantId, setRestaurantId] = useState(restaurants[0]?.id ?? "");
 
@@ -52,7 +50,6 @@ export function MenuPreview({
       <CustomerOrderMenu
         categories={visibleCats}
         menuItems={visibleItems}
-        serviceFeePerEntree={serviceFeePerEntreeCents}
         interactive={false}
         emptyMessage="No available menu items for this restaurant yet."
       />

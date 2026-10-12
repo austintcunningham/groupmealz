@@ -31,6 +31,7 @@ export default async function AdminMenusPage() {
               categories={categories ?? []}
               menuItems={menuItems ?? []}
               serviceFeePerEntreeCents={serviceFeePerEntreeCents}
+              showPlatformFeeHints
             />
           ) : (
             <p className="text-sm text-slate-500">Create a restaurant first.</p>
@@ -41,7 +42,6 @@ export default async function AdminMenusPage() {
             restaurants={restaurants ?? []}
             categories={categories ?? []}
             menuItems={menuItems ?? []}
-            serviceFeePerEntreeCents={serviceFeePerEntreeCents}
           />
         </Card>
       </div>

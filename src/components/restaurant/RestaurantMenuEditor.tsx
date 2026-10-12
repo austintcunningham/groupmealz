@@ -38,6 +38,8 @@ function MenuItemEditorForm({
   onMoveDown,
   disableMoveUp,
   disableMoveDown,
+  showPlatformFeeHints,
+  serviceFeePerEntreeCents,
 }: {
   item: MenuItem;
   categoryOptions: { id: string; label: string }[];
@@ -48,6 +50,8 @@ function MenuItemEditorForm({
   onMoveDown: () => void;
   disableMoveUp: boolean;
   disableMoveDown: boolean;
+  showPlatformFeeHints: boolean;
+  serviceFeePerEntreeCents: number;
 }) {
   const promo = isPromoActive(item);
   const charge = effectivePriceCents(item);
@@ -70,7 +74,10 @@ function MenuItemEditorForm({
         }}
       >
         <div className="flex flex-wrap items-center gap-2">
-          <MenuEntreeBadge countsAsEntree={item.counts_as_entree} />
+          <MenuEntreeBadge
+            countsAsEntree={item.counts_as_entree}
+            showPlatformFeeHints={showPlatformFeeHints}
+          />
           {!item.available ? (
             <span className="text-xs font-medium text-amber-700">Sold out</span>
           ) : null}
@@ -125,8 +132,18 @@ function MenuItemEditorForm({
             className="mt-0.5 rounded"
           />
           <span>
-            <strong>Counts as entrée</strong> — customer pays the per-entrée service fee on each
-            quantity. Uncheck for sides, drinks, and extras.
+            {showPlatformFeeHints ? (
+              <>
+                <strong>Counts as entrée</strong> — customer pays{" "}
+                {formatCents(serviceFeePerEntreeCents)} service fee per quantity. Uncheck for
+                sides, drinks, and extras.
+              </>
+            ) : (
+              <>
+                <strong>Counts as entrée</strong> — main dishes and combos. Uncheck for sides,
+                drinks, and extras.
+              </>
+            )}
           </span>
         </label>
         <div className="rounded-md border border-dashed border-[var(--geaux-yellow)] bg-amber-50/50 p-3">
@@ -182,6 +199,7 @@ export function RestaurantMenuEditor({
   menuItems,
   restaurants,
   serviceFeePerEntreeCents = 250,
+  showPlatformFeeHints = false,
 }: {
   restaurantId: string;
   restaurantName: string;
@@ -189,6 +207,8 @@ export function RestaurantMenuEditor({
   menuItems: MenuItem[];
   restaurants?: { id: string; name: string }[];
   serviceFeePerEntreeCents?: number;
+  /** Admin menu tools: show platform fee copy on entrée badges and checkboxes. */
+  showPlatformFeeHints?: boolean;
 }) {
   const router = useRouter();
   const [restaurantId, setRestaurantId] = useState(initialRestaurantId);
@@ -439,6 +459,8 @@ export function RestaurantMenuEditor({
             disableMoveDown={itemIndex === items.length - 1}
             onMoveUp={() => moveItem(item.id, "up")}
             onMoveDown={() => moveItem(item.id, "down")}
+            showPlatformFeeHints={showPlatformFeeHints}
+            serviceFeePerEntreeCents={serviceFeePerEntreeCents}
           />
         ))}
       </ul>
@@ -512,8 +534,14 @@ export function RestaurantMenuEditor({
         categories={restaurantCategories}
         menuItems={restaurantItems}
         restaurantName={restaurantName}
-        serviceFeePerEntreeCents={serviceFeePerEntreeCents}
       />
+
+      {!showPlatformFeeHints ? (
+        <p className="text-sm text-slate-600">
+          Each item shows an <strong>Entrée</strong> or <strong>Not entrée</strong> badge — use the
+          checkbox on an item to fix sides and drinks.
+        </p>
+      ) : null}
 
       <p className="text-sm text-slate-600">
         Use <strong>sub-categories</strong> under each top section (e.g. Hot / Cold subs).{" "}
@@ -579,7 +607,17 @@ export function RestaurantMenuEditor({
         <label className="flex items-start gap-2 rounded-md border border-slate-200 bg-slate-50 p-3 text-sm">
           <input type="checkbox" name="counts_as_entree" defaultChecked className="mt-0.5 rounded" />
           <span>
-            <strong>Counts as entrée</strong> — service fee applies per quantity
+            {showPlatformFeeHints ? (
+              <>
+                <strong>Counts as entrée</strong> — {formatCents(serviceFeePerEntreeCents)} service
+                fee per quantity
+              </>
+            ) : (
+              <>
+                <strong>Counts as entrée</strong> — main dish or combo (uncheck for sides and
+                drinks)
+              </>
+            )}
           </span>
         </label>
         <Button type="submit" loading={isPending} disabled={!restaurantCategories.length}>

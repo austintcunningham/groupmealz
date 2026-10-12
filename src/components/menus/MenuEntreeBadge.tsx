@@ -8,20 +8,23 @@ export function isMenuItemEntree(countsAsEntree: boolean | undefined): boolean {
 export function MenuEntreeBadge({
   countsAsEntree,
   compact = false,
+  /** When true (admin menu tools), mention platform service fee on entrées. */
+  showPlatformFeeHints = false,
 }: {
   countsAsEntree?: boolean;
   compact?: boolean;
+  showPlatformFeeHints?: boolean;
 }) {
   if (isMenuItemEntree(countsAsEntree)) {
     return (
       <Badge tone="warning">
-        {compact ? "Entrée" : "Entrée · service fee applies"}
+        {compact || !showPlatformFeeHints ? "Entrée" : "Entrée · service fee applies"}
       </Badge>
     );
   }
   return (
     <Badge tone="default">
-      {compact ? "Not entrée" : "Side / drink · no entrée fee"}
+      {compact || !showPlatformFeeHints ? "Not entrée" : "Side / drink · no entrée fee"}
     </Badge>
   );
 }
