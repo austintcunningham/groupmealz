@@ -31,10 +31,13 @@ const orderItemInputSchema = z.object({
   removedIngredientIds: z.array(z.string().uuid()).optional(),
 });
 
+const customerNoteSchema = z.string().trim().max(500).optional();
+
 const createOrderSchema = z.object({
   scheduleId: z.string().uuid(),
   items: z.array(orderItemInputSchema).min(1),
   gratuityCents: z.number().int().min(0).optional(),
+  customerNote: customerNoteSchema,
 });
 
 const checkoutAccountSchema = z.object({
@@ -53,6 +56,7 @@ const checkoutGuestSchema = z.object({
   fullName: z.string().min(1),
   email: z.string().email(),
   gratuityCents: z.number().int().min(0).optional(),
+  customerNote: customerNoteSchema,
 });
 
 async function buildOrderFromItems(
@@ -61,7 +65,12 @@ async function buildOrderFromItems(
   userId: string | null,
   customerName: string,
   customerEmail: string,
-  options?: { expectedOfficeId?: string; useAdmin?: boolean; gratuityCents?: number }
+  options?: {
+    expectedOfficeId?: string;
+    useAdmin?: boolean;
+    gratuityCents?: number;
+    customerNote?: string;
+  }
 ): Promise<ActionResult<{ orderId: string; totalCents: number }>> {
   const supabase = options?.useAdmin ? createAdminClient() : await createClient();
 
@@ -182,6 +191,7 @@ async function buildOrderFromItems(
   );
   const gratuityCents = options?.gratuityCents ?? 0;
   const totals = calculateOrderTotals(subtotalCents, settings, entreeCount, gratuityCents);
+  const customerNote = options?.customerNote?.trim() || null;
 
   const { data: order, error: orderError } = await supabase
     .from("orders")
@@ -192,6 +202,7 @@ async function buildOrderFromItems(
       user_id: userId,
       customer_name: customerName,
       customer_email: customerEmail,
+      customer_note: customerNote,
       subtotal_cents: totals.subtotalCents,
       tax_cents: totals.taxCents,
       platform_fee_cents: totals.platformFeeCents,
@@ -238,7 +249,10 @@ export async function createOrder(
     auth.profile.id,
     auth.profile.full_name || auth.profile.email,
     auth.profile.email,
-    { gratuityCents: parsed.data.gratuityCents ?? 0 }
+    {
+      gratuityCents: parsed.data.gratuityCents ?? 0,
+      customerNote: parsed.data.customerNote,
+    }
   );
 
   if (!result.success) return result;
@@ -265,6 +279,7 @@ export async function checkoutGuest(
       expectedOfficeId: parsed.data.officeId,
       useAdmin: true,
       gratuityCents: parsed.data.gratuityCents ?? 0,
+      customerNote: parsed.data.customerNote,
     }
   );
 

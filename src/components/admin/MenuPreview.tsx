@@ -6,16 +6,26 @@ import {
   filterCustomerFacingMenu,
 } from "@/components/order/CustomerOrderMenu";
 import { EmptyState, Select } from "@/components/ui";
-import type { MenuCategory, MenuItem, Restaurant } from "@/types/database";
+import type {
+  MenuCategory,
+  MenuItem,
+  MenuItemIngredient,
+  MenuItemSize,
+  Restaurant,
+} from "@/types/database";
 
 export function MenuPreview({
   restaurants,
   categories,
   menuItems,
+  sizesByMenuItemId = {},
+  ingredientsByMenuItemId = {},
 }: {
   restaurants: Restaurant[];
   categories: MenuCategory[];
   menuItems: MenuItem[];
+  sizesByMenuItemId?: Record<string, MenuItemSize[]>;
+  ingredientsByMenuItemId?: Record<string, MenuItemIngredient[]>;
 }) {
   const [restaurantId, setRestaurantId] = useState(restaurants[0]?.id ?? "");
 
@@ -51,6 +61,9 @@ export function MenuPreview({
         categories={visibleCats}
         menuItems={visibleItems}
         interactive={false}
+        showItemOptions
+        sizesByMenuItemId={sizesByMenuItemId}
+        ingredientsByMenuItemId={ingredientsByMenuItemId}
         emptyMessage="No available menu items for this restaurant yet."
       />
     </div>

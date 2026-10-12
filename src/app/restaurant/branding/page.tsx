@@ -1,6 +1,6 @@
 import { DashboardShell } from "@/components/DashboardShell";
 import { Card, EmptyState } from "@/components/ui";
-import { RestaurantBrandingForm } from "@/components/admin/RestaurantBrandingForm";
+import { RestaurantBrandingPanel } from "@/components/restaurant/RestaurantBrandingPanel";
 import { requireRestaurantManager } from "@/lib/auth/guards";
 import { createClient } from "@/lib/supabase/server";
 
@@ -32,7 +32,7 @@ export default async function RestaurantBrandingPage() {
   return (
     <DashboardShell role={profile.role} title="Branding & imagery">
       <Card title={restaurant.name}>
-        <RestaurantBrandingForm restaurant={restaurant as import("@/types/database").Restaurant} isAdmin={false} />
+        <RestaurantBrandingPanel restaurant={restaurant as import("@/types/database").Restaurant} isAdmin={false} />
       </Card>
     </DashboardShell>
   );

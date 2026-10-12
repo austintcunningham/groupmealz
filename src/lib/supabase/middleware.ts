@@ -32,8 +32,11 @@ export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const isAuthRoute =
     pathname.startsWith("/login") || pathname.startsWith("/signup");
+  const isDevOnlyRoute =
+    process.env.NODE_ENV !== "production" && pathname.startsWith("/dev/");
   const isPublicRoute =
     isAuthRoute ||
+    isDevOnlyRoute ||
     pathname.startsWith("/auth/") || // callback, confirm
     pathname.startsWith("/forgot-password") ||
     pathname.startsWith("/reset-password") ||

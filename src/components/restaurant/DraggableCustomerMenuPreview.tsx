@@ -22,17 +22,20 @@ import { CSS } from "@dnd-kit/utilities";
 import { useMemo, useRef, useState, useTransition, type ReactNode } from "react";
 import { usePreviewEdgeAutoScroll } from "@/components/restaurant/usePreviewEdgeAutoScroll";
 import { useRouter } from "next/navigation";
-import { MenuItemPhoto } from "@/components/order/MenuItemPhoto";
+import { CustomerMenuItemDisplay } from "@/components/order/CustomerOrderMenu";
+import { buildCartLineKey } from "@/lib/menus/item-options";
 import {
   subcategoriesFor,
   topLevelCategories,
 } from "@/lib/menus/category-tree";
-import { MenuItemPromoPrice } from "@/components/order/MenuItemPromoPrice";
-import { effectivePriceCents } from "@/lib/menus/effective-price";
 import { reorderMenuCategories, reorderMenuItems } from "@/lib/actions/menus";
 import { mergeVisibleReorder, reorderIdsInList, sortMenuItems } from "@/lib/menus/sort";
-import { formatCents } from "@/lib/money/format";
-import type { MenuCategory, MenuItem } from "@/types/database";
+import type {
+  MenuCategory,
+  MenuItem,
+  MenuItemIngredient,
+  MenuItemSize,
+} from "@/types/database";
 
 type DragKind = "top-cat" | "sub-cat" | "item";
 
@@ -90,33 +93,20 @@ function SortableRow({
   );
 }
 
-function PreviewItemRow({ item, lunchDate }: { item: MenuItem; lunchDate: string }) {
-  const price = effectivePriceCents(item, lunchDate);
-
-  return (
-    <div className="flex items-stretch gap-3 border-b border-slate-100 py-3 last:border-0 last:pb-0 sm:gap-4">
-      <MenuItemPhoto imageUrl={item.image_url} itemName={item.name} showPlaceholder />
-      <div className="flex min-w-0 flex-1 flex-col justify-center">
-        <h3 className="font-semibold leading-snug text-slate-900">{item.name}</h3>
-        {item.description ? (
-          <p className="mt-0.5 line-clamp-2 text-sm text-slate-600">{item.description}</p>
-        ) : null}
-        <MenuItemPromoPrice item={item} lunchDate={lunchDate} priceCents={price} />
-      </div>
-    </div>
-  );
-}
-
 export function DraggableCustomerMenuPreview({
   allCategories,
   allMenuItems,
   visibleCategories,
   visibleItems,
+  sizesByMenuItemId = {},
+  ingredientsByMenuItemId = {},
 }: {
   allCategories: MenuCategory[];
   allMenuItems: MenuItem[];
   visibleCategories: MenuCategory[];
   visibleItems: MenuItem[];
+  sizesByMenuItemId?: Record<string, MenuItemSize[]>;
+  ingredientsByMenuItemId?: Record<string, MenuItemIngredient[]>;
 }) {
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -249,7 +239,17 @@ export function DraggableCustomerMenuPreview({
         <div className="space-y-0">
           {items.map((item) => (
             <SortableRow key={item.id} id={toDragId("item", item.id)} label={item.name}>
-              <PreviewItemRow item={item} lunchDate={promoDate} />
+              <CustomerMenuItemDisplay
+                item={item}
+                lunchDate={promoDate}
+                sizes={sizesByMenuItemId[item.id] ?? []}
+                ingredients={ingredientsByMenuItemId[item.id] ?? []}
+                interactive={false}
+                showItemOptions
+                cart={{}}
+                simpleLineKey={buildCartLineKey(item.id, null, [])}
+                simpleQty={0}
+              />
             </SortableRow>
           ))}
         </div>

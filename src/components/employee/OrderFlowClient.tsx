@@ -17,8 +17,10 @@ import { formatCents } from "@/lib/money/format";
 import type { PlatformSettings } from "@/types/database";
 import { isOrderingWindowOpen, formatOrderingWindow } from "@/lib/scheduling/window";
 import { EmbeddedCheckout } from "@/components/checkout/EmbeddedCheckout";
+import { CustomerOrderRestaurantHero } from "@/components/order/CustomerOrderRestaurantHero";
 import { OrderingRulesCard } from "@/components/order/OrderingRulesCard";
-import { Badge, Button, Card, ErrorMessage, Input, SuccessMessage } from "@/components/ui";
+import { liveCustomerBranding } from "@/lib/restaurant/branding-display";
+import { Badge, Button, Card, ErrorMessage, Input, SuccessMessage, Textarea } from "@/components/ui";
 import type {
   DailyLunchSchedule,
   MenuCategory,
@@ -58,6 +60,8 @@ interface Props {
     PlatformSettings,
     "platform_fee_type" | "flat_fee_cents" | "percentage_bps" | "sales_tax_bps"
   >;
+  /** Full UI without placing orders (admin / dev simulation). */
+  previewMode?: boolean;
 }
 
 export function OrderFlowClient({
@@ -79,6 +83,7 @@ export function OrderFlowClient({
     percentage_bps: 0,
     sales_tax_bps: 0,
   },
+  previewMode = false,
 }: Props) {
   const serviceFeePerEntree =
     feeSettings.platform_fee_type === "per_entree" ? feeSettings.flat_fee_cents : null;
@@ -97,6 +102,7 @@ export function OrderFlowClient({
   const [error, setError] = useState<string | null>(null);
   const [cartNotice, setCartNotice] = useState<string | null>(null);
   const [gratuityCents, setGratuityCents] = useState(0);
+  const [restaurantNote, setRestaurantNote] = useState("");
 
   const orderingOpen = isOrderingWindowOpen(schedule);
   const selectedDate = schedule.lunch_date;
@@ -196,6 +202,7 @@ export function OrderFlowClient({
   }
 
   function proceedToCheckout() {
+    if (previewMode) return;
     setError(null);
     if (!cartLines.length) {
       setError("Add at least one item");
@@ -221,6 +228,7 @@ export function OrderFlowClient({
         removedIngredientIds: l.removedIngredientIds,
         specialInstructions: l.specialInstructions || undefined,
       }));
+      const customerNote = restaurantNote.trim() || undefined;
 
       const result =
         isLoggedIn && !guestMode
@@ -228,6 +236,7 @@ export function OrderFlowClient({
               scheduleId: schedule.id,
               items,
               gratuityCents,
+              customerNote,
             })
           : await checkoutGuest({
               scheduleId: schedule.id,
@@ -236,6 +245,7 @@ export function OrderFlowClient({
               fullName: fullName.trim(),
               email: email.trim(),
               gratuityCents,
+              customerNote,
             });
 
       if (!result.success) {
@@ -262,41 +272,22 @@ export function OrderFlowClient({
   }
 
   const restaurant = schedule.restaurants;
+  const customerBranding = restaurant ? liveCustomerBranding(restaurant) : { logoUrl: null, bannerUrl: null };
+  const dateLabel = new Date(selectedDate + "T12:00:00").toLocaleDateString(undefined, {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
+
   return (
     <div className="geaux-main-enter space-y-6 pb-24 sm:pb-8">
-      <div className="geaux-hero-restaurant">
-        {restaurant?.banner_url && restaurant.branding_status !== "rejected" ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={restaurant.banner_url}
-            alt=""
-            className="h-32 w-full object-cover sm:h-40"
-          />
-        ) : null}
-        <div className="p-4">
-          <div className="flex items-start gap-3">
-            {restaurant?.logo_url && restaurant.branding_status !== "rejected" ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={restaurant.logo_url}
-                alt=""
-                className="h-14 w-14 shrink-0 rounded-lg border object-cover"
-              />
-            ) : null}
-            <div>
-              <p className="text-sm font-medium text-red-600">{office.company_name || office.name}</p>
-              <h2 className="text-2xl font-bold text-slate-900">{restaurant?.name ?? "Lunch"}</h2>
-            </div>
-          </div>
-        <p className="text-sm text-slate-600">
-          {new Date(selectedDate + "T12:00:00").toLocaleDateString(undefined, {
-            weekday: "long",
-            month: "long",
-            day: "numeric",
-          })}
-        </p>
-        </div>
-      </div>
+      <CustomerOrderRestaurantHero
+        officeLabel={office.company_name || office.name}
+        restaurantName={restaurant?.name ?? "Lunch"}
+        dateLabel={dateLabel}
+        logoUrl={customerBranding.logoUrl}
+        bannerUrl={customerBranding.bannerUrl}
+      />
 
       <OrderingRulesCard schedule={schedule} advanceOrderHours={advanceOrderHours} />
 
@@ -392,6 +383,15 @@ export function OrderFlowClient({
           <div className="space-y-3">
             <Input label="Full name" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
             <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <Textarea
+              label="Note for the restaurant"
+              hint="Optional — allergies, pickup details, or anything the kitchen should know."
+              value={restaurantNote}
+              onChange={(e) => setRestaurantNote(e.target.value.slice(0, 500))}
+              maxLength={500}
+              rows={3}
+              placeholder="e.g. Please cut in half, extra napkins for the office…"
+            />
             <GratuityPicker valueCents={gratuityCents} onChange={setGratuityCents} />
             <div className="flex flex-wrap gap-2">
               <Button variant="secondary" onClick={() => setStep("menu")}>
@@ -426,6 +426,17 @@ export function OrderFlowClient({
                 onAddConfigured={addConfiguredLine}
               />
             )}
+            <Card title="Note for the restaurant">
+              <Textarea
+                hint="Optional — shared with the restaurant when your order is sent (not per item)."
+                value={restaurantNote}
+                onChange={(e) => setRestaurantNote(e.target.value.slice(0, 500))}
+                maxLength={500}
+                rows={3}
+                placeholder="Allergies, special requests, or anything the kitchen should know…"
+                aria-label="Note for the restaurant"
+              />
+            </Card>
           </div>
           <Card title="Your cart" className="sticky top-4 h-fit xl:col-span-4">
             {cartNotice ? (
@@ -448,6 +459,12 @@ export function OrderFlowClient({
                     <span className="shrink-0">{formatCents(l.lineTotal)}</span>
                   </div>
                 ))}
+                {restaurantNote.trim() ? (
+                  <p className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                    <span className="font-semibold text-slate-700">Restaurant note:</span>{" "}
+                    {restaurantNote.trim()}
+                  </p>
+                ) : null}
                 <GratuityPicker valueCents={gratuityCents} onChange={setGratuityCents} compact />
                 {feePreview ? (
                   <OrderCheckoutSummary breakdown={feePreview} feeSettings={feeSettings} />
@@ -455,9 +472,13 @@ export function OrderFlowClient({
                 <p className="text-xs text-slate-500">
                   Total due is what Stripe charges — food, service fees, and optional gratuity.
                 </p>
-                <Button className="hidden w-full sm:flex" size="lg" loading={isPending} onClick={proceedToCheckout}>
-                  Checkout
-                </Button>
+                {previewMode ? (
+                  <p className="text-xs text-amber-800">Checkout disabled in preview.</p>
+                ) : (
+                  <Button className="hidden w-full sm:flex" size="lg" loading={isPending} onClick={proceedToCheckout}>
+                    Checkout
+                  </Button>
+                )}
               </div>
             )}
           </Card>
@@ -473,9 +494,13 @@ export function OrderFlowClient({
               </p>
               <p className="text-xs text-slate-500">{cartLines.length} line(s) in cart</p>
             </div>
-            <Button size="lg" loading={isPending} onClick={proceedToCheckout}>
-              Checkout
-            </Button>
+            {previewMode ? (
+              <span className="text-xs text-amber-800">Preview</span>
+            ) : (
+              <Button size="lg" loading={isPending} onClick={proceedToCheckout}>
+                Checkout
+              </Button>
+            )}
           </div>
         </div>
       ) : null}

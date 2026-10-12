@@ -7,6 +7,7 @@ const navByRole: Record<UserRole, { href: string; label: string }[]> = {
   admin: [
     { href: "/admin", label: "Dashboard" },
     { href: "/admin/restaurants", label: "Restaurants" },
+    { href: "/admin/branding", label: "Branding review" },
     { href: "/admin/offices", label: "Offices" },
     { href: "/admin/menus", label: "Menus" },
     { href: "/admin/schedules", label: "Schedules" },
@@ -16,6 +17,7 @@ const navByRole: Record<UserRole, { href: string; label: string }[]> = {
     { href: "/admin/reviews", label: "Feedback" },
     { href: "/admin/settings", label: "Settings" },
     { href: "/admin/email-preview", label: "Email preview" },
+    { href: "/admin/simulate-order/fhs-g?office=lets-geaux-office", label: "Order simulation" },
   ],
   restaurant_manager: [
     { href: "/restaurant", label: "Dashboard" },

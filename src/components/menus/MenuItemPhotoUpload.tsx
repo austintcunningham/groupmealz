@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { MenuItemPhoto } from "@/components/order/MenuItemPhoto";
 import { removeMenuItemImage, uploadMenuItemImage } from "@/lib/actions/menus";
 import { Button, ErrorMessage } from "@/components/ui";
 
@@ -52,22 +52,10 @@ export function MenuItemPhotoUpload({
       <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Item photo</p>
       {error ? <ErrorMessage message={error} /> : null}
       <div className="flex flex-wrap items-start gap-4">
-        {imageUrl ? (
-          <div className="relative h-24 w-24 overflow-hidden rounded-lg border border-slate-200 bg-white">
-            <Image
-              src={imageUrl}
-              alt=""
-              fill
-              className="object-cover"
-              sizes="96px"
-              unoptimized
-            />
-          </div>
-        ) : (
-          <div className="flex h-24 w-24 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-white text-xs text-slate-400">
-            No photo
-          </div>
-        )}
+        <div className="space-y-1">
+          <MenuItemPhoto imageUrl={imageUrl} itemName={itemName} size="lg" showPlaceholder />
+          <p className="text-center text-[10px] text-slate-500 sm:text-left">Customer menu size</p>
+        </div>
         <div className="flex min-w-[10rem] flex-1 flex-col gap-2">
           <input
             type="file"

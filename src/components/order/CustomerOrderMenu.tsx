@@ -16,7 +16,7 @@ import {
 } from "@/lib/menus/item-options";
 import { sortMenuItems } from "@/lib/menus/sort";
 import { formatCents } from "@/lib/money/format";
-import { Button, Card } from "@/components/ui";
+import { Card } from "@/components/ui";
 import type { MenuCategory, MenuItem, MenuItemIngredient, MenuItemSize } from "@/types/database";
 
 function lunchDateForPromos(explicit?: string): string {
@@ -33,12 +33,14 @@ export type CustomerCartLine = {
   specialInstructions?: string;
 };
 
-function MenuItemOrderRow({
+export function CustomerMenuItemDisplay({
   item,
   lunchDate,
   sizes,
   ingredients,
   interactive,
+  showItemOptions = interactive,
+  cart,
   simpleLineKey,
   simpleQty,
   onSimpleQtyChange,
@@ -49,29 +51,27 @@ function MenuItemOrderRow({
   sizes: MenuItemSize[];
   ingredients: MenuItemIngredient[];
   interactive: boolean;
+  /** When false, still show size/ingredient UI (for admin previews). Defaults to interactive. */
+  showItemOptions?: boolean;
+  cart: Record<string, CustomerCartLine>;
   simpleLineKey: string;
   simpleQty: number;
   onSimpleQtyChange?: (lineKey: string, nextQty: number) => void;
   onAddConfigured?: (line: Omit<CustomerCartLine, "lineKey" | "quantity">) => void;
 }) {
   const hasOptions = menuItemHasOptions(sizes, ingredients);
-  const [open, setOpen] = useState(false);
   const [sizeId, setSizeId] = useState<string | null>(() => defaultSizeId(sizes));
   const [removed, setRemoved] = useState<Set<string>>(() => new Set());
 
   const selectedSize = sizes.find((s) => s.id === sizeId) ?? null;
   const unitPrice = orderUnitPriceCents(item, lunchDate, selectedSize);
-
-  const showSizeRange = sizes.length > 0;
-  const sizeRangeLabel = showSizeRange
-    ? (() => {
-        const prices = sizes.map((s) => s.price_cents);
-        const min = Math.min(...prices);
-        const max = Math.max(...prices);
-        if (min === max) return formatCents(min);
-        return `${formatCents(min)} – ${formatCents(max)}`;
-      })()
-    : null;
+  const removedIngredientIds = [...removed];
+  const configuredLineKey = buildCartLineKey(
+    item.id,
+    sizes.length ? sizeId : null,
+    removedIngredientIds
+  );
+  const configuredQty = cart[configuredLineKey]?.quantity ?? 0;
 
   function toggleIngredient(id: string) {
     setRemoved((prev) => {
@@ -82,71 +82,74 @@ function MenuItemOrderRow({
     });
   }
 
-  function addConfiguredToCart() {
-    if (!onAddConfigured) return;
+  function changeConfiguredQty(delta: number) {
+    if (!onSimpleQtyChange || !onAddConfigured) return;
     if (sizes.length && !sizeId) return;
-    const removedIngredientIds = [...removed];
-    onAddConfigured({
-      menuItemId: item.id,
-      sizeId: sizes.length ? sizeId : null,
-      removedIngredientIds,
-    });
-    setOpen(false);
+    const current = cart[configuredLineKey]?.quantity ?? 0;
+    const next = current + delta;
+    if (next <= 0) {
+      onSimpleQtyChange(configuredLineKey, 0);
+      return;
+    }
+    if (current === 0) {
+      onAddConfigured({
+        menuItemId: item.id,
+        sizeId: sizes.length ? sizeId : null,
+        removedIngredientIds,
+      });
+      return;
+    }
+    onSimpleQtyChange(configuredLineKey, next);
   }
+
+  const qtyControls = (qty: number, onDecrease: () => void, onIncrease: () => void) => (
+    <div className="flex shrink-0 items-center gap-2 self-center">
+      <button
+        type="button"
+        onClick={onDecrease}
+        className="qty-btn"
+        aria-label={`Decrease ${item.name}`}
+      >
+        −
+      </button>
+      <span className="w-6 text-center font-bold">{qty}</span>
+      <button
+        type="button"
+        onClick={onIncrease}
+        className="qty-btn"
+        aria-label={`Increase ${item.name}`}
+      >
+        +
+      </button>
+    </div>
+  );
 
   return (
     <div className="border-b border-slate-100 py-4 last:border-0 last:pb-0">
-      <div className="flex items-stretch gap-3 sm:gap-4">
-        <MenuItemPhoto imageUrl={item.image_url} itemName={item.name} showPlaceholder />
+      <div className="flex items-start gap-3 sm:gap-4">
+        <MenuItemPhoto imageUrl={item.image_url} itemName={item.name} size="lg" showPlaceholder />
         <div className="flex min-w-0 flex-1 flex-col justify-center">
           <h3 className="font-semibold leading-snug text-slate-900">{item.name}</h3>
           {item.description ? (
             <p className="mt-0.5 line-clamp-2 text-sm text-slate-600">{item.description}</p>
           ) : null}
-          {showSizeRange ? (
-            <p className="mt-1 text-sm font-medium text-red-600">{sizeRangeLabel}</p>
-          ) : (
+          {!hasOptions ? (
             <MenuItemPromoPrice item={item} lunchDate={lunchDate} priceCents={unitPrice} />
-          )}
-          {hasOptions && interactive ? (
-            <button
-              type="button"
-              onClick={() => setOpen((v) => !v)}
-              className="mt-2 w-fit text-left text-xs font-semibold text-[var(--geaux-red)] hover:underline"
-            >
-              {open ? "Hide customize ▴" : "Customize ▾"}
-            </button>
           ) : null}
         </div>
-        {interactive && !hasOptions && onSimpleQtyChange ? (
-          <div className="flex shrink-0 items-center gap-2 self-center">
-            <button
-              type="button"
-              onClick={() => onSimpleQtyChange(simpleLineKey, simpleQty - 1)}
-              className="qty-btn"
-              aria-label={`Decrease ${item.name}`}
-            >
-              −
-            </button>
-            <span className="w-6 text-center font-bold">{simpleQty}</span>
-            <button
-              type="button"
-              onClick={() => onSimpleQtyChange(simpleLineKey, simpleQty + 1)}
-              className="qty-btn"
-              aria-label={`Increase ${item.name}`}
-            >
-              +
-            </button>
-          </div>
-        ) : null}
+        {interactive && !hasOptions && onSimpleQtyChange
+          ? qtyControls(simpleQty, () => onSimpleQtyChange(simpleLineKey, simpleQty - 1), () =>
+              onSimpleQtyChange(simpleLineKey, simpleQty + 1)
+            )
+          : null}
       </div>
 
-      {hasOptions && interactive && open ? (
+      {hasOptions && showItemOptions ? (
         <div className="menu-item-customize-panel mt-3 rounded-xl border border-slate-200 bg-slate-50/90 p-4">
           {sizes.length > 0 ? (
             <fieldset className="mb-4">
               <legend className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-                Size
+                Choose a size
               </legend>
               <div className="flex flex-wrap gap-2">
                 {sizes.map((s) => (
@@ -170,14 +173,22 @@ function MenuItemOrderRow({
                 ))}
               </div>
             </fieldset>
-          ) : null}
+          ) : (
+            <div className="mb-4">
+              <MenuItemPromoPrice item={item} lunchDate={lunchDate} priceCents={unitPrice} />
+            </div>
+          )}
 
           {ingredients.length > 0 ? (
             <fieldset className="mb-4">
               <legend className="mb-1 text-xs font-bold uppercase tracking-wide text-slate-500">
-                Ingredients
+                Ingredients on your order
               </legend>
-              <p className="mb-2 text-xs text-slate-500">Tap to leave off anything you don&apos;t want.</p>
+              <p className="mb-2 text-xs leading-relaxed text-slate-600">
+                <span className="font-semibold text-slate-700">All included by default.</span> Tap an
+                ingredient to <span className="font-semibold text-slate-700">leave it off</span> — selected
+                items show as removed.
+              </p>
               <div className="flex flex-wrap gap-2">
                 {ingredients.map((ing) => {
                   const off = removed.has(ing.id);
@@ -185,14 +196,14 @@ function MenuItemOrderRow({
                     <button
                       key={ing.id}
                       type="button"
+                      aria-pressed={off}
                       onClick={() => toggleIngredient(ing.id)}
-                      className={`rounded-full border px-3 py-1 text-sm transition-all ${
+                      className={`rounded-full border px-3 py-1.5 text-sm transition-all ${
                         off
-                          ? "border-slate-300 bg-white text-slate-400 line-through"
-                          : "border-green-200 bg-green-50 text-green-900 hover:border-green-300"
+                          ? "border-amber-300 bg-amber-50 text-amber-950 line-through decoration-amber-700/80"
+                          : "border-emerald-200 bg-emerald-50/90 text-emerald-950 hover:border-emerald-300"
                       }`}
                     >
-                      {off ? "No " : ""}
                       {ing.name}
                     </button>
                   );
@@ -206,9 +217,13 @@ function MenuItemOrderRow({
               <span className="text-slate-500">Your price:</span>{" "}
               <strong className="text-slate-900">{formatCents(unitPrice)}</strong>
             </p>
-            <Button type="button" size="sm" onClick={addConfiguredToCart}>
-              Add to cart
-            </Button>
+            {onSimpleQtyChange && onAddConfigured
+              ? qtyControls(
+                  configuredQty,
+                  () => changeConfiguredQty(-1),
+                  () => changeConfiguredQty(1)
+                )
+              : null}
           </div>
         </div>
       ) : null}
@@ -223,6 +238,7 @@ function ItemList({
   ingredientsByMenuItemId,
   cart,
   interactive,
+  showItemOptions,
   onSimpleQtyChange,
   onAddConfigured,
 }: {
@@ -232,6 +248,7 @@ function ItemList({
   ingredientsByMenuItemId: Record<string, MenuItemIngredient[]>;
   cart: Record<string, CustomerCartLine>;
   interactive: boolean;
+  showItemOptions: boolean;
   onSimpleQtyChange?: (lineKey: string, nextQty: number) => void;
   onAddConfigured?: (line: Omit<CustomerCartLine, "lineKey" | "quantity">) => void;
 }) {
@@ -242,13 +259,15 @@ function ItemList({
         const simpleLineKey = buildCartLineKey(item.id, null, []);
         const simpleQty = cart[simpleLineKey]?.quantity ?? 0;
         return (
-          <MenuItemOrderRow
+          <CustomerMenuItemDisplay
             key={item.id}
             item={item}
             lunchDate={promoDate}
             sizes={sizesByMenuItemId[item.id] ?? []}
             ingredients={ingredientsByMenuItemId[item.id] ?? []}
             interactive={interactive}
+            showItemOptions={showItemOptions}
+            cart={cart}
             simpleLineKey={simpleLineKey}
             simpleQty={simpleQty}
             onSimpleQtyChange={onSimpleQtyChange}
@@ -271,11 +290,14 @@ export function CustomerOrderMenu({
   emptyMessage = "No menu items available.",
   sizesByMenuItemId = {},
   ingredientsByMenuItemId = {},
+  showItemOptions,
 }: {
   categories: MenuCategory[];
   menuItems: MenuItem[];
   lunchDate?: string;
   interactive?: boolean;
+  /** Show sizes/ingredients when interactive is false (menu previews). */
+  showItemOptions?: boolean;
   cart?: Record<string, CustomerCartLine>;
   onSimpleQtyChange?: (lineKey: string, nextQty: number) => void;
   onAddConfigured?: (line: Omit<CustomerCartLine, "lineKey" | "quantity">) => void;
@@ -302,10 +324,13 @@ export function CustomerOrderMenu({
     (c) => c.parent_id && !categories.some((p) => p.id === c.parent_id)
   );
 
+  const resolvedShowOptions = showItemOptions ?? interactive;
+
   const listProps = {
     promoDate,
     cart,
     interactive,
+    showItemOptions: resolvedShowOptions,
     onSimpleQtyChange,
     onAddConfigured,
     sizesByMenuItemId,

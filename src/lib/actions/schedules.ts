@@ -202,6 +202,7 @@ async function emailRestaurantForSchedule(scheduleId: string): Promise<ActionRes
     orders: (orders ?? []).map((o) => ({
       customerName: o.customer_name,
       customerEmail: o.customer_email,
+      customerNote: (o as { customer_note?: string | null }).customer_note ?? null,
       totalCents: o.total_cents,
       items: (o.order_items ?? []).map((i: {
         item_name_snapshot: string;

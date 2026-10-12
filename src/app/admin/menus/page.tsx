@@ -28,6 +28,10 @@ export default async function AdminMenusPage() {
     <DashboardShell role={profile.role} title="Menus">
       <div className="grid gap-6 lg:grid-cols-2">
         <Card title="Build menu (admin can edit any restaurant)">
+          <p className="mb-4 text-sm text-slate-600">
+            Use <strong>Find a menu item</strong> at the top of this panel to jump to a sub in the
+            editor — especially helpful for large menus like Firehouse.
+          </p>
           {restaurants?.length ? (
             <RestaurantMenuEditor
               restaurantId={restaurants[0].id}
@@ -49,6 +53,8 @@ export default async function AdminMenusPage() {
             restaurants={restaurants ?? []}
             categories={categories ?? []}
             menuItems={menuItems ?? []}
+            sizesByMenuItemId={menuOptions.sizesByMenuItemId}
+            ingredientsByMenuItemId={menuOptions.ingredientsByMenuItemId}
           />
         </Card>
       </div>

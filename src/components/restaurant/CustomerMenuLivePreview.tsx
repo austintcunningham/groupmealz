@@ -3,16 +3,25 @@
 import { useMemo } from "react";
 import { filterCustomerFacingMenu } from "@/components/order/CustomerOrderMenu";
 import { DraggableCustomerMenuPreview } from "@/components/restaurant/DraggableCustomerMenuPreview";
-import type { MenuCategory, MenuItem } from "@/types/database";
+import type {
+  MenuCategory,
+  MenuItem,
+  MenuItemIngredient,
+  MenuItemSize,
+} from "@/types/database";
 
 export function CustomerMenuLivePreview({
   categories,
   menuItems,
   restaurantName,
+  sizesByMenuItemId = {},
+  ingredientsByMenuItemId = {},
 }: {
   categories: MenuCategory[];
   menuItems: MenuItem[];
   restaurantName: string;
+  sizesByMenuItemId?: Record<string, MenuItemSize[]>;
+  ingredientsByMenuItemId?: Record<string, MenuItemIngredient[]>;
 }) {
   const { categories: visibleCats, menuItems: visibleItems } = useMemo(
     () => filterCustomerFacingMenu(categories, menuItems),
@@ -41,6 +50,8 @@ export function CustomerMenuLivePreview({
         allMenuItems={menuItems}
         visibleCategories={visibleCats}
         visibleItems={visibleItems}
+        sizesByMenuItemId={sizesByMenuItemId}
+        ingredientsByMenuItemId={ingredientsByMenuItemId}
       />
     </section>
   );

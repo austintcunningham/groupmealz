@@ -1,4 +1,9 @@
-import { type ButtonHTMLAttributes, type InputHTMLAttributes, type SelectHTMLAttributes } from "react";
+import {
+  type ButtonHTMLAttributes,
+  type InputHTMLAttributes,
+  type SelectHTMLAttributes,
+  type TextareaHTMLAttributes,
+} from "react";
 
 const buttonBase =
   "inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-200 ease-out " +
@@ -65,6 +70,26 @@ export function Input({
       <input
         {...props}
         className={`w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm shadow-[var(--geaux-shadow-sm)] transition-all duration-200 hover:border-slate-300 focus:border-[var(--geaux-red)] focus:outline-none focus:ring-2 focus:ring-[var(--geaux-yellow-light)] focus:shadow-[var(--geaux-shadow-md)] ${className}`}
+      />
+    </div>
+  );
+}
+
+export function Textarea({
+  label,
+  hint,
+  className = "",
+  ...props
+}: TextareaHTMLAttributes<HTMLTextAreaElement> & { label?: string; hint?: string }) {
+  return (
+    <div>
+      {label ? (
+        <label className="mb-1 block text-sm font-medium text-slate-700">{label}</label>
+      ) : null}
+      {hint ? <p className="mb-1.5 text-xs text-slate-500">{hint}</p> : null}
+      <textarea
+        {...props}
+        className={`min-h-[5rem] w-full resize-y rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm shadow-[var(--geaux-shadow-sm)] transition-all duration-200 hover:border-slate-300 focus:border-[var(--geaux-red)] focus:outline-none focus:ring-2 focus:ring-[var(--geaux-yellow-light)] focus:shadow-[var(--geaux-shadow-md)] ${className}`}
       />
     </div>
   );

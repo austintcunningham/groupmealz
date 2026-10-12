@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useCallback, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { MenuEntreeBadge } from "@/components/menus/MenuEntreeBadge";
 import { MenuItemOptionsEditor } from "@/components/menus/MenuItemOptionsEditor";
@@ -63,7 +63,10 @@ function MenuItemEditorForm({
   const charge = effectivePriceCents(item);
 
   return (
-    <li className="flex gap-2 rounded-lg border border-slate-200 bg-white p-4">
+    <li
+      id={`menu-editor-item-${item.id}`}
+      className="menu-editor-item-row flex scroll-mt-24 gap-2 rounded-lg border border-slate-200 bg-white p-4"
+    >
       <MenuReorderButtons
         label={item.name}
         loading={isPending}
@@ -203,6 +206,78 @@ function MenuItemEditorForm({
   );
 }
 
+function MenuEditorItemSearch({
+  items,
+  categories,
+  query,
+  onQueryChange,
+  onJumpToItem,
+}: {
+  items: MenuItem[];
+  categories: MenuCategory[];
+  query: string;
+  onQueryChange: (next: string) => void;
+  onJumpToItem: (itemId: string) => void;
+}) {
+  const matches = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
+    return sortMenuItems(items).filter(
+      (i) =>
+        i.name.toLowerCase().includes(q) || (i.description ?? "").toLowerCase().includes(q)
+    );
+  }, [query, items]);
+
+  function categoryLabel(item: MenuItem): string {
+    const cat = categories.find((c) => c.id === item.category_id);
+    if (!cat) return "Uncategorized";
+    if (cat.parent_id) {
+      const parent = categories.find((c) => c.id === cat.parent_id);
+      return parent ? `${parent.name} › ${cat.name}` : cat.name;
+    }
+    return cat.name;
+  }
+
+  return (
+    <section className="rounded-[var(--geaux-radius-lg)] border border-[var(--geaux-yellow)]/50 bg-white p-4 shadow-[var(--geaux-shadow-sm)]">
+      <Input
+        label="Find a menu item"
+        placeholder="Search by name (e.g. Hook & Ladder, Meatball)…"
+        value={query}
+        onChange={(e) => onQueryChange(e.target.value)}
+      />
+      <p className="mt-1.5 text-xs text-slate-500">
+        {query.trim()
+          ? "Editor below shows matches only. Click a result to jump to it."
+          : "Type to filter the editor list, or pick a result to scroll to that item."}
+      </p>
+      {query.trim() ? (
+        <p className="mt-1 text-xs font-medium text-slate-700">
+          {matches.length
+            ? `${matches.length} match${matches.length === 1 ? "" : "es"}`
+            : "No matches — try another spelling."}
+        </p>
+      ) : null}
+      {matches.length > 0 ? (
+        <ul className="mt-2 max-h-44 space-y-0.5 overflow-y-auto rounded-lg border border-slate-100 bg-slate-50/80 p-1">
+          {matches.slice(0, 25).map((item) => (
+            <li key={item.id}>
+              <button
+                type="button"
+                className="w-full rounded-md px-2 py-2 text-left text-sm transition-colors hover:bg-white"
+                onClick={() => onJumpToItem(item.id)}
+              >
+                <span className="font-medium text-slate-900">{item.name}</span>
+                <span className="mt-0.5 block text-xs text-slate-500">{categoryLabel(item)}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </section>
+  );
+}
+
 export function RestaurantMenuEditor({
   restaurantId: initialRestaurantId,
   restaurantName: initialRestaurantName,
@@ -229,7 +304,43 @@ export function RestaurantMenuEditor({
   const [restaurantId, setRestaurantId] = useState(initialRestaurantId);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [itemSearchQuery, setItemSearchQuery] = useState("");
   const [isPending, startTransition] = useTransition();
+
+  const itemMatchesSearch = useCallback(
+    (item: MenuItem) => {
+      const q = itemSearchQuery.trim().toLowerCase();
+      if (!q) return true;
+      return (
+        item.name.toLowerCase().includes(q) ||
+        (item.description ?? "").toLowerCase().includes(q)
+      );
+    },
+    [itemSearchQuery]
+  );
+
+  const filterItemsForSearch = useCallback(
+    (items: MenuItem[]) => {
+      if (!itemSearchQuery.trim()) return items;
+      return items.filter(itemMatchesSearch);
+    },
+    [itemMatchesSearch, itemSearchQuery]
+  );
+
+  const jumpToMenuItem = useCallback((itemId: string) => {
+    const item = menuItems.find((i) => i.id === itemId);
+    if (item) {
+      setItemSearchQuery(item.name);
+    }
+    requestAnimationFrame(() => {
+      const el = document.getElementById(`menu-editor-item-${itemId}`);
+      el?.scrollIntoView({ behavior: "smooth", block: "start" });
+      el?.classList.add("ring-2", "ring-[var(--geaux-red)]", "ring-offset-2");
+      window.setTimeout(() => {
+        el?.classList.remove("ring-2", "ring-[var(--geaux-red)]", "ring-offset-2");
+      }, 2500);
+    });
+  }, [menuItems]);
 
   const restaurantName =
     restaurants?.find((r) => r.id === restaurantId)?.name ?? initialRestaurantName;
@@ -474,12 +585,22 @@ export function RestaurantMenuEditor({
   }
 
   function renderItemList(items: MenuItem[]) {
+    const visible = filterItemsForSearch(items);
     if (!items.length) {
       return <p className="py-2 text-sm text-slate-500">No items here yet.</p>;
     }
+    if (!visible.length) {
+      return itemSearchQuery.trim() ? (
+        <p className="py-2 text-sm text-slate-500">No items match your search in this section.</p>
+      ) : (
+        <p className="py-2 text-sm text-slate-500">No items here yet.</p>
+      );
+    }
     return (
       <ul className="space-y-3">
-        {items.map((item, itemIndex) => (
+        {visible.map((item) => {
+          const originalIndex = items.findIndex((i) => i.id === item.id);
+          return (
           <MenuItemEditorForm
             key={item.id}
             item={item}
@@ -487,8 +608,8 @@ export function RestaurantMenuEditor({
             isPending={isPending}
             onSave={saveItem}
             onDelete={removeItem}
-            disableMoveUp={itemIndex === 0}
-            disableMoveDown={itemIndex === items.length - 1}
+            disableMoveUp={originalIndex <= 0}
+            disableMoveDown={originalIndex < 0 || originalIndex >= items.length - 1}
             onMoveUp={() => moveItem(item.id, "up")}
             onMoveDown={() => moveItem(item.id, "down")}
             showPlatformFeeHints={showPlatformFeeHints}
@@ -496,13 +617,18 @@ export function RestaurantMenuEditor({
             itemSizes={sizesByMenuItemId[item.id] ?? []}
             itemIngredients={ingredientsByMenuItemId[item.id] ?? []}
           />
-        ))}
+          );
+        })}
       </ul>
     );
   }
 
   function renderSubCategorySection(sub: MenuCategory, subIndex: number, subs: MenuCategory[]) {
     const items = sortMenuItems(restaurantItems.filter((i) => i.category_id === sub.id));
+    const visibleItems = filterItemsForSearch(items);
+    if (itemSearchQuery.trim() && !visibleItems.length) {
+      return null;
+    }
     return (
       <div key={sub.id} className="ml-2 border-l-2 border-[var(--geaux-yellow)] pl-4 sm:ml-4">
         <div className="mb-3 flex flex-wrap items-end gap-2">
@@ -564,10 +690,22 @@ export function RestaurantMenuEditor({
       {error ? <ErrorMessage message={error} /> : null}
       {success ? <SuccessMessage message={success} /> : null}
 
+      <div id="menu-item-search" className="scroll-mt-4">
+        <MenuEditorItemSearch
+          items={restaurantItems}
+          categories={restaurantCategories}
+          query={itemSearchQuery}
+          onQueryChange={setItemSearchQuery}
+          onJumpToItem={jumpToMenuItem}
+        />
+      </div>
+
       <CustomerMenuLivePreview
         categories={restaurantCategories}
         menuItems={restaurantItems}
         restaurantName={restaurantName}
+        sizesByMenuItemId={sizesByMenuItemId}
+        ingredientsByMenuItemId={ingredientsByMenuItemId}
       />
 
       {!showPlatformFeeHints ? (
@@ -660,7 +798,24 @@ export function RestaurantMenuEditor({
       </form>
 
       <div className="border-t border-slate-100 pt-6">
-        <h3 className="mb-4 font-medium text-slate-900">{restaurantName} — current menu</h3>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <h3 className="font-medium text-slate-900">{restaurantName} — current menu</h3>
+          {itemSearchQuery.trim() ? (
+            <button
+              type="button"
+              className="text-sm font-medium text-[var(--geaux-red)] hover:underline"
+              onClick={() => setItemSearchQuery("")}
+            >
+              Clear search
+            </button>
+          ) : null}
+        </div>
+        {itemSearchQuery.trim() && !restaurantItems.some(itemMatchesSearch) ? (
+          <p className="mb-4 text-sm text-slate-600">
+            No menu items match &ldquo;{itemSearchQuery.trim()}&rdquo;. Clear search to see the full
+            menu.
+          </p>
+        ) : null}
         {!restaurantCategories.length && !restaurantItems.length ? (
           <p className="text-sm text-slate-500">No categories or items yet.</p>
         ) : (
@@ -670,6 +825,17 @@ export function RestaurantMenuEditor({
               const topItems = sortMenuItems(
                 restaurantItems.filter((i) => i.category_id === cat.id)
               );
+              const filteredTopItems = filterItemsForSearch(topItems);
+              const subsWithMatches = subs.filter((sub) =>
+                filterItemsForSearch(
+                  sortMenuItems(restaurantItems.filter((i) => i.category_id === sub.id))
+                ).length > 0
+              );
+              const showSection =
+                !itemSearchQuery.trim() ||
+                filteredTopItems.length > 0 ||
+                subsWithMatches.length > 0;
+              if (!showSection) return null;
               const treeItemCount = countItemsInCategoryTree(cat.id, true);
               return (
                 <section key={cat.id} className="rounded-xl border border-slate-200 bg-slate-50/80">
@@ -748,7 +914,8 @@ export function RestaurantMenuEditor({
               );
             })}
 
-            {uncategorizedItems.length > 0 ? (
+            {uncategorizedItems.length > 0 &&
+            (!itemSearchQuery.trim() || filterItemsForSearch(uncategorizedItems).length > 0) ? (
               <section className="rounded-xl border border-dashed border-slate-300">
                 <h4 className="border-b border-slate-200 px-4 py-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
                   Uncategorized

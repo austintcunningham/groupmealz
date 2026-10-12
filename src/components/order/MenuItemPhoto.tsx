@@ -2,6 +2,19 @@
 
 import Image from "next/image";
 
+/** Square for compact spots; landscape for menu rows (subs, plates, etc.). */
+const SIZE_CLASS = {
+  sm: "h-20 w-20",
+  md: "w-40 aspect-[5/3] sm:w-44",
+  lg: "w-44 aspect-[5/3] sm:w-56",
+} as const;
+
+const SIZE_PX = {
+  sm: "80px",
+  md: "176px",
+  lg: "224px",
+} as const;
+
 export function MenuItemPhoto({
   imageUrl,
   itemName,
@@ -10,10 +23,11 @@ export function MenuItemPhoto({
 }: {
   imageUrl: string | null | undefined;
   itemName: string;
-  size?: "sm" | "md";
+  size?: keyof typeof SIZE_CLASS;
   showPlaceholder?: boolean;
 }) {
-  const dim = size === "sm" ? "h-16 w-16" : "h-[4.75rem] w-[4.75rem] sm:h-20 sm:w-20";
+  const dim = SIZE_CLASS[size];
+  const isLandscape = size !== "sm";
 
   if (!imageUrl && !showPlaceholder) {
     return null;
@@ -28,8 +42,12 @@ export function MenuItemPhoto({
           src={imageUrl}
           alt={itemName}
           fill
-          className="object-cover"
-          sizes={size === "sm" ? "64px" : "80px"}
+          className={
+            isLandscape
+              ? "object-contain object-center p-0.5"
+              : "object-cover object-center"
+          }
+          sizes={SIZE_PX[size]}
           unoptimized
         />
       ) : (
@@ -37,7 +55,7 @@ export function MenuItemPhoto({
           className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100"
           aria-hidden
         >
-          <span className="text-lg text-slate-300">🍽</span>
+          <span className={`text-slate-300 ${size === "sm" ? "text-lg" : "text-2xl"}`}>🍽</span>
         </div>
       )}
     </div>

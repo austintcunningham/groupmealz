@@ -18,6 +18,7 @@ interface RestaurantEmailPayload {
   orders: {
     customerName: string;
     customerEmail: string;
+    customerNote?: string | null;
     items: { name: string; qty: number; priceCents: number; instructions: string | null }[];
     totalCents: number;
   }[];
@@ -37,6 +38,7 @@ function buildHtml(data: RestaurantEmailPayload): string {
       (o) => `
       <div style="margin:16px 0;padding:12px;background:#FFFBF5;border-radius:8px;border-left:4px solid #D62828">
         <strong>${o.customerName}</strong> (${o.customerEmail})<br/>
+        ${o.customerNote ? `<p style="margin:8px 0;font-size:14px;color:#334155;"><strong>Customer note:</strong> ${o.customerNote}</p>` : ""}
         ${o.items.map((i) => `${i.qty}× ${i.name} — ${formatCents(i.priceCents * i.qty)}${i.instructions ? ` <em>(${i.instructions})</em>` : ""}`).join("<br/>")}
         <br/><strong>Order total: ${formatCents(o.totalCents)}</strong>
       </div>`
