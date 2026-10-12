@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { MenuItemPhoto } from "@/components/order/MenuItemPhoto";
 import {
   filterCustomerFacingCategories,
@@ -7,72 +8,213 @@ import {
   topLevelCategories,
 } from "@/lib/menus/category-tree";
 import { effectivePriceCents, isPromoActive } from "@/lib/menus/effective-price";
+import {
+  buildCartLineKey,
+  defaultSizeId,
+  menuItemHasOptions,
+  orderUnitPriceCents,
+} from "@/lib/menus/item-options";
 import { sortMenuItems } from "@/lib/menus/sort";
 import { formatCents } from "@/lib/money/format";
-import { Card } from "@/components/ui";
-import type { MenuCategory, MenuItem } from "@/types/database";
+import { Button, Card } from "@/components/ui";
+import type { MenuCategory, MenuItem, MenuItemIngredient, MenuItemSize } from "@/types/database";
 
 function lunchDateForPromos(explicit?: string): string {
   if (explicit) return explicit;
   return new Date().toISOString().slice(0, 10);
 }
 
-function MenuItemRow({
+export type CustomerCartLine = {
+  lineKey: string;
+  menuItemId: string;
+  sizeId: string | null;
+  removedIngredientIds: string[];
+  quantity: number;
+  specialInstructions?: string;
+};
+
+function MenuItemOrderRow({
   item,
   lunchDate,
-  quantity,
-  onQuantityChange,
+  sizes,
+  ingredients,
   interactive,
+  simpleLineKey,
+  simpleQty,
+  onSimpleQtyChange,
+  onAddConfigured,
 }: {
   item: MenuItem;
   lunchDate: string;
-  quantity?: number;
-  onQuantityChange?: (menuItemId: string, nextQty: number) => void;
+  sizes: MenuItemSize[];
+  ingredients: MenuItemIngredient[];
   interactive: boolean;
+  simpleLineKey: string;
+  simpleQty: number;
+  onSimpleQtyChange?: (lineKey: string, nextQty: number) => void;
+  onAddConfigured?: (line: Omit<CustomerCartLine, "lineKey" | "quantity">) => void;
 }) {
+  const hasOptions = menuItemHasOptions(sizes, ingredients);
+  const [open, setOpen] = useState(false);
+  const [sizeId, setSizeId] = useState<string | null>(() => defaultSizeId(sizes));
+  const [removed, setRemoved] = useState<Set<string>>(() => new Set());
+
   const promo = isPromoActive(item, lunchDate);
-  const price = effectivePriceCents(item, lunchDate);
-  const qty = quantity ?? 0;
+  const selectedSize = sizes.find((s) => s.id === sizeId) ?? null;
+  const unitPrice = orderUnitPriceCents(item, lunchDate, selectedSize);
+
+  const priceLabel = (() => {
+    if (sizes.length) {
+      const prices = sizes.map((s) => s.price_cents);
+      const min = Math.min(...prices);
+      const max = Math.max(...prices);
+      if (min === max) return formatCents(min);
+      return `${formatCents(min)} – ${formatCents(max)}`;
+    }
+    if (promo) {
+      return (
+        <>
+          <span className="line-through text-slate-500">{formatCents(item.price_cents)}</span>{" "}
+          <span className="font-medium text-red-600">{formatCents(unitPrice)}</span>
+        </>
+      );
+    }
+    return formatCents(item.price_cents);
+  })();
+
+  function toggleIngredient(id: string) {
+    setRemoved((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function addConfiguredToCart() {
+    if (!onAddConfigured) return;
+    if (sizes.length && !sizeId) return;
+    const removedIngredientIds = [...removed];
+    onAddConfigured({
+      menuItemId: item.id,
+      sizeId: sizes.length ? sizeId : null,
+      removedIngredientIds,
+    });
+    setOpen(false);
+  }
 
   return (
-    <div className="flex items-stretch gap-3 border-b border-slate-100 py-3 last:border-0 last:pb-0 sm:gap-4">
-      <MenuItemPhoto imageUrl={item.image_url} itemName={item.name} showPlaceholder />
-      <div className="flex min-w-0 flex-1 flex-col justify-center">
-        <h3 className="font-semibold leading-snug text-slate-900">{item.name}</h3>
-        {item.description ? (
-          <p className="mt-0.5 line-clamp-2 text-sm text-slate-600">{item.description}</p>
+    <div className="border-b border-slate-100 py-4 last:border-0 last:pb-0">
+      <div className="flex items-stretch gap-3 sm:gap-4">
+        <MenuItemPhoto imageUrl={item.image_url} itemName={item.name} showPlaceholder />
+        <div className="flex min-w-0 flex-1 flex-col justify-center">
+          <h3 className="font-semibold leading-snug text-slate-900">{item.name}</h3>
+          {item.description ? (
+            <p className="mt-0.5 line-clamp-2 text-sm text-slate-600">{item.description}</p>
+          ) : null}
+          <p className="mt-1 text-sm font-medium text-red-600">{priceLabel}</p>
+          {hasOptions && interactive ? (
+            <button
+              type="button"
+              onClick={() => setOpen((v) => !v)}
+              className="mt-2 w-fit text-left text-xs font-semibold text-[var(--geaux-red)] hover:underline"
+            >
+              {open ? "Hide customize ▴" : "Customize ▾"}
+            </button>
+          ) : null}
+        </div>
+        {interactive && !hasOptions && onSimpleQtyChange ? (
+          <div className="flex shrink-0 items-center gap-2 self-center">
+            <button
+              type="button"
+              onClick={() => onSimpleQtyChange(simpleLineKey, simpleQty - 1)}
+              className="qty-btn"
+              aria-label={`Decrease ${item.name}`}
+            >
+              −
+            </button>
+            <span className="w-6 text-center font-bold">{simpleQty}</span>
+            <button
+              type="button"
+              onClick={() => onSimpleQtyChange(simpleLineKey, simpleQty + 1)}
+              className="qty-btn"
+              aria-label={`Increase ${item.name}`}
+            >
+              +
+            </button>
+          </div>
         ) : null}
-        {promo ? (
-          <p className="mt-1 text-sm text-slate-600">
-            <span className="line-through">{formatCents(item.price_cents)}</span>{" "}
-            <span className="font-medium text-red-600">{formatCents(price)}</span>
-            {item.promo_label ? (
-              <span className="ml-1 text-xs text-green-700">{item.promo_label}</span>
-            ) : null}
-          </p>
-        ) : (
-          <p className="mt-1 font-medium text-red-600">{formatCents(item.price_cents)}</p>
-        )}
       </div>
-      {interactive && onQuantityChange ? (
-        <div className="flex shrink-0 items-center gap-2 self-center">
-          <button
-            type="button"
-            onClick={() => onQuantityChange(item.id, qty - 1)}
-            className="qty-btn"
-            aria-label={`Decrease ${item.name}`}
-          >
-            −
-          </button>
-          <span className="w-6 text-center font-bold">{qty}</span>
-          <button
-            type="button"
-            onClick={() => onQuantityChange(item.id, qty + 1)}
-            className="qty-btn"
-            aria-label={`Increase ${item.name}`}
-          >
-            +
-          </button>
+
+      {hasOptions && interactive && open ? (
+        <div className="menu-item-customize-panel mt-3 rounded-xl border border-slate-200 bg-slate-50/90 p-4">
+          {sizes.length > 0 ? (
+            <fieldset className="mb-4">
+              <legend className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+                Size
+              </legend>
+              <div className="flex flex-wrap gap-2">
+                {sizes.map((s) => (
+                  <label
+                    key={s.id}
+                    className={`cursor-pointer rounded-full border px-3 py-1.5 text-sm transition-colors ${
+                      sizeId === s.id
+                        ? "border-[var(--geaux-red)] bg-white font-semibold text-[var(--geaux-red)] shadow-sm"
+                        : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      className="sr-only"
+                      name={`size-${item.id}`}
+                      checked={sizeId === s.id}
+                      onChange={() => setSizeId(s.id)}
+                    />
+                    {s.name} · {formatCents(s.price_cents)}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          ) : null}
+
+          {ingredients.length > 0 ? (
+            <fieldset className="mb-4">
+              <legend className="mb-1 text-xs font-bold uppercase tracking-wide text-slate-500">
+                Ingredients
+              </legend>
+              <p className="mb-2 text-xs text-slate-500">Tap to leave off anything you don&apos;t want.</p>
+              <div className="flex flex-wrap gap-2">
+                {ingredients.map((ing) => {
+                  const off = removed.has(ing.id);
+                  return (
+                    <button
+                      key={ing.id}
+                      type="button"
+                      onClick={() => toggleIngredient(ing.id)}
+                      className={`rounded-full border px-3 py-1 text-sm transition-all ${
+                        off
+                          ? "border-slate-300 bg-white text-slate-400 line-through"
+                          : "border-green-200 bg-green-50 text-green-900 hover:border-green-300"
+                      }`}
+                    >
+                      {off ? "No " : ""}
+                      {ing.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </fieldset>
+          ) : null}
+
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-3">
+            <p className="text-sm text-slate-600">
+              <span className="text-slate-500">Your price:</span>{" "}
+              <strong className="text-slate-900">{formatCents(unitPrice)}</strong>
+            </p>
+            <Button type="button" size="sm" onClick={addConfiguredToCart}>
+              Add to cart
+            </Button>
+          </div>
         </div>
       ) : null}
     </div>
@@ -82,29 +224,43 @@ function MenuItemRow({
 function ItemList({
   items,
   promoDate,
-  quantities,
-  onQuantityChange,
+  sizesByMenuItemId,
+  ingredientsByMenuItemId,
+  cart,
   interactive,
+  onSimpleQtyChange,
+  onAddConfigured,
 }: {
   items: MenuItem[];
   promoDate: string;
-  quantities?: Record<string, number>;
-  onQuantityChange?: (menuItemId: string, nextQty: number) => void;
+  sizesByMenuItemId: Record<string, MenuItemSize[]>;
+  ingredientsByMenuItemId: Record<string, MenuItemIngredient[]>;
+  cart: Record<string, CustomerCartLine>;
   interactive: boolean;
+  onSimpleQtyChange?: (lineKey: string, nextQty: number) => void;
+  onAddConfigured?: (line: Omit<CustomerCartLine, "lineKey" | "quantity">) => void;
 }) {
   if (!items.length) return null;
   return (
     <div className="space-y-0">
-      {items.map((item) => (
-        <MenuItemRow
-          key={item.id}
-          item={item}
-          lunchDate={promoDate}
-          quantity={quantities?.[item.id] ?? 0}
-          onQuantityChange={onQuantityChange}
-          interactive={interactive}
-        />
-      ))}
+      {items.map((item) => {
+        const simpleLineKey = buildCartLineKey(item.id, null, []);
+        const simpleQty = cart[simpleLineKey]?.quantity ?? 0;
+        return (
+          <MenuItemOrderRow
+            key={item.id}
+            item={item}
+            lunchDate={promoDate}
+            sizes={sizesByMenuItemId[item.id] ?? []}
+            ingredients={ingredientsByMenuItemId[item.id] ?? []}
+            interactive={interactive}
+            simpleLineKey={simpleLineKey}
+            simpleQty={simpleQty}
+            onSimpleQtyChange={onSimpleQtyChange}
+            onAddConfigured={onAddConfigured}
+          />
+        );
+      })}
     </div>
   );
 }
@@ -114,17 +270,23 @@ export function CustomerOrderMenu({
   menuItems,
   lunchDate,
   interactive = true,
-  quantities,
-  onQuantityChange,
+  cart = {},
+  onSimpleQtyChange,
+  onAddConfigured,
   emptyMessage = "No menu items available.",
+  sizesByMenuItemId = {},
+  ingredientsByMenuItemId = {},
 }: {
   categories: MenuCategory[];
   menuItems: MenuItem[];
   lunchDate?: string;
   interactive?: boolean;
-  quantities?: Record<string, number>;
-  onQuantityChange?: (menuItemId: string, nextQty: number) => void;
+  cart?: Record<string, CustomerCartLine>;
+  onSimpleQtyChange?: (lineKey: string, nextQty: number) => void;
+  onAddConfigured?: (line: Omit<CustomerCartLine, "lineKey" | "quantity">) => void;
   emptyMessage?: string;
+  sizesByMenuItemId?: Record<string, MenuItemSize[]>;
+  ingredientsByMenuItemId?: Record<string, MenuItemIngredient[]>;
 }) {
   const promoDate = lunchDateForPromos(lunchDate);
 
@@ -147,9 +309,12 @@ export function CustomerOrderMenu({
 
   const listProps = {
     promoDate,
-    quantities,
-    onQuantityChange,
+    cart,
     interactive,
+    onSimpleQtyChange,
+    onAddConfigured,
+    sizesByMenuItemId,
+    ingredientsByMenuItemId,
   };
 
   return (

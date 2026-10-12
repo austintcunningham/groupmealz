@@ -3,6 +3,7 @@ import { DashboardShell } from "@/components/DashboardShell";
 import { Card, EmptyState } from "@/components/ui";
 import { RestaurantMenuEditor } from "@/components/restaurant/RestaurantMenuEditor";
 import { requireRestaurantManager } from "@/lib/auth/guards";
+import { loadMenuItemOptionsForItemIds } from "@/lib/menus/load-item-options";
 import { createClient } from "@/lib/supabase/server";
 import type { MenuCategory, MenuItem } from "@/types/database";
 
@@ -56,6 +57,10 @@ export default async function RestaurantMenuPage() {
   }
 
   const name = restaurants.find((r) => r.id === restaurantId)?.name ?? "Menu";
+  const itemIds = (menuItems ?? []).map((i) => i.id);
+  const menuOptions = itemIds.length
+    ? await loadMenuItemOptionsForItemIds(supabase, itemIds)
+    : { sizesByMenuItemId: {}, ingredientsByMenuItemId: {} };
 
   return (
     <DashboardShell role={profile.role} title="Menu">
@@ -73,6 +78,8 @@ export default async function RestaurantMenuPage() {
           restaurants={restaurants.length > 1 ? restaurants : undefined}
           showPlatformFeeHints={isAdmin}
           serviceFeePerEntreeCents={isAdmin ? (settings?.flat_fee_cents ?? 250) : undefined}
+          sizesByMenuItemId={menuOptions.sizesByMenuItemId}
+          ingredientsByMenuItemId={menuOptions.ingredientsByMenuItemId}
         />
       </Card>
     </DashboardShell>

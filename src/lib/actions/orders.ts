@@ -4,6 +4,12 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { calculateOrderTotals, countBillableEntrees } from "@/lib/fees/calculate";
 import { effectivePriceCents } from "@/lib/menus/effective-price";
+import {
+  buildItemNameSnapshot,
+  formatRemovedIngredients,
+  orderUnitPriceCents,
+} from "@/lib/menus/item-options";
+import type { MenuItemIngredient, MenuItemSize } from "@/types/database";
 import { sendRestaurantOrderEmail } from "@/lib/email/restaurant";
 import { getOrCreateStripeCustomer, savePaymentMethodRecord } from "@/lib/stripe/customers";
 import { isOrderingWindowOpen } from "@/lib/scheduling/window";
@@ -21,6 +27,8 @@ const orderItemInputSchema = z.object({
   menuItemId: z.string().uuid(),
   quantity: z.number().int().min(1),
   specialInstructions: z.string().optional(),
+  sizeId: z.string().uuid().nullable().optional(),
+  removedIngredientIds: z.array(z.string().uuid()).optional(),
 });
 
 const createOrderSchema = z.object({
@@ -83,19 +91,66 @@ async function buildOrderFromItems(
   if (!menuItems?.length) return { success: false, error: "Menu items unavailable" };
 
   const menuMap = new Map(menuItems.map((m) => [m.id, m]));
+
+  const [{ data: sizeRows }, { data: ingredientRows }] = await Promise.all([
+    supabase.from("menu_item_sizes").select("*").in("menu_item_id", menuItemIds),
+    supabase.from("menu_item_ingredients").select("*").in("menu_item_id", menuItemIds),
+  ]);
+
+  const sizesByItem = new Map<string, MenuItemSize[]>();
+  for (const row of (sizeRows ?? []) as MenuItemSize[]) {
+    const list = sizesByItem.get(row.menu_item_id) ?? [];
+    list.push(row);
+    sizesByItem.set(row.menu_item_id, list);
+  }
+  const ingredientsByItem = new Map<string, MenuItemIngredient[]>();
+  for (const row of (ingredientRows ?? []) as MenuItemIngredient[]) {
+    const list = ingredientsByItem.get(row.menu_item_id) ?? [];
+    list.push(row);
+    ingredientsByItem.set(row.menu_item_id, list);
+  }
+
   let subtotalCents = 0;
   const lineItems = items.map((item) => {
     const menuItem = menuMap.get(item.menuItemId);
     if (!menuItem) throw new Error("Invalid menu item");
-    const unitCents = effectivePriceCents(menuItem, schedule.lunch_date);
+
+    const itemSizes = sizesByItem.get(menuItem.id) ?? [];
+    const itemIngredients = ingredientsByItem.get(menuItem.id) ?? [];
+    const removedIds = item.removedIngredientIds ?? [];
+
+    let chosenSize: MenuItemSize | null = null;
+    if (itemSizes.length > 0) {
+      chosenSize = itemSizes.find((s) => s.id === item.sizeId) ?? null;
+      if (!chosenSize) throw new Error(`Choose a size for ${menuItem.name}`);
+    } else if (item.sizeId) {
+      throw new Error("Invalid size selection");
+    }
+
+    const validIngredientIds = new Set(itemIngredients.map((i) => i.id));
+    for (const rid of removedIds) {
+      if (!validIngredientIds.has(rid)) throw new Error("Invalid ingredient selection");
+    }
+
+    const removedNames = itemIngredients
+      .filter((i) => removedIds.includes(i.id))
+      .map((i) => i.name);
+
+    const unitCents = orderUnitPriceCents(menuItem, schedule.lunch_date, chosenSize);
     const lineTotal = unitCents * item.quantity;
     subtotalCents += lineTotal;
+
+    const modNote = formatRemovedIngredients(removedNames);
+    const instructions = [item.specialInstructions?.trim(), modNote].filter(Boolean).join(" · ") || null;
+
     return {
       menu_item_id: menuItem.id,
-      item_name_snapshot: menuItem.name,
+      item_name_snapshot: buildItemNameSnapshot(menuItem.name, chosenSize?.name ?? null),
       base_price_cents: unitCents,
+      size_label_snapshot: chosenSize?.name ?? null,
+      removed_ingredients: removedNames,
       quantity: item.quantity,
-      special_instructions: item.specialInstructions ?? null,
+      special_instructions: instructions,
       line_total_cents: lineTotal,
     };
   });

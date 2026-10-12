@@ -1,6 +1,15 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isOrderingWindowOpen } from "@/lib/scheduling/window";
-import type { DailyLunchSchedule, MenuCategory, MenuItem, Office, Restaurant } from "@/types/database";
+import { loadMenuItemOptionsForRestaurant } from "@/lib/menus/load-item-options";
+import type {
+  DailyLunchSchedule,
+  MenuCategory,
+  MenuItem,
+  MenuItemIngredient,
+  MenuItemSize,
+  Office,
+  Restaurant,
+} from "@/types/database";
 
 export type ScheduleWithRelations = DailyLunchSchedule & {
   restaurants: Restaurant | null;
@@ -80,12 +89,14 @@ export async function loadOfficeOrderContext(office: Office, selectedDate: strin
       schedule: null,
       categories: [] as MenuCategory[],
       menuItems: [] as MenuItem[],
+      sizesByMenuItemId: {} as Record<string, MenuItemSize[]>,
+      ingredientsByMenuItemId: {} as Record<string, MenuItemIngredient[]>,
       advanceOrderHours: settings?.advance_order_hours ?? 48,
       feeSettings,
     };
   }
 
-  const [{ data: categories }, { data: menuItems }] = await Promise.all([
+  const [{ data: categories }, { data: menuItems }, menuOptions] = await Promise.all([
     supabase
       .from("menu_categories")
       .select("*")
@@ -99,6 +110,7 @@ export async function loadOfficeOrderContext(office: Office, selectedDate: strin
       .eq("active", true)
       .eq("available", true)
       .order("display_order"),
+    loadMenuItemOptionsForRestaurant(supabase, schedule.restaurant_id),
   ]);
 
   return {
@@ -106,6 +118,8 @@ export async function loadOfficeOrderContext(office: Office, selectedDate: strin
     schedule,
     categories: categories ?? [],
     menuItems: menuItems ?? [],
+    sizesByMenuItemId: menuOptions.sizesByMenuItemId,
+    ingredientsByMenuItemId: menuOptions.ingredientsByMenuItemId,
     advanceOrderHours: settings?.advance_order_hours ?? 48,
     feeSettings,
   };

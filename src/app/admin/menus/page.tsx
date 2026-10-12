@@ -3,6 +3,7 @@ import { Card } from "@/components/ui";
 import { MenuPreview } from "@/components/admin/MenuPreview";
 import { RestaurantMenuEditor } from "@/components/restaurant/RestaurantMenuEditor";
 import { requireAdmin } from "@/lib/auth/guards";
+import { loadMenuItemOptionsForItemIds } from "@/lib/menus/load-item-options";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function AdminMenusPage() {
@@ -18,6 +19,10 @@ export default async function AdminMenusPage() {
     ]);
 
   const serviceFeePerEntreeCents = settings?.flat_fee_cents ?? 250;
+  const itemIds = (menuItems ?? []).map((i) => i.id);
+  const menuOptions = itemIds.length
+    ? await loadMenuItemOptionsForItemIds(supabase, itemIds)
+    : { sizesByMenuItemId: {}, ingredientsByMenuItemId: {} };
 
   return (
     <DashboardShell role={profile.role} title="Menus">
@@ -32,6 +37,8 @@ export default async function AdminMenusPage() {
               menuItems={menuItems ?? []}
               serviceFeePerEntreeCents={serviceFeePerEntreeCents}
               showPlatformFeeHints
+              sizesByMenuItemId={menuOptions.sizesByMenuItemId}
+              ingredientsByMenuItemId={menuOptions.ingredientsByMenuItemId}
             />
           ) : (
             <p className="text-sm text-slate-500">Create a restaurant first.</p>

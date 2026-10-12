@@ -63,6 +63,8 @@ export default async function OfficeOrderPage({
             weekDays={ctx.weekDays}
             categories={ctx.categories}
             menuItems={ctx.menuItems}
+            sizesByMenuItemId={ctx.sizesByMenuItemId}
+            ingredientsByMenuItemId={ctx.ingredientsByMenuItemId}
             guestMode
             isLoggedIn={!!profile}
             userEmail={profile?.email}

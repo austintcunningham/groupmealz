@@ -6,8 +6,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { checkoutGuest, createOrder, createPaymentIntent } from "@/lib/actions/orders";
 import { calculateOrderTotals, countBillableEntrees } from "@/lib/fees/calculate";
 import { OrderCheckoutSummary } from "@/components/order/OrderCheckoutSummary";
-import { CustomerOrderMenu } from "@/components/order/CustomerOrderMenu";
-import { effectivePriceCents } from "@/lib/menus/effective-price";
+import { CustomerOrderMenu, type CustomerCartLine } from "@/components/order/CustomerOrderMenu";
+import {
+  buildCartLineKey,
+  buildItemNameSnapshot,
+  formatRemovedIngredients,
+  orderUnitPriceCents,
+} from "@/lib/menus/item-options";
 import { formatCents } from "@/lib/money/format";
 import type { PlatformSettings } from "@/types/database";
 import { isOrderingWindowOpen, formatOrderingWindow } from "@/lib/scheduling/window";
@@ -18,6 +23,8 @@ import type {
   DailyLunchSchedule,
   MenuCategory,
   MenuItem,
+  MenuItemIngredient,
+  MenuItemSize,
   Restaurant,
   Office,
 } from "@/types/database";
@@ -40,6 +47,8 @@ interface Props {
   weekDays: WeekDay[];
   categories: MenuCategory[];
   menuItems: MenuItem[];
+  sizesByMenuItemId?: Record<string, MenuItemSize[]>;
+  ingredientsByMenuItemId?: Record<string, MenuItemIngredient[]>;
   guestMode?: boolean;
   isLoggedIn?: boolean;
   userEmail?: string;
@@ -51,18 +60,14 @@ interface Props {
   >;
 }
 
-interface CartEntry {
-  menuItemId: string;
-  quantity: number;
-  specialInstructions: string;
-}
-
 export function OrderFlowClient({
   office,
   schedule,
   weekDays,
   categories,
   menuItems,
+  sizesByMenuItemId = {},
+  ingredientsByMenuItemId = {},
   guestMode = true,
   isLoggedIn = false,
   userEmail,
@@ -79,7 +84,7 @@ export function OrderFlowClient({
     feeSettings.platform_fee_type === "per_entree" ? feeSettings.flat_fee_cents : null;
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [cart, setCart] = useState<Record<string, CartEntry>>({});
+  const [cart, setCart] = useState<Record<string, CustomerCartLine>>({});
   const [isPending, startTransition] = useTransition();
   const [step, setStep] = useState<"menu" | "details" | "pay">("menu");
   const [fullName, setFullName] = useState(userName ?? "");
@@ -102,29 +107,31 @@ export function OrderFlowClient({
     return () => window.clearTimeout(t);
   }, [cartNotice]);
 
-  const cartQuantities = useMemo(() => {
-    const q: Record<string, number> = {};
-    for (const [id, entry] of Object.entries(cart)) {
-      q[id] = entry.quantity;
-    }
-    return q;
-  }, [cart]);
-
   const cartLines = useMemo(() => {
     return Object.values(cart)
       .filter((c) => c.quantity > 0)
       .map((entry) => {
         const item = menuItems.find((m) => m.id === entry.menuItemId);
         if (!item) return null;
-        const unit = effectivePriceCents(item, schedule.lunch_date);
+        const sizes = sizesByMenuItemId[entry.menuItemId] ?? [];
+        const size = sizes.find((s) => s.id === entry.sizeId) ?? null;
+        const unit = orderUnitPriceCents(item, schedule.lunch_date, size);
+        const ingredients = ingredientsByMenuItemId[entry.menuItemId] ?? [];
+        const removedNames = ingredients
+          .filter((i) => entry.removedIngredientIds.includes(i.id))
+          .map((i) => i.name);
+        const mod = formatRemovedIngredients(removedNames);
         return {
           ...entry,
-          name: item.name,
+          name: buildItemNameSnapshot(item.name, size?.name ?? null),
+          modifierLabel: mod,
           lineTotal: unit * entry.quantity,
         };
       })
-      .filter(Boolean) as Array<CartEntry & { name: string; lineTotal: number }>;
-  }, [cart, menuItems, schedule.lunch_date]);
+      .filter(Boolean) as Array<
+      CustomerCartLine & { name: string; modifierLabel: string | null; lineTotal: number }
+    >;
+  }, [cart, menuItems, schedule.lunch_date, sizesByMenuItemId, ingredientsByMenuItemId]);
 
   const subtotal = cartLines.reduce((s, l) => s + l.lineTotal, 0);
   const entreeCount = countBillableEntrees(
@@ -150,19 +157,42 @@ export function OrderFlowClient({
     setStep("menu");
   }
 
-  function updateQty(id: string, qty: number) {
-    if (qty > (cart[id]?.quantity ?? 0)) {
-      const item = menuItems.find((m) => m.id === id);
+  function updateSimpleQty(lineKey: string, menuItemId: string, qty: number) {
+    if (qty > (cart[lineKey]?.quantity ?? 0)) {
+      const item = menuItems.find((m) => m.id === menuItemId);
       if (item) setCartNotice(`Added ${item.name}`);
     }
+    setCart((p) => {
+      const next = { ...p };
+      if (qty <= 0) {
+        delete next[lineKey];
+        return next;
+      }
+      next[lineKey] = {
+        lineKey,
+        menuItemId,
+        sizeId: null,
+        removedIngredientIds: [],
+        quantity: qty,
+        specialInstructions: p[lineKey]?.specialInstructions ?? "",
+      };
+      return next;
+    });
+  }
+
+  function addConfiguredLine(line: Omit<CustomerCartLine, "lineKey" | "quantity">) {
+    const lineKey = buildCartLineKey(line.menuItemId, line.sizeId, line.removedIngredientIds);
+    const item = menuItems.find((m) => m.id === line.menuItemId);
     setCart((p) => ({
       ...p,
-      [id]: {
-        menuItemId: id,
-        quantity: Math.max(0, qty),
-        specialInstructions: p[id]?.specialInstructions ?? "",
+      [lineKey]: {
+        lineKey,
+        ...line,
+        quantity: (p[lineKey]?.quantity ?? 0) + 1,
+        specialInstructions: p[lineKey]?.specialInstructions ?? "",
       },
     }));
+    if (item) setCartNotice(`Added ${item.name}`);
   }
 
   function proceedToCheckout() {
@@ -187,6 +217,8 @@ export function OrderFlowClient({
       const items = cartLines.map((l) => ({
         menuItemId: l.menuItemId,
         quantity: l.quantity,
+        sizeId: l.sizeId,
+        removedIngredientIds: l.removedIngredientIds,
         specialInstructions: l.specialInstructions || undefined,
       }));
 
@@ -372,8 +404,8 @@ export function OrderFlowClient({
           </div>
         </Card>
       ) : orderingOpen ? (
-        <div className="grid gap-6 lg:grid-cols-3">
-          <div className="space-y-6 lg:col-span-2">
+        <div className="grid gap-8 xl:grid-cols-12">
+          <div className="space-y-6 xl:col-span-8">
             {menuItems.length === 0 ? (
               <Card>
                 <p className="text-slate-500">No menu items available for this day.</p>
@@ -384,12 +416,18 @@ export function OrderFlowClient({
                 menuItems={menuItems}
                 lunchDate={schedule.lunch_date}
                 interactive
-                quantities={cartQuantities}
-                onQuantityChange={updateQty}
+                cart={cart}
+                sizesByMenuItemId={sizesByMenuItemId}
+                ingredientsByMenuItemId={ingredientsByMenuItemId}
+                onSimpleQtyChange={(lineKey, qty) => {
+                  const menuItemId = lineKey.split(":")[0] ?? "";
+                  updateSimpleQty(lineKey, menuItemId, qty);
+                }}
+                onAddConfigured={addConfiguredLine}
               />
             )}
           </div>
-          <Card title="Your cart" className="sticky top-4 h-fit">
+          <Card title="Your cart" className="sticky top-4 h-fit xl:col-span-4">
             {cartNotice ? (
               <div className="mb-3">
                 <SuccessMessage message={cartNotice} />
@@ -400,11 +438,14 @@ export function OrderFlowClient({
             ) : (
               <div className="space-y-4">
                 {cartLines.map((l) => (
-                  <div key={l.menuItemId} className="flex justify-between text-sm">
+                  <div key={l.lineKey} className="flex justify-between gap-3 text-sm">
                     <span>
                       {l.quantity}× {l.name}
+                      {l.modifierLabel ? (
+                        <span className="block text-xs text-slate-500">{l.modifierLabel}</span>
+                      ) : null}
                     </span>
-                    <span>{formatCents(l.lineTotal)}</span>
+                    <span className="shrink-0">{formatCents(l.lineTotal)}</span>
                   </div>
                 ))}
                 <GratuityPicker valueCents={gratuityCents} onChange={setGratuityCents} compact />

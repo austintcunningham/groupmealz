@@ -125,6 +125,24 @@ export interface MenuItem {
   updated_at: string;
 }
 
+export interface MenuItemSize {
+  id: string;
+  menu_item_id: string;
+  name: string;
+  price_cents: number;
+  display_order: number;
+  is_default: boolean;
+  created_at: string;
+}
+
+export interface MenuItemIngredient {
+  id: string;
+  menu_item_id: string;
+  name: string;
+  display_order: number;
+  created_at: string;
+}
+
 export interface DailyLunchSchedule {
   id: string;
   office_id: string;
@@ -193,6 +211,8 @@ export interface OrderItem {
   menu_item_id: string | null;
   item_name_snapshot: string;
   base_price_cents: number;
+  size_label_snapshot?: string | null;
+  removed_ingredients?: string[];
   quantity: number;
   special_instructions: string | null;
   line_total_cents: number;

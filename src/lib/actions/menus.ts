@@ -694,6 +694,103 @@ export async function updateMenuItem(
   return { success: true, data: undefined };
 }
 
+const menuItemSizeInputSchema = z.object({
+  name: z.string().min(1).max(40),
+  price_cents: z.number().int().min(0),
+  is_default: z.boolean().optional(),
+});
+
+const menuItemIngredientInputSchema = z.object({
+  name: z.string().min(1).max(60),
+});
+
+const syncMenuItemOptionsSchema = z.object({
+  menuItemId: z.string().uuid(),
+  sizes: z.array(menuItemSizeInputSchema),
+  ingredients: z.array(menuItemIngredientInputSchema),
+});
+
+/** Replace size + ingredient rows for a menu item (manager/admin). */
+export async function syncMenuItemOptions(
+  input: z.infer<typeof syncMenuItemOptionsSchema>
+): Promise<ActionResult> {
+  const auth = await requireProfileRole(["admin", "restaurant_manager"]);
+  if ("error" in auth) return { success: false, error: auth.error };
+
+  const parsed = syncMenuItemOptionsSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.errors[0]?.message ?? "Invalid options" };
+  }
+
+  const restaurantId = await getMenuItemRestaurantId(parsed.data.menuItemId);
+  if (!restaurantId) return { success: false, error: "Menu item not found" };
+
+  const allowed = await assertRestaurantMenuAccess(
+    restaurantId,
+    auth.profile.role,
+    auth.profile.id
+  );
+  if (!allowed) return { success: false, error: "Unauthorized" };
+
+  const { menuItemId, sizes, ingredients } = parsed.data;
+
+  if (sizes.length > 0) {
+    const defaultCount = sizes.filter((s) => s.is_default).length;
+    if (defaultCount !== 1) {
+      return { success: false, error: "Choose exactly one default size when sizes are listed." };
+    }
+  }
+
+  const supabase = await createClient();
+
+  const { error: delSizesErr } = await supabase
+    .from("menu_item_sizes")
+    .delete()
+    .eq("menu_item_id", menuItemId);
+  if (delSizesErr) return { success: false, error: delSizesErr.message };
+
+  const { error: delIngErr } = await supabase
+    .from("menu_item_ingredients")
+    .delete()
+    .eq("menu_item_id", menuItemId);
+  if (delIngErr) return { success: false, error: delIngErr.message };
+
+  if (sizes.length) {
+    const { error: insSizesErr } = await supabase.from("menu_item_sizes").insert(
+      sizes.map((s, i) => ({
+        menu_item_id: menuItemId,
+        name: s.name.trim(),
+        price_cents: s.price_cents,
+        display_order: i,
+        is_default: Boolean(s.is_default),
+      }))
+    );
+    if (insSizesErr) return { success: false, error: insSizesErr.message };
+
+    const defaultSize = sizes.find((s) => s.is_default) ?? sizes[0];
+    if (defaultSize) {
+      await supabase
+        .from("menu_items")
+        .update({ price_cents: defaultSize.price_cents })
+        .eq("id", menuItemId);
+    }
+  }
+
+  if (ingredients.length) {
+    const { error: insIngErr } = await supabase.from("menu_item_ingredients").insert(
+      ingredients.map((ing, i) => ({
+        menu_item_id: menuItemId,
+        name: ing.name.trim(),
+        display_order: i,
+      }))
+    );
+    if (insIngErr) return { success: false, error: insIngErr.message };
+  }
+
+  revalidateMenuPaths();
+  return { success: true, data: undefined };
+}
+
 export async function deleteMenuItem(itemId: string): Promise<ActionResult> {
   const auth = await requireProfileRole(["admin", "restaurant_manager"]);
   if ("error" in auth) return { success: false, error: auth.error };

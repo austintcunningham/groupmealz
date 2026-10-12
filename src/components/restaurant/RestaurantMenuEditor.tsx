@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { MenuEntreeBadge } from "@/components/menus/MenuEntreeBadge";
+import { MenuItemOptionsEditor } from "@/components/menus/MenuItemOptionsEditor";
 import { MenuItemPhotoUpload } from "@/components/menus/MenuItemPhotoUpload";
 import { MenuReorderButtons } from "@/components/menus/MenuReorderButtons";
 import { CustomerMenuLivePreview } from "@/components/restaurant/CustomerMenuLivePreview";
@@ -14,6 +15,7 @@ import {
   moveMenuCategory,
   moveMenuItem,
   updateMenuCategory,
+  syncMenuItemOptions,
   updateMenuItem,
   uploadMenuItemImage,
 } from "@/lib/actions/menus";
@@ -26,7 +28,7 @@ import {
 import { sortMenuItems } from "@/lib/menus/sort";
 import { formatCents, parseDollarsToCents } from "@/lib/money/format";
 import { Button, ErrorMessage, Input, Select, SuccessMessage } from "@/components/ui";
-import type { MenuCategory, MenuItem } from "@/types/database";
+import type { MenuCategory, MenuItem, MenuItemIngredient, MenuItemSize } from "@/types/database";
 
 function MenuItemEditorForm({
   item,
@@ -40,6 +42,8 @@ function MenuItemEditorForm({
   disableMoveDown,
   showPlatformFeeHints,
   serviceFeePerEntreeCents,
+  itemSizes,
+  itemIngredients,
 }: {
   item: MenuItem;
   categoryOptions: { id: string; label: string }[];
@@ -52,6 +56,8 @@ function MenuItemEditorForm({
   disableMoveDown: boolean;
   showPlatformFeeHints: boolean;
   serviceFeePerEntreeCents: number;
+  itemSizes: MenuItemSize[];
+  itemIngredients: MenuItemIngredient[];
 }) {
   const promo = isPromoActive(item);
   const charge = effectivePriceCents(item);
@@ -146,6 +152,11 @@ function MenuItemEditorForm({
             )}
           </span>
         </label>
+        <MenuItemOptionsEditor
+          menuItemId={item.id}
+          initialSizes={itemSizes}
+          initialIngredients={itemIngredients}
+        />
         <div className="rounded-md border border-dashed border-[var(--geaux-yellow)] bg-amber-50/50 p-3">
           <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-600">
             Temporary deal
@@ -200,6 +211,8 @@ export function RestaurantMenuEditor({
   restaurants,
   serviceFeePerEntreeCents = 250,
   showPlatformFeeHints = false,
+  sizesByMenuItemId = {},
+  ingredientsByMenuItemId = {},
 }: {
   restaurantId: string;
   restaurantName: string;
@@ -209,6 +222,8 @@ export function RestaurantMenuEditor({
   serviceFeePerEntreeCents?: number;
   /** Admin menu tools: show platform fee copy on entrée badges and checkboxes. */
   showPlatformFeeHints?: boolean;
+  sizesByMenuItemId?: Record<string, MenuItemSize[]>;
+  ingredientsByMenuItemId?: Record<string, MenuItemIngredient[]>;
 }) {
   const router = useRouter();
   const [restaurantId, setRestaurantId] = useState(initialRestaurantId);
@@ -433,6 +448,23 @@ export function RestaurantMenuEditor({
           setError(result.error);
           return;
         }
+        const payloadRaw = String(formData.get("options_payload") ?? "");
+        if (payloadRaw) {
+          const parsed = JSON.parse(payloadRaw) as {
+            sizes: { name: string; price_cents: number; is_default?: boolean }[];
+            ingredients: { name: string }[];
+          };
+          const syncResult = await syncMenuItemOptions({
+            menuItemId: itemId,
+            sizes: parsed.sizes ?? [],
+            ingredients: parsed.ingredients ?? [],
+          });
+          if (!syncResult.success) {
+            setError(syncResult.error);
+            router.refresh();
+            return;
+          }
+        }
         flash("Item updated");
         router.refresh();
       } catch (e) {
@@ -461,6 +493,8 @@ export function RestaurantMenuEditor({
             onMoveDown={() => moveItem(item.id, "down")}
             showPlatformFeeHints={showPlatformFeeHints}
             serviceFeePerEntreeCents={serviceFeePerEntreeCents}
+            itemSizes={sizesByMenuItemId[item.id] ?? []}
+            itemIngredients={ingredientsByMenuItemId[item.id] ?? []}
           />
         ))}
       </ul>
@@ -544,8 +578,8 @@ export function RestaurantMenuEditor({
       ) : null}
 
       <p className="text-sm text-slate-600">
-        Use <strong>sub-categories</strong> under each top section (e.g. Hot / Cold subs).{" "}
-        <strong>↑ ↓</strong> reorders categories, sub-categories, and items on the customer menu.
+        Use <strong>sub-categories</strong> under each top section (e.g. Hot / Cold subs). Reorder in
+        the live preview by dragging, or use <strong>↑ ↓</strong> in the editor below.
       </p>
 
       <form
