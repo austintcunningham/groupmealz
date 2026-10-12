@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { OrderFlowClient } from "@/components/employee/OrderFlowClient";
 import { Card } from "@/components/ui";
-import { BRAND } from "@/lib/brand";
+import { GroupMealsLogo } from "@/components/brand/GroupMealsLogo";
 import { getSessionProfile } from "@/lib/auth/guards";
 import { getOfficeBySlug, loadOfficeOrderContext } from "@/lib/order/office-order-page";
 
@@ -25,14 +25,14 @@ export default async function OfficeOrderPage({
   const ctx = await loadOfficeOrderContext(office, selectedDate);
 
   const header = (
-    <header className="geaux-header-gradient text-white">
+    <header className="geaux-header-gradient text-white shadow-md">
       <div className="geaux-accent-bar" />
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-        <div>
-          <span className="text-xl font-black text-[var(--geaux-yellow)]">{BRAND.name}</span>
-          <p className="text-sm text-white/80">{office.name}</p>
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
+        <div className="min-w-0">
+          <GroupMealsLogo size="md" href="/order" priority />
+          <p className="mt-1 truncate text-sm text-white/85">{office.name}</p>
         </div>
-        <Link href="/login" className="text-sm text-white/90 hover:text-[var(--geaux-yellow)]">
+        <Link href="/login" className="shrink-0 text-sm text-white/90 hover:text-[var(--geaux-yellow)]">
           Staff login
         </Link>
       </div>

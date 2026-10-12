@@ -2,6 +2,7 @@ import Link from "next/link";
 import { RestaurantReviewForm } from "@/components/reviews/RestaurantReviewForm";
 import { Card, ErrorMessage } from "@/components/ui";
 import { getReviewOrderContext } from "@/lib/actions/reviews";
+import { GroupMealsLogo } from "@/components/brand/GroupMealsLogo";
 import { BRAND } from "@/lib/brand";
 
 function formatLunchDate(iso: string): string {
@@ -39,9 +40,11 @@ export default async function ReviewOrderPage({
   return (
     <div className="min-h-screen bg-[var(--geaux-cream)] p-4">
       <div className="mx-auto max-w-lg">
-        <div className="geaux-header-gradient rounded-t-xl px-6 py-4 text-center">
-          <p className="text-lg font-black text-[var(--geaux-yellow)]">{BRAND.name}</p>
-          <h1 className="text-xl font-semibold text-white">Rate your lunch</h1>
+        <div className="geaux-header-gradient rounded-t-xl px-6 py-5 text-center">
+          <div className="flex justify-center">
+            <GroupMealsLogo size="md" href="/" />
+          </div>
+          <h1 className="mt-3 text-xl font-semibold text-white">Rate your lunch</h1>
         </div>
         <Card className="rounded-t-none">
           <p className="mb-4 text-sm text-slate-600">

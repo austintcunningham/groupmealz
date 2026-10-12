@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { GroupMealsLogo } from "@/components/brand/GroupMealsLogo";
 import { Card } from "@/components/ui";
 
 export default async function CheckoutCancelPage({
@@ -9,9 +10,14 @@ export default async function CheckoutCancelPage({
   const { order_id: orderId } = await searchParams;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[var(--geaux-cream)] px-4">
-      <div className="w-full max-w-md">
-        <Card title="Checkout cancelled">
+    <div className="flex min-h-screen items-center justify-center bg-[var(--geaux-cream)] px-4 py-8">
+      <div className="w-full max-w-md overflow-hidden rounded-xl shadow-lg">
+        <div className="geaux-header-gradient px-6 py-5 text-center">
+          <div className="flex justify-center">
+            <GroupMealsLogo size="md" href="/" />
+          </div>
+        </div>
+        <Card title="Checkout cancelled" className="rounded-none rounded-b-xl border-0 shadow-none">
           <p className="text-sm text-slate-600">
             Payment was not completed. You can return to your order and try again.
           </p>

@@ -1,8 +1,7 @@
-import Link from "next/link";
 import type { UserRole } from "@/types/database";
 import { SignOutForm } from "@/components/auth/SignOutForm";
+import { GroupMealsLogo } from "@/components/brand/GroupMealsLogo";
 import { DashboardNav } from "@/components/DashboardNav";
-import { BRAND } from "@/lib/brand";
 
 const navByRole: Record<UserRole, { href: string; label: string }[]> = {
   admin: [
@@ -58,13 +57,8 @@ export function DashboardShell({
         <div className="mx-auto max-w-6xl px-4 pt-3">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
-              <Link
-                href="/"
-                className="text-base font-black tracking-tight text-[var(--geaux-yellow)]"
-              >
-                {BRAND.name}
-              </Link>
-              <h1 className="truncate text-lg font-semibold leading-tight text-white/95">
+              <GroupMealsLogo size="sm" href="/" />
+              <h1 className="mt-1 truncate text-lg font-semibold leading-tight text-white/95">
                 {title}
               </h1>
             </div>

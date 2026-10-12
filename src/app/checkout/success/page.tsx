@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Card, SuccessMessage } from "@/components/ui";
-import { BRAND } from "@/lib/brand";
+import { GroupMealsLogo } from "@/components/brand/GroupMealsLogo";
 
 export default async function CheckoutSuccessPage({
   searchParams,
@@ -12,8 +12,10 @@ export default async function CheckoutSuccessPage({
   return (
     <div className="min-h-screen bg-[var(--geaux-cream)] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="geaux-header-gradient rounded-t-xl px-6 py-4 text-center">
-          <h1 className="text-2xl font-black text-[var(--geaux-yellow)]">{BRAND.name}</h1>
+        <div className="geaux-header-gradient rounded-t-xl px-6 py-5 text-center">
+          <div className="flex justify-center">
+            <GroupMealsLogo size="md" href="/" />
+          </div>
         </div>
         <Card className="rounded-t-none">
           <SuccessMessage message="Payment confirmed! Your lunch order is on the way." />

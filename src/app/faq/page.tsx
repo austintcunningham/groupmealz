@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { GroupMealsLogo } from "@/components/brand/GroupMealsLogo";
 import { BRAND } from "@/lib/brand";
 
 const sections = [
@@ -49,10 +50,8 @@ export default function FaqPage() {
     <div className="min-h-screen bg-[var(--geaux-cream)]">
       <header className="geaux-header-gradient text-white shadow-lg">
         <div className="geaux-accent-bar" />
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-6">
-          <Link href="/login" className="text-lg font-black text-[var(--geaux-yellow)]">
-            {BRAND.name}
-          </Link>
+        <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-4 py-5">
+          <GroupMealsLogo size="md" href="/login" />
           <Link href="/login" className="text-sm font-medium text-white/90 hover:text-[var(--geaux-yellow)]">
             Sign in
           </Link>

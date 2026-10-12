@@ -4,6 +4,10 @@ export const BRAND = {
   supportEmail: "support@groupmeals.net",
   /** Verified sending domain in Resend (EMAIL_FROM must use this). */
   mailDomain: "groupmeals.net",
+  /** Optimized transparent PNG in /public */
+  logoPath: "/brand/group-meals-logo.png",
+  faviconPath: "/brand/favicon-32.png",
+  appleTouchIconPath: "/brand/apple-touch-icon.png",
 } as const;
 
 export const COLORS = {
@@ -14,3 +18,13 @@ export const COLORS = {
   cream: "#FFFBF5",
   charcoal: "#1A1A1A",
 } as const;
+
+/** Absolute URL for emails (Resend requires publicly reachable images). */
+export function getBrandLogoUrl(appBase?: string): string {
+  const base = (
+    appBase ??
+    process.env.NEXT_PUBLIC_APP_URL ??
+    "https://www.groupmeals.net"
+  ).replace(/\/$/, "");
+  return `${base}${BRAND.logoPath}`;
+}

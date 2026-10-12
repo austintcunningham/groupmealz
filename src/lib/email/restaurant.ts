@@ -1,5 +1,6 @@
 import { formatCents } from "@/lib/money/format";
 import { BRAND } from "@/lib/brand";
+import { emailSection, wrapBrandedEmail } from "@/lib/email/layout";
 import { getEmailFromAddress, getResendClient } from "@/lib/email/resend-client";
 import type { ProductionSheetItem } from "@/types/database";
 
@@ -27,7 +28,7 @@ function buildHtml(data: RestaurantEmailPayload): string {
   const itemRows = data.productionItems
     .map(
       (g) =>
-        `<tr><td style="padding:8px;border-bottom:1px solid #eee">${g.itemName}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:center">${g.totalQuantity}</td></tr>`
+        `<tr><td style="padding:8px;border-bottom:1px solid #eee;color:#334155;">${g.itemName}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:center;color:#334155;">${g.totalQuantity}</td></tr>`
     )
     .join("");
 
@@ -42,28 +43,30 @@ function buildHtml(data: RestaurantEmailPayload): string {
     )
     .join("");
 
-  return `
-    <div style="font-family:sans-serif;max-width:640px;margin:0 auto">
-      <div style="background:#D62828;color:white;padding:20px;border-radius:8px 8px 0 0">
-        <h1 style="margin:0">${BRAND.name}</h1>
-        <p style="margin:4px 0 0;opacity:0.9">Production order for ${data.lunchDate}</p>
-      </div>
-      <div style="padding:20px;border:1px solid #eee;border-top:0;border-radius:0 0 8px 8px">
-        <h2>Delivery to: ${data.officeName}</h2>
-        <p>${data.officeAddress}</p>
-        ${data.deliveryInstructions ? `<p><strong>Instructions:</strong> ${data.deliveryInstructions}</p>` : ""}
-        ${data.contactName ? `<p><strong>Contact:</strong> ${data.contactName}${data.contactPhone ? ` · ${data.contactPhone}` : ""}</p>` : ""}
-        <p><strong>Delivery time:</strong> ${data.deliveryAt}</p>
-        <h3>Items to prepare</h3>
-        <table style="width:100%;border-collapse:collapse">
-          <thead><tr style="background:#FDB913"><th style="padding:8px;text-align:left">Item</th><th style="padding:8px">Qty</th></tr></thead>
-          <tbody>${itemRows}</tbody>
-        </table>
-        <h3>Customer orders</h3>
-        ${orderBlocks}
-        <p style="font-size:18px;margin-top:24px"><strong>Grand total: ${formatCents(data.grandTotalCents)}</strong></p>
-      </div>
-    </div>`;
+  const bodyHtml = `
+    ${emailSection(
+      "Delivery",
+      `<p style="margin:0 0 8px;font-size:15px;color:#334155;"><strong>${data.officeName}</strong><br/>${data.officeAddress}</p>
+      ${data.deliveryInstructions ? `<p style="margin:0 0 8px;font-size:14px;color:#334155;"><strong>Instructions:</strong> ${data.deliveryInstructions}</p>` : ""}
+      ${data.contactName ? `<p style="margin:0;font-size:14px;color:#334155;"><strong>Contact:</strong> ${data.contactName}${data.contactPhone ? ` · ${data.contactPhone}` : ""}</p>` : ""}
+      <p style="margin:12px 0 0;font-size:14px;color:#334155;"><strong>Delivery time:</strong> ${data.deliveryAt}</p>`
+    )}
+    ${emailSection(
+      "Items to prepare",
+      `<table style="width:100%;border-collapse:collapse">
+        <thead><tr style="background:#FDB913"><th style="padding:8px;text-align:left">Item</th><th style="padding:8px">Qty</th></tr></thead>
+        <tbody>${itemRows}</tbody>
+      </table>`
+    )}
+    ${emailSection("Customer orders", orderBlocks)}
+    <p style="font-size:18px;margin-top:8px;color:#334155;"><strong>Grand total: ${formatCents(data.grandTotalCents)}</strong></p>`;
+
+  return wrapBrandedEmail({
+    preheader: `Production order for ${data.lunchDate} — ${data.officeName}`,
+    headline: "Kitchen order sheet",
+    subheadline: `${data.restaurantName} · ${data.lunchDate}`,
+    bodyHtml,
+  });
 }
 
 export async function sendRestaurantOrderEmail(
@@ -78,10 +81,6 @@ export async function sendRestaurantOrderEmail(
     return { sent: false, error: "Email not configured (RESEND_API_KEY missing). Logged to console." };
   }
 
-  if (!data.restaurantEmail) {
-    return { sent: false, error: "Restaurant has no email address on file." };
-  }
-
   const { error } = await resend.emails.send({
     from,
     to: data.restaurantEmail,
@@ -92,5 +91,3 @@ export async function sendRestaurantOrderEmail(
   if (error) return { sent: false, error: error.message };
   return { sent: true };
 }
-
-export type { RestaurantEmailPayload };

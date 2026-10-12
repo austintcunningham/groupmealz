@@ -1,3 +1,4 @@
+import { GroupMealsLogo } from "@/components/brand/GroupMealsLogo";
 import { BRAND } from "@/lib/brand";
 import { Card } from "@/components/ui";
 
@@ -11,9 +12,11 @@ export function AuthPageShell({
   return (
     <div className="flex min-h-screen items-center justify-center bg-[var(--geaux-cream)] p-4">
       <div className="w-full max-w-md">
-        <div className="geaux-header-gradient rounded-t-xl px-6 py-5 text-center">
-          <h1 className="text-3xl font-black text-[var(--geaux-yellow)]">{BRAND.name}</h1>
-          <p className="text-sm text-white/80">{BRAND.tagline}</p>
+        <div className="geaux-header-gradient rounded-t-xl px-6 py-6 text-center">
+          <div className="flex justify-center">
+            <GroupMealsLogo size="lg" priority href="/" />
+          </div>
+          <p className="mt-3 text-sm text-white/85">{BRAND.tagline}</p>
         </div>
         <Card className="rounded-t-none" title={title}>
           {children}
