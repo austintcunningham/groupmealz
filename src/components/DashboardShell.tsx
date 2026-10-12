@@ -1,24 +1,44 @@
 import type { UserRole } from "@/types/database";
 import { SignOutForm } from "@/components/auth/SignOutForm";
 import { GroupMealsLogo } from "@/components/brand/GroupMealsLogo";
-import { DashboardNav } from "@/components/DashboardNav";
+import { DashboardNav, type DashboardNavGroup } from "@/components/DashboardNav";
+
+const adminNavGroups: DashboardNavGroup[] = [
+  {
+    label: "Overview",
+    links: [{ href: "/admin", label: "Dashboard" }],
+  },
+  {
+    label: "Operate",
+    links: [
+      { href: "/admin/schedules", label: "Schedules" },
+      { href: "/admin/orders", label: "Orders" },
+      { href: "/admin/announcements", label: "ROTD emails" },
+      { href: "/admin/simulate-order", label: "Order simulation" },
+    ],
+  },
+  {
+    label: "Partners",
+    links: [
+      { href: "/admin/restaurants", label: "Restaurants" },
+      { href: "/admin/offices", label: "Offices" },
+      { href: "/admin/menus", label: "Menus" },
+      { href: "/admin/branding", label: "Branding review" },
+    ],
+  },
+  {
+    label: "Business",
+    links: [
+      { href: "/admin/payouts", label: "Payouts" },
+      { href: "/admin/reviews", label: "Feedback" },
+      { href: "/admin/settings", label: "Settings" },
+      { href: "/admin/email-preview", label: "Email preview" },
+    ],
+  },
+];
 
 const navByRole: Record<UserRole, { href: string; label: string }[]> = {
-  admin: [
-    { href: "/admin", label: "Dashboard" },
-    { href: "/admin/restaurants", label: "Restaurants" },
-    { href: "/admin/branding", label: "Branding review" },
-    { href: "/admin/offices", label: "Offices" },
-    { href: "/admin/menus", label: "Menus" },
-    { href: "/admin/schedules", label: "Schedules" },
-    { href: "/admin/announcements", label: "ROTD emails" },
-    { href: "/admin/orders", label: "Orders" },
-    { href: "/admin/payouts", label: "Payouts" },
-    { href: "/admin/reviews", label: "Feedback" },
-    { href: "/admin/settings", label: "Settings" },
-    { href: "/admin/email-preview", label: "Email preview" },
-    { href: "/admin/simulate-order/fhs-g?office=lets-geaux-office", label: "Order simulation" },
-  ],
+  admin: [],
   restaurant_manager: [
     { href: "/restaurant", label: "Dashboard" },
     { href: "/restaurant/reports", label: "Sales & payouts" },
@@ -51,6 +71,7 @@ export function DashboardShell({
   children: React.ReactNode;
 }) {
   const links = navByRole[role] ?? [];
+  const navGroups = role === "admin" ? adminNavGroups : undefined;
 
   return (
     <div className="min-h-screen">
@@ -67,7 +88,7 @@ export function DashboardShell({
             <SignOutForm />
           </div>
           <div className="mt-2 border-t border-white/15 pt-2">
-            <DashboardNav links={links} />
+            <DashboardNav links={navGroups ? undefined : links} groups={navGroups} />
           </div>
         </div>
       </header>

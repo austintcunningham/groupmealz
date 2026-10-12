@@ -120,13 +120,16 @@ export function Card({
   title,
   children,
   className = "",
+  id,
 }: {
   title?: string;
   children: React.ReactNode;
   className?: string;
+  id?: string;
 }) {
   return (
     <div
+      id={id}
       className={`rounded-[var(--geaux-radius-lg)] border border-[var(--geaux-border)] bg-white p-5 shadow-[var(--geaux-shadow-sm)] transition-all duration-200 hover:shadow-[var(--geaux-shadow-md)] ${className}`}
     >
       {title ? (

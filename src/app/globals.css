@@ -222,3 +222,25 @@ body.geaux-body::before {
     transform: rotate(-1deg) scale(1.03);
   }
 }
+
+@media print {
+  body.geaux-body::before {
+    display: none;
+  }
+
+  aside,
+  header,
+  nav,
+  .print\:hidden {
+    display: none !important;
+  }
+
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  #production-print {
+    display: block !important;
+  }
+}

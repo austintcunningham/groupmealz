@@ -1,6 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import {
+  MenuCategoryJumpNav,
+  menuSectionDomId,
+} from "@/components/order/MenuCategoryJumpNav";
 import { MenuItemPhoto } from "@/components/order/MenuItemPhoto";
 import {
   filterCustomerFacingCategories,
@@ -307,24 +311,52 @@ export function CustomerOrderMenu({
 }) {
   const promoDate = lunchDateForPromos(lunchDate);
 
-  const itemsByCategory = new Map<string, MenuItem[]>();
-  for (const item of sortMenuItems(menuItems)) {
-    const catId = item.category_id ?? "uncategorized";
-    const list = itemsByCategory.get(catId) ?? [];
-    list.push(item);
-    itemsByCategory.set(catId, list);
-  }
+  const itemsByCategory = useMemo(() => {
+    const map = new Map<string, MenuItem[]>();
+    for (const item of sortMenuItems(menuItems)) {
+      const catId = item.category_id ?? "uncategorized";
+      const list = map.get(catId) ?? [];
+      list.push(item);
+      map.set(catId, list);
+    }
+    return map;
+  }, [menuItems]);
+
+  const tops = useMemo(() => topLevelCategories(categories), [categories]);
+  const orphanSubs = useMemo(
+    () =>
+      categories.filter(
+        (c) => c.parent_id && !categories.some((p) => p.id === c.parent_id)
+      ),
+    [categories]
+  );
+
+  const resolvedShowOptions = showItemOptions ?? interactive;
+
+  const jumpSections = useMemo(() => {
+    const sections: { id: string; label: string }[] = [];
+    for (const top of tops) {
+      const subs = subcategoriesFor(categories, top.id);
+      const topItems = itemsByCategory.get(top.id) ?? [];
+      const hasSubs = subs.some((sub) => (itemsByCategory.get(sub.id) ?? []).length > 0);
+      if (topItems.length || hasSubs) {
+        sections.push({ id: menuSectionDomId(top.id), label: top.name });
+      }
+    }
+    for (const sub of orphanSubs) {
+      if ((itemsByCategory.get(sub.id) ?? []).length) {
+        sections.push({ id: menuSectionDomId(sub.id), label: sub.name });
+      }
+    }
+    if ((itemsByCategory.get("uncategorized") ?? []).length) {
+      sections.push({ id: menuSectionDomId("uncategorized"), label: "Menu" });
+    }
+    return sections;
+  }, [tops, orphanSubs, itemsByCategory, categories]);
 
   if (menuItems.length === 0) {
     return <p className="text-sm text-slate-500">{emptyMessage}</p>;
   }
-
-  const tops = topLevelCategories(categories);
-  const orphanSubs = categories.filter(
-    (c) => c.parent_id && !categories.some((p) => p.id === c.parent_id)
-  );
-
-  const resolvedShowOptions = showItemOptions ?? interactive;
 
   const listProps = {
     promoDate,
@@ -339,6 +371,7 @@ export function CustomerOrderMenu({
 
   return (
     <div className="space-y-6">
+      <MenuCategoryJumpNav sections={jumpSections} />
       {tops.map((top) => {
         const subs = subcategoriesFor(categories, top.id);
         const topItems = itemsByCategory.get(top.id) ?? [];
@@ -352,7 +385,12 @@ export function CustomerOrderMenu({
         if (!topItems.length && !subBlocks.length) return null;
 
         return (
-          <Card key={top.id} title={top.name}>
+          <Card
+            key={top.id}
+            title={top.name}
+            id={menuSectionDomId(top.id)}
+            className="scroll-mt-28"
+          >
             <div className="space-y-5">
               {subBlocks.map(({ sub, items }) => (
                 <div key={sub.id}>
@@ -381,14 +419,19 @@ export function CustomerOrderMenu({
         const items = itemsByCategory.get(sub.id) ?? [];
         if (!items.length) return null;
         return (
-          <Card key={sub.id} title={sub.name}>
+          <Card
+            key={sub.id}
+            title={sub.name}
+            id={menuSectionDomId(sub.id)}
+            className="scroll-mt-28"
+          >
             <ItemList items={items} {...listProps} />
           </Card>
         );
       })}
 
       {(itemsByCategory.get("uncategorized") ?? []).length > 0 ? (
-        <Card title="Menu">
+        <Card title="Menu" id={menuSectionDomId("uncategorized")} className="scroll-mt-28">
           <ItemList items={itemsByCategory.get("uncategorized") ?? []} {...listProps} />
         </Card>
       ) : null}

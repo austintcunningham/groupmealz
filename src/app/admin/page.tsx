@@ -4,6 +4,7 @@ import { Card, EmptyState, StatCard } from "@/components/ui";
 import { requireAdmin } from "@/lib/auth/guards";
 import { getAdminDashboardTotals } from "@/lib/actions/reports";
 import { formatCents } from "@/lib/money/format";
+import { brandingNeedsReview } from "@/lib/restaurant/branding-display";
 import { createClient } from "@/lib/supabase/server";
 import { getRelationName } from "@/lib/supabase/relation";
 
@@ -13,11 +14,18 @@ export default async function AdminDashboardPage() {
   const supabase = await createClient();
   const today = new Date().toISOString().slice(0, 10);
 
-  const { data: schedules } = await supabase
-    .from("daily_lunch_schedules")
-    .select("*, offices(name), restaurants(name)")
-    .eq("lunch_date", today)
-    .order("delivery_at");
+  const [{ data: schedules }, { data: restaurantsForBranding }] = await Promise.all([
+    supabase
+      .from("daily_lunch_schedules")
+      .select("*, offices(name), restaurants(name)")
+      .eq("lunch_date", today)
+      .order("delivery_at"),
+    supabase
+      .from("restaurants")
+      .select("id, name, branding_status, pending_logo_url, pending_banner_url"),
+  ]);
+
+  const brandingQueue = (restaurantsForBranding ?? []).filter((r) => brandingNeedsReview(r));
 
   const totals = "data" in totalsResult ? totalsResult.data : null;
 
@@ -41,6 +49,22 @@ export default async function AdminDashboardPage() {
             value={formatCents(totals?.totalPlatformFeesCents ?? 0)}
           />
         </div>
+
+        {brandingQueue.length ? (
+          <Card title="Needs attention">
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link href="/admin/branding" className="font-medium text-[var(--geaux-red)] hover:underline">
+                  {brandingQueue.length} restaurant{brandingQueue.length === 1 ? "" : "s"} pending branding review
+                </Link>
+                <span className="text-slate-500">
+                  {" "}
+                  — {brandingQueue.map((r) => r.name).join(", ")}
+                </span>
+              </li>
+            </ul>
+          </Card>
+        ) : null}
 
         <Card title="Today's schedules">
           {!schedules?.length ? (

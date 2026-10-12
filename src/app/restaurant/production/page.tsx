@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { DashboardShell } from "@/components/DashboardShell";
+import { PrintProductionButton } from "@/components/restaurant/PrintProductionButton";
 import { Card, EmptyState } from "@/components/ui";
 import { getProductionSheet } from "@/lib/actions/reports";
 import { requireRestaurantManager } from "@/lib/auth/guards";
@@ -41,7 +42,7 @@ export default async function ProductionPage({
 
   return (
     <DashboardShell role={profile.role} title="Prep list">
-      <p className="mb-6 max-w-2xl text-sm text-slate-600">
+      <p className="mb-6 max-w-2xl text-sm text-slate-600 print:hidden">
         <strong>Kitchen prep</strong> for a specific office lunch day: how many of each menu item to
         make, who ordered what, and special instructions. This is <em>not</em> your payout — for
         money and check stubs use{" "}
@@ -52,7 +53,7 @@ export default async function ProductionPage({
       </p>
 
       <div className="space-y-6">
-        <Card title="Choose lunch day">
+        <Card title="Choose lunch day" className="print:hidden">
           {!schedules?.length ? (
             <EmptyState message="No upcoming or recent schedules for your restaurant." />
           ) : (
@@ -76,41 +77,60 @@ export default async function ProductionPage({
         </Card>
 
         {selected ? (
-          <p className="text-sm text-slate-700">
-            Showing paid orders for{" "}
-            <strong>
-              {selected.lunch_date} — {getRelationName(selected.offices)}
-            </strong>
-          </p>
+          <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
+            <p className="text-sm text-slate-700">
+              Showing paid orders for{" "}
+              <strong>
+                {selected.lunch_date} — {getRelationName(selected.offices)}
+              </strong>
+            </p>
+            {items.length ? <PrintProductionButton /> : null}
+          </div>
         ) : null}
 
-        {sheet && "error" in sheet ? (
-          <p className="text-red-600">{sheet.error}</p>
-        ) : null}
+        <div id="production-print" className="space-y-6">
+          {selected && items.length ? (
+            <div className="hidden print:block">
+              <h1 className="text-xl font-bold text-black">Prep list</h1>
+              <p className="text-sm text-black">
+                {selected.lunch_date} — {getRelationName(selected.offices)} ·{" "}
+                {getRelationName(selected.restaurants)}
+              </p>
+            </div>
+          ) : null}
 
-        {!items.length ? (
-          <EmptyState message="No paid orders for this lunch yet. Check back after the office ordering window." />
-        ) : (
-          items.map((group) => (
-            <Card key={group.itemName} title={`${group.itemName} — ${group.totalQuantity} total`}>
-              <div className="space-y-3">
-                {group.orders.map((o) => (
-                  <div
-                    key={`${group.itemName}-${o.orderId}`}
-                    className="rounded-lg border border-slate-100 px-3 py-2 text-sm"
-                  >
-                    <p className="font-medium">
-                      {o.quantity}× for {o.customerName}
-                    </p>
-                    {o.specialInstructions ? (
-                      <p className="text-slate-500">{o.specialInstructions}</p>
-                    ) : null}
-                  </div>
-                ))}
-              </div>
-            </Card>
-          ))
-        )}
+          {sheet && "error" in sheet ? (
+            <p className="text-red-600 print:hidden">{sheet.error}</p>
+          ) : null}
+
+          {!items.length ? (
+            <EmptyState message="No paid orders for this lunch yet. Check back after the office ordering window." />
+          ) : (
+            items.map((group) => (
+              <Card
+                key={group.itemName}
+                title={`${group.itemName} — ${group.totalQuantity} total`}
+                className="print:rounded-none print:border print:border-black print:shadow-none"
+              >
+                <div className="space-y-3">
+                  {group.orders.map((o) => (
+                    <div
+                      key={`${group.itemName}-${o.orderId}`}
+                      className="rounded-lg border border-slate-100 px-3 py-2 text-sm print:border-black print:rounded-none"
+                    >
+                      <p className="font-medium">
+                        {o.quantity}× for {o.customerName}
+                      </p>
+                      {o.specialInstructions ? (
+                        <p className="text-slate-500 print:text-black">{o.specialInstructions}</p>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            ))
+          )}
+        </div>
       </div>
     </DashboardShell>
   );

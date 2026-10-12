@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { DashboardShell } from "@/components/DashboardShell";
+import { CutoffCountdown } from "@/components/scheduling/CutoffCountdown";
 import { Card, EmptyState } from "@/components/ui";
 import { requireEmployee } from "@/lib/auth/guards";
 import { createClient } from "@/lib/supabase/server";
@@ -16,6 +17,16 @@ export default async function EmployeeHomePage() {
     .eq("lunch_date", today)
     .in("status", ["open", "closed"])
     .maybeSingle();
+
+  const { data: todayOrder } = schedule
+    ? await supabase
+        .from("orders")
+        .select("id, status")
+        .eq("user_id", profile.id)
+        .eq("schedule_id", schedule.id)
+        .in("status", ["pending_payment", "authorized", "paid"])
+        .maybeSingle()
+    : { data: null };
 
   const { data: recentOrders } = await supabase
     .from("orders")
@@ -36,11 +47,21 @@ export default async function EmployeeHomePage() {
               <p className="text-sm text-slate-600">
                 Cutoff: {new Date(schedule.order_cutoff_at).toLocaleString()}
               </p>
+              {schedule.status === "open" ? <CutoffCountdown schedule={schedule} /> : null}
+              {todayOrder ? (
+                <p className="mt-3 text-sm text-slate-700">
+                  You have an order for today —{" "}
+                  <Link href={`/app/orders/${todayOrder.id}`} className="font-medium text-[var(--geaux-red)] hover:underline">
+                    View order
+                  </Link>
+                  <span className="ml-1 capitalize text-slate-500">({todayOrder.status.replace("_", " ")})</span>
+                </p>
+              ) : null}
               <Link
                 href="/app/order"
                 className="mt-4 inline-block rounded-lg bg-[var(--geaux-red)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--geaux-red-dark)]"
               >
-                Order now
+                {todayOrder ? "Change or add items" : "Order now"}
               </Link>
               <Link href="/app/week" className="ml-3 text-sm text-red-600 hover:underline">
                 This week →
