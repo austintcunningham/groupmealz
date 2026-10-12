@@ -27,7 +27,8 @@ import {
   subcategoriesFor,
   topLevelCategories,
 } from "@/lib/menus/category-tree";
-import { effectivePriceCents, isPromoActive } from "@/lib/menus/effective-price";
+import { MenuItemPromoPrice } from "@/components/order/MenuItemPromoPrice";
+import { effectivePriceCents } from "@/lib/menus/effective-price";
 import { reorderMenuCategories, reorderMenuItems } from "@/lib/actions/menus";
 import { mergeVisibleReorder, reorderIdsInList, sortMenuItems } from "@/lib/menus/sort";
 import { formatCents } from "@/lib/money/format";
@@ -90,7 +91,6 @@ function SortableRow({
 }
 
 function PreviewItemRow({ item, lunchDate }: { item: MenuItem; lunchDate: string }) {
-  const promo = isPromoActive(item, lunchDate);
   const price = effectivePriceCents(item, lunchDate);
 
   return (
@@ -101,14 +101,7 @@ function PreviewItemRow({ item, lunchDate }: { item: MenuItem; lunchDate: string
         {item.description ? (
           <p className="mt-0.5 line-clamp-2 text-sm text-slate-600">{item.description}</p>
         ) : null}
-        {promo ? (
-          <p className="mt-1 text-sm text-slate-600">
-            <span className="line-through">{formatCents(item.price_cents)}</span>{" "}
-            <span className="font-medium text-red-600">{formatCents(price)}</span>
-          </p>
-        ) : (
-          <p className="mt-1 font-medium text-red-600">{formatCents(item.price_cents)}</p>
-        )}
+        <MenuItemPromoPrice item={item} lunchDate={lunchDate} priceCents={price} />
       </div>
     </div>
   );

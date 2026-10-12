@@ -7,7 +7,7 @@ import {
   subcategoriesFor,
   topLevelCategories,
 } from "@/lib/menus/category-tree";
-import { effectivePriceCents, isPromoActive } from "@/lib/menus/effective-price";
+import { MenuItemPromoPrice } from "@/components/order/MenuItemPromoPrice";
 import {
   buildCartLineKey,
   defaultSizeId,
@@ -59,28 +59,19 @@ function MenuItemOrderRow({
   const [sizeId, setSizeId] = useState<string | null>(() => defaultSizeId(sizes));
   const [removed, setRemoved] = useState<Set<string>>(() => new Set());
 
-  const promo = isPromoActive(item, lunchDate);
   const selectedSize = sizes.find((s) => s.id === sizeId) ?? null;
   const unitPrice = orderUnitPriceCents(item, lunchDate, selectedSize);
 
-  const priceLabel = (() => {
-    if (sizes.length) {
-      const prices = sizes.map((s) => s.price_cents);
-      const min = Math.min(...prices);
-      const max = Math.max(...prices);
-      if (min === max) return formatCents(min);
-      return `${formatCents(min)} – ${formatCents(max)}`;
-    }
-    if (promo) {
-      return (
-        <>
-          <span className="line-through text-slate-500">{formatCents(item.price_cents)}</span>{" "}
-          <span className="font-medium text-red-600">{formatCents(unitPrice)}</span>
-        </>
-      );
-    }
-    return formatCents(item.price_cents);
-  })();
+  const showSizeRange = sizes.length > 0;
+  const sizeRangeLabel = showSizeRange
+    ? (() => {
+        const prices = sizes.map((s) => s.price_cents);
+        const min = Math.min(...prices);
+        const max = Math.max(...prices);
+        if (min === max) return formatCents(min);
+        return `${formatCents(min)} – ${formatCents(max)}`;
+      })()
+    : null;
 
   function toggleIngredient(id: string) {
     setRemoved((prev) => {
@@ -112,7 +103,11 @@ function MenuItemOrderRow({
           {item.description ? (
             <p className="mt-0.5 line-clamp-2 text-sm text-slate-600">{item.description}</p>
           ) : null}
-          <p className="mt-1 text-sm font-medium text-red-600">{priceLabel}</p>
+          {showSizeRange ? (
+            <p className="mt-1 text-sm font-medium text-red-600">{sizeRangeLabel}</p>
+          ) : (
+            <MenuItemPromoPrice item={item} lunchDate={lunchDate} priceCents={unitPrice} />
+          )}
           {hasOptions && interactive ? (
             <button
               type="button"
