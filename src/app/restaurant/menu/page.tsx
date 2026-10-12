@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { DashboardShell } from "@/components/DashboardShell";
-import { Card, EmptyState } from "@/components/ui";
+import { EmptyState } from "@/components/ui";
 import { RestaurantMenuEditor } from "@/components/restaurant/RestaurantMenuEditor";
 import { requireRestaurantManager } from "@/lib/auth/guards";
 import { loadMenuItemOptionsForItemIds } from "@/lib/menus/load-item-options";
@@ -69,8 +69,7 @@ export default async function RestaurantMenuPage() {
           Also see <Link href="/admin/menus" className="text-[var(--geaux-red)] hover:underline">Admin → Menus</Link> for all restaurants.
         </p>
       ) : null}
-      <Card title={name}>
-        <RestaurantMenuEditor
+      <RestaurantMenuEditor
           restaurantId={restaurantId}
           restaurantName={name}
           categories={(categories ?? []) as MenuCategory[]}
@@ -81,7 +80,6 @@ export default async function RestaurantMenuPage() {
           sizesByMenuItemId={menuOptions.sizesByMenuItemId}
           ingredientsByMenuItemId={menuOptions.ingredientsByMenuItemId}
         />
-      </Card>
     </DashboardShell>
   );
 }

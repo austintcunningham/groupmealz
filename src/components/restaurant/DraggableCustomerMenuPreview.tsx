@@ -29,6 +29,7 @@ import {
   topLevelCategories,
 } from "@/lib/menus/category-tree";
 import { reorderMenuCategories, reorderMenuItems } from "@/lib/actions/menus";
+import { Button } from "@/components/ui";
 import { mergeVisibleReorder, reorderIdsInList, sortMenuItems } from "@/lib/menus/sort";
 import type {
   MenuCategory,
@@ -100,6 +101,9 @@ export function DraggableCustomerMenuPreview({
   visibleItems,
   sizesByMenuItemId = {},
   ingredientsByMenuItemId = {},
+  layout = "embedded",
+  editorMode = false,
+  onEditItem,
 }: {
   allCategories: MenuCategory[];
   allMenuItems: MenuItem[];
@@ -107,6 +111,9 @@ export function DraggableCustomerMenuPreview({
   visibleItems: MenuItem[];
   sizesByMenuItemId?: Record<string, MenuItemSize[]>;
   ingredientsByMenuItemId?: Record<string, MenuItemIngredient[]>;
+  layout?: "embedded" | "full";
+  editorMode?: boolean;
+  onEditItem?: (itemId: string) => void;
 }) {
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -239,17 +246,38 @@ export function DraggableCustomerMenuPreview({
         <div className="space-y-0">
           {items.map((item) => (
             <SortableRow key={item.id} id={toDragId("item", item.id)} label={item.name}>
-              <CustomerMenuItemDisplay
-                item={item}
-                lunchDate={promoDate}
-                sizes={sizesByMenuItemId[item.id] ?? []}
-                ingredients={ingredientsByMenuItemId[item.id] ?? []}
-                interactive={false}
-                showItemOptions
-                cart={{}}
-                simpleLineKey={buildCartLineKey(item.id, null, [])}
-                simpleQty={0}
-              />
+              <div
+                className={`relative ${!item.available && editorMode ? "opacity-75" : ""}`}
+              >
+                {!item.available && editorMode ? (
+                  <span className="mb-1 inline-block rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800">
+                    Sold out
+                  </span>
+                ) : null}
+                <CustomerMenuItemDisplay
+                  item={item}
+                  lunchDate={promoDate}
+                  sizes={sizesByMenuItemId[item.id] ?? []}
+                  ingredients={ingredientsByMenuItemId[item.id] ?? []}
+                  interactive={false}
+                  showItemOptions
+                  cart={{}}
+                  simpleLineKey={buildCartLineKey(item.id, null, [])}
+                  simpleQty={0}
+                />
+                {onEditItem ? (
+                  <div className="mt-2 flex justify-end border-t border-slate-100 pt-2">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => onEditItem(item.id)}
+                    >
+                      Edit
+                    </Button>
+                  </div>
+                ) : null}
+              </div>
             </SortableRow>
           ))}
         </div>
@@ -272,16 +300,20 @@ export function DraggableCustomerMenuPreview({
   if (visibleItems.length === 0) {
     return (
       <p className="text-sm text-slate-500">
-        No available items yet — add categories and mark items as Available.
+        {editorMode
+          ? "No menu items yet — add a category, then Add item."
+          : "No available items yet — add categories and mark items as Available."}
       </p>
     );
   }
 
+  const shellClass =
+    layout === "full"
+      ? "rounded-[var(--geaux-radius-lg)] border border-[var(--geaux-border)] bg-white p-4 shadow-[var(--geaux-shadow-sm)]"
+      : "max-h-[min(70vh,520px)] overflow-y-auto overscroll-y-contain rounded-lg border border-slate-200 bg-white p-3";
+
   return (
-    <div
-      ref={scrollRef}
-      className="max-h-[min(70vh,520px)] overflow-y-auto overscroll-y-contain rounded-lg border border-slate-200 bg-white p-3"
-    >
+    <div ref={scrollRef} className={shellClass}>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}

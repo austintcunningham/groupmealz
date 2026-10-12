@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { DashboardShell } from "@/components/DashboardShell";
-import { Card } from "@/components/ui";
 import { RestaurantMenuEditor } from "@/components/restaurant/RestaurantMenuEditor";
 import { requireAdmin } from "@/lib/auth/guards";
 import { loadMenuItemOptionsForItemIds } from "@/lib/menus/load-item-options";
@@ -26,21 +25,19 @@ export default async function AdminMenusPage() {
 
   return (
     <DashboardShell role={profile.role} title="Menus">
-      <div className="mx-auto max-w-4xl space-y-4">
+      <div className="space-y-4">
         <p className="text-sm text-slate-600">
-          Edit any restaurant&apos;s menu. The <strong>customer view</strong> preview and{" "}
-          <strong>Find a menu item</strong> search are at the top of the editor. For a full-screen
-          order flow preview, use{" "}
-          <Link href="/admin/simulate-order/fhs-g" className="font-medium text-[var(--geaux-red)] hover:underline">
+          Edit menus in the same layout customers see. Use <strong>Edit</strong> on each item. For
+          checkout flow preview, use{" "}
+          <Link href="/admin/simulate-order" className="font-medium text-[var(--geaux-red)] hover:underline">
             order simulation
           </Link>
           .
         </p>
-        <Card title="Menu editor">
-          {!restaurants?.length ? (
-            <p className="text-sm text-slate-500">Create a restaurant first.</p>
-          ) : (
-            <RestaurantMenuEditor
+        {!restaurants?.length ? (
+          <p className="text-sm text-slate-500">Create a restaurant first.</p>
+        ) : (
+          <RestaurantMenuEditor
               restaurantId={restaurants[0].id}
               restaurantName={restaurants[0].name}
               restaurants={restaurants.map((r) => ({ id: r.id, name: r.name }))}
@@ -51,8 +48,7 @@ export default async function AdminMenusPage() {
               sizesByMenuItemId={menuOptions.sizesByMenuItemId}
               ingredientsByMenuItemId={menuOptions.ingredientsByMenuItemId}
             />
-          )}
-        </Card>
+        )}
       </div>
     </DashboardShell>
   );

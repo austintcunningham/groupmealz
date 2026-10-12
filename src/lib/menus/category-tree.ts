@@ -37,6 +37,27 @@ export function siblingCategories(
 }
 
 /** Categories + parents needed for customer menu when items exist. */
+/** Categories needed for menu editor preview (includes sold-out items). */
+export function filterEditorMenuCategories(
+  categories: MenuCategory[],
+  menuItems: MenuItem[]
+): MenuCategory[] {
+  const activeItems = menuItems.filter((i) => i.active);
+  const needed = new Set<string>();
+
+  for (const item of activeItems) {
+    if (item.category_id) needed.add(item.category_id);
+  }
+
+  for (const cat of categories) {
+    if (needed.has(cat.id) && cat.parent_id) {
+      needed.add(cat.parent_id);
+    }
+  }
+
+  return categories.filter((c) => c.active && needed.has(c.id));
+}
+
 export function filterCustomerFacingCategories(
   categories: MenuCategory[],
   menuItems: MenuItem[]
