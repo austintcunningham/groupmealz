@@ -106,6 +106,15 @@ export async function upsertStaffInvitation(
 
   const { error: insertError } = await admin.from("staff_invitations").insert(row);
   if (insertError) {
+    if (
+      insertError.message.includes("staff_invitations") &&
+      insertError.message.includes("schema cache")
+    ) {
+      return {
+        error:
+          "Database missing staff_invitations. Run migration supabase/migrations/006_staff_invitations.sql in Supabase → SQL Editor, then retry.",
+      };
+    }
     return { error: insertError.message };
   }
 
