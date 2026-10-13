@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import {
   MenuCategoryJumpNav,
   menuSectionDomId,
@@ -305,6 +305,7 @@ export function CustomerOrderMenu({
   sizesByMenuItemId = {},
   ingredientsByMenuItemId = {},
   showItemOptions,
+  toolbarAction,
 }: {
   categories: MenuCategory[];
   menuItems: MenuItem[];
@@ -318,8 +319,11 @@ export function CustomerOrderMenu({
   emptyMessage?: string;
   sizesByMenuItemId?: Record<string, MenuItemSize[]>;
   ingredientsByMenuItemId?: Record<string, MenuItemIngredient[]>;
+  /** e.g. mobile cart button — shown beside search (hidden on xl where sidebar cart exists). */
+  toolbarAction?: ReactNode;
 }) {
   const promoDate = lunchDateForPromos(lunchDate);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const itemsByCategory = useMemo(() => {
     const map = new Map<string, MenuItem[]>();
@@ -364,6 +368,15 @@ export function CustomerOrderMenu({
     return sections;
   }, [tops, orphanSubs, itemsByCategory, categories]);
 
+  const searchTrim = searchQuery.trim().toLowerCase();
+  const searchResults = useMemo(() => {
+    if (!searchTrim) return [];
+    return sortMenuItems(menuItems).filter((item) => {
+      const hay = `${item.name} ${item.description ?? ""}`.toLowerCase();
+      return hay.includes(searchTrim);
+    });
+  }, [menuItems, searchTrim]);
+
   if (menuItems.length === 0) {
     return <p className="text-sm text-slate-500">{emptyMessage}</p>;
   }
@@ -379,10 +392,30 @@ export function CustomerOrderMenu({
     ingredientsByMenuItemId,
   };
 
+  const sectionScrollMt = "scroll-mt-[8.5rem]";
+
   return (
     <div className="space-y-6">
-      <MenuCategoryJumpNav sections={jumpSections} />
-      {tops.map((top) => {
+      <MenuCategoryJumpNav
+        sections={jumpSections}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        hideWhenSearching={searchTrim.length > 0}
+        trailingAction={toolbarAction}
+      />
+
+      {searchTrim ? (
+        <Card title={`Search results (${searchResults.length})`} className={sectionScrollMt}>
+          {searchResults.length === 0 ? (
+            <p className="text-sm text-slate-500">No items match “{searchQuery.trim()}”.</p>
+          ) : (
+            <ItemList items={searchResults} {...listProps} />
+          )}
+        </Card>
+      ) : null}
+
+      {!searchTrim
+        ? tops.map((top) => {
         const subs = subcategoriesFor(categories, top.id);
         const topItems = itemsByCategory.get(top.id) ?? [];
         const subBlocks = subs
@@ -399,7 +432,7 @@ export function CustomerOrderMenu({
             key={top.id}
             title={top.name}
             id={menuSectionDomId(top.id)}
-            className="scroll-mt-28"
+            className={sectionScrollMt}
           >
             <div className="space-y-5">
               {subBlocks.map(({ sub, items }) => (
@@ -423,9 +456,11 @@ export function CustomerOrderMenu({
             </div>
           </Card>
         );
-      })}
+      })
+        : null}
 
-      {orphanSubs.map((sub) => {
+      {!searchTrim
+        ? orphanSubs.map((sub) => {
         const items = itemsByCategory.get(sub.id) ?? [];
         if (!items.length) return null;
         return (
@@ -433,15 +468,16 @@ export function CustomerOrderMenu({
             key={sub.id}
             title={sub.name}
             id={menuSectionDomId(sub.id)}
-            className="scroll-mt-28"
+            className={sectionScrollMt}
           >
             <ItemList items={items} {...listProps} />
           </Card>
         );
-      })}
+      })
+        : null}
 
-      {(itemsByCategory.get("uncategorized") ?? []).length > 0 ? (
-        <Card title="Menu" id={menuSectionDomId("uncategorized")} className="scroll-mt-28">
+      {!searchTrim && (itemsByCategory.get("uncategorized") ?? []).length > 0 ? (
+        <Card title="Menu" id={menuSectionDomId("uncategorized")} className={sectionScrollMt}>
           <ItemList items={itemsByCategory.get("uncategorized") ?? []} {...listProps} />
         </Card>
       ) : null}

@@ -6,6 +6,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { checkoutGuest, createOrder, createPaymentIntent } from "@/lib/actions/orders";
 import { calculateOrderTotals, countBillableEntrees } from "@/lib/fees/calculate";
 import { OrderCheckoutSummary } from "@/components/order/OrderCheckoutSummary";
+import { OrderCartDrawer } from "@/components/order/OrderCartDrawer";
+import { OrderCartPanel } from "@/components/order/OrderCartPanel";
 import { CustomerOrderMenu, type CustomerCartLine } from "@/components/order/CustomerOrderMenu";
 import {
   buildCartLineKey,
@@ -20,7 +22,7 @@ import { EmbeddedCheckout } from "@/components/checkout/EmbeddedCheckout";
 import { CustomerOrderRestaurantHero } from "@/components/order/CustomerOrderRestaurantHero";
 import { OrderingRulesCard } from "@/components/order/OrderingRulesCard";
 import { liveCustomerBranding } from "@/lib/restaurant/branding-display";
-import { Badge, Button, Card, ErrorMessage, Input, SuccessMessage, Textarea } from "@/components/ui";
+import { Badge, Button, Card, ErrorMessage, Input, Textarea } from "@/components/ui";
 import type {
   DailyLunchSchedule,
   MenuCategory,
@@ -101,6 +103,7 @@ export function OrderFlowClient({
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [cartNotice, setCartNotice] = useState<string | null>(null);
+  const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
   const [gratuityCents, setGratuityCents] = useState(0);
   const [restaurantNote, setRestaurantNote] = useState("");
 
@@ -280,7 +283,7 @@ export function OrderFlowClient({
   });
 
   return (
-    <div className="geaux-main-enter space-y-6 pb-24 sm:pb-8">
+    <div className="geaux-main-enter space-y-6 pb-8">
       <CustomerOrderRestaurantHero
         officeLabel={office.company_name || office.name}
         restaurantName={restaurant?.name ?? "Lunch"}
@@ -424,6 +427,15 @@ export function OrderFlowClient({
                   updateSimpleQty(lineKey, menuItemId, qty);
                 }}
                 onAddConfigured={addConfiguredLine}
+                toolbarAction={
+                  <MobileCartButton
+                    itemCount={cartLines.reduce((s, l) => s + l.quantity, 0)}
+                    totalLabel={
+                      feePreview ? formatCents(feePreview.totalCents) : formatCents(subtotal)
+                    }
+                    onClick={() => setCartDrawerOpen(true)}
+                  />
+                }
               />
             )}
             <Card title="Note for the restaurant">
@@ -438,72 +450,37 @@ export function OrderFlowClient({
               />
             </Card>
           </div>
-          <Card title="Your cart" className="sticky top-4 h-fit xl:col-span-4">
-            {cartNotice ? (
-              <div className="mb-3">
-                <SuccessMessage message={cartNotice} />
-              </div>
-            ) : null}
-            {cartLines.length === 0 ? (
-              <p className="text-sm text-slate-500">Pick something tasty!</p>
-            ) : (
-              <div className="space-y-4">
-                {cartLines.map((l) => (
-                  <div key={l.lineKey} className="flex justify-between gap-3 text-sm">
-                    <span>
-                      {l.quantity}× {l.name}
-                      {l.modifierLabel ? (
-                        <span className="block text-xs text-slate-500">{l.modifierLabel}</span>
-                      ) : null}
-                    </span>
-                    <span className="shrink-0">{formatCents(l.lineTotal)}</span>
-                  </div>
-                ))}
-                {restaurantNote.trim() ? (
-                  <p className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-2 text-xs text-slate-600">
-                    <span className="font-semibold text-slate-700">Restaurant note:</span>{" "}
-                    {restaurantNote.trim()}
-                  </p>
-                ) : null}
-                <GratuityPicker valueCents={gratuityCents} onChange={setGratuityCents} compact />
-                {feePreview ? (
-                  <OrderCheckoutSummary breakdown={feePreview} feeSettings={feeSettings} />
-                ) : null}
-                <p className="text-xs text-slate-500">
-                  Total due is what Stripe charges — food, service fees, and optional gratuity.
-                </p>
-                {previewMode ? (
-                  <p className="text-xs text-amber-800">Checkout disabled in preview.</p>
-                ) : (
-                  <Button className="hidden w-full sm:flex" size="lg" loading={isPending} onClick={proceedToCheckout}>
-                    Checkout
-                  </Button>
-                )}
-              </div>
-            )}
+          <Card title="Your cart" className="sticky top-4 hidden h-fit xl:col-span-4 xl:block">
+            <OrderCartPanel
+              cartLines={cartLines}
+              cartNotice={cartNotice}
+              restaurantNote={restaurantNote}
+              gratuityCents={gratuityCents}
+              onGratuityChange={setGratuityCents}
+              feePreview={feePreview}
+              feeSettings={feeSettings}
+              previewMode={previewMode}
+              isPending={isPending}
+              onCheckout={proceedToCheckout}
+            />
           </Card>
         </div>
       ) : null}
 
-      {orderingOpen && step === "menu" && cartLines.length > 0 ? (
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200/80 bg-white/95 p-3 shadow-[var(--geaux-shadow-lg)] backdrop-blur-md sm:hidden">
-          <div className="flex items-center justify-between gap-3">
-            <div className="text-sm">
-              <p className="font-semibold text-slate-900">
-                {feePreview ? formatCents(feePreview.totalCents) : formatCents(subtotal)}
-              </p>
-              <p className="text-xs text-slate-500">{cartLines.length} line(s) in cart</p>
-            </div>
-            {previewMode ? (
-              <span className="text-xs text-amber-800">Preview</span>
-            ) : (
-              <Button size="lg" loading={isPending} onClick={proceedToCheckout}>
-                Checkout
-              </Button>
-            )}
-          </div>
-        </div>
-      ) : null}
+      <OrderCartDrawer
+        open={cartDrawerOpen}
+        onClose={() => setCartDrawerOpen(false)}
+        cartLines={cartLines}
+        cartNotice={cartNotice}
+        restaurantNote={restaurantNote}
+        gratuityCents={gratuityCents}
+        onGratuityChange={setGratuityCents}
+        feePreview={feePreview}
+        feeSettings={feeSettings}
+        previewMode={previewMode}
+        isPending={isPending}
+        onCheckout={proceedToCheckout}
+      />
 
       {!orderingOpen ? (
         <Card>
@@ -525,15 +502,13 @@ export function OrderFlowClient({
 function GratuityPicker({
   valueCents,
   onChange,
-  compact = false,
 }: {
   valueCents: number;
   onChange: (cents: number) => void;
-  compact?: boolean;
 }) {
   const presets = [0, 100, 200, 300];
   return (
-    <div className={compact ? "space-y-1" : "space-y-2"}>
+    <div className="space-y-2">
       <p className="text-sm font-medium text-slate-700">Optional gratuity</p>
       <div className="flex flex-wrap gap-2">
         {presets.map((c) => (
@@ -552,5 +527,34 @@ function GratuityPicker({
         ))}
       </div>
     </div>
+  );
+}
+
+function MobileCartButton({
+  itemCount,
+  totalLabel,
+  onClick,
+}: {
+  itemCount: number;
+  totalLabel: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="relative flex shrink-0 flex-col items-center justify-center rounded-xl border border-slate-200 bg-white px-3.5 py-2 shadow-sm transition-colors hover:border-[var(--geaux-red)]"
+      aria-label={`Open cart, ${itemCount} items, ${totalLabel}`}
+    >
+      <span className="text-xs font-bold text-[var(--geaux-red)]">Cart</span>
+      <span className="text-[10px] font-medium text-slate-500">
+        {itemCount > 0 ? totalLabel : "Empty"}
+      </span>
+      {itemCount > 0 ? (
+        <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--geaux-red)] px-1 text-[10px] font-bold text-white">
+          {itemCount > 99 ? "99+" : itemCount}
+        </span>
+      ) : null}
+    </button>
   );
 }
