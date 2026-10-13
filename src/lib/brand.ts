@@ -2,6 +2,8 @@ export const BRAND = {
   name: "Group Meals",
   tagline: "Scheduled office lunch, done right.",
   supportEmail: "support@groupmeals.net",
+  /** Daily fulfillment rollup + email verification samples. */
+  opsEmail: "office@groupmeals.net",
   /** Verified sending domain in Resend (EMAIL_FROM must use this). */
   mailDomain: "groupmeals.net",
   /** Optimized transparent PNG in /public */

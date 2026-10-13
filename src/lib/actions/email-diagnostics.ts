@@ -4,6 +4,14 @@ import { BRAND } from "@/lib/brand";
 import { wrapBrandedEmail } from "@/lib/email/layout";
 import { htmlToPlainText } from "@/lib/email/html-utils";
 import {
+  buildAdminFulfillmentHtml,
+  buildOfficeFulfillmentHtml,
+  sampleRestaurantFulfillmentHtml,
+  type DigestOfficeBlock,
+} from "@/lib/email/printable-order-digest";
+import { getOpsDigestRecipients } from "@/lib/email/ops-recipients";
+import { buildOrderConfirmationHtml } from "@/lib/email/order-confirmation-html";
+import {
   getEmailFromAddress,
   getEmailFromRawAddress,
   getReplyToAddress,
@@ -12,13 +20,49 @@ import {
 } from "@/lib/email/resend-client";
 import { requireProfileRole, type ActionResult } from "@/lib/actions/utils";
 
+function fulfillmentSampleBlock(): DigestOfficeBlock {
+  return {
+    officeName: "Sample Office (test)",
+    streetAddress: "627 N. 4th St.",
+    cityStateZip: "Baton Rouge, LA 70802",
+    deliveryInstructions: "Sample only — not a real delivery.",
+    contactName: "Office contact",
+    contactPhone: null,
+    restaurantName: "Sample Restaurant",
+    lunchDate: "Sample lunch date",
+    deliveryAt: "12:00 PM",
+    orders: [
+      {
+        orderId: "00000000-0000-4000-8000-000000000099",
+        placedAt: "Sample timestamp",
+        customerName: "Sample Customer",
+        customerEmail: "customer@example.com",
+        lines: [
+          {
+            name: "Sample entrée",
+            qty: 1,
+            lineCents: 1099,
+            specialInstructions: "Sample kitchen note",
+          },
+        ],
+        subtotalCents: 1099,
+        taxCents: 115,
+        totalCents: 1214,
+      },
+    ],
+  };
+}
+
 export async function getEmailSetupSummary(): Promise<
   ActionResult<{
     resendConfigured: boolean;
+    serviceRoleConfigured: boolean;
+    cronSecretConfigured: boolean;
     from: string;
     fromAddress: string;
     replyTo: string;
     mailDomain: string;
+    opsDigestRecipients: string[];
     resendDashboardUrl: string;
   }>
 > {
@@ -29,13 +73,89 @@ export async function getEmailSetupSummary(): Promise<
     success: true,
     data: {
       resendConfigured: Boolean(getResendClient()),
+      serviceRoleConfigured: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY?.trim()),
+      cronSecretConfigured: Boolean(process.env.CRON_SECRET?.trim()),
       from: getEmailFromAddress(),
       fromAddress: getEmailFromRawAddress(),
       replyTo: getReplyToAddress(),
       mailDomain: BRAND.mailDomain,
+      opsDigestRecipients: getOpsDigestRecipients(),
       resendDashboardUrl: "https://resend.com/emails",
     },
   };
+}
+
+/** Sends one sample of each production email type to the ops inbox (office@groupmeals.net). */
+export async function sendFulfillmentEmailSamplesToOps(): Promise<
+  ActionResult<{ sent: { label: string; id: string }[]; failures: string[] }>
+> {
+  const auth = await requireProfileRole(["admin"]);
+  if ("error" in auth) return { success: false, error: auth.error };
+
+  const to = BRAND.opsEmail;
+  const block = fulfillmentSampleBlock();
+  const payloads: { label: string; subject: string; html: string; tag: string }[] = [
+    {
+      label: "Customer order confirmation",
+      subject: `[SAMPLE] ${BRAND.name} — order confirmed`,
+      html: buildOrderConfirmationHtml({
+        customerName: "Sample Customer",
+        orderId: block.orders[0]!.orderId,
+        restaurantName: block.restaurantName,
+        officeName: block.officeName,
+        lunchDate: "2026-10-13",
+        deliveryAt: block.deliveryAt,
+        items: [{ name: "Sample entrée", qty: 1, lineCents: 1099, instructions: "Sample note" }],
+        subtotalCents: 1099,
+        taxCents: 115,
+        platformFeeCents: 350,
+        totalCents: 1564,
+        entreeCount: 1,
+      }),
+      tag: "sample-customer-confirmation",
+    },
+    {
+      label: "Restaurant kitchen sheet",
+      subject: `[SAMPLE] Kitchen orders — ${block.officeName}`,
+      html: sampleRestaurantFulfillmentHtml(),
+      tag: "sample-fulfillment-restaurant",
+    },
+    {
+      label: "Office admin delivery summary",
+      subject: `[SAMPLE] Today's delivery — ${block.officeName}`,
+      html: buildOfficeFulfillmentHtml(block),
+      tag: "sample-fulfillment-office",
+    },
+    {
+      label: "Group Meals ops rollup",
+      subject: `[SAMPLE] ${BRAND.name} — daily fulfillment`,
+      html: buildAdminFulfillmentHtml(block.lunchDate, [
+        { restaurantName: block.restaurantName, blocks: [block] },
+      ]),
+      tag: "sample-fulfillment-ops",
+    },
+  ];
+
+  const sent: { label: string; id: string }[] = [];
+  const failures: string[] = [];
+
+  for (const p of payloads) {
+    const result = await sendViaResend({
+      to,
+      subject: p.subject,
+      html: p.html,
+      text: htmlToPlainText(p.html),
+      tags: [{ name: "type", value: p.tag }],
+    });
+    if (result.sent) sent.push({ label: p.label, id: result.id });
+    else failures.push(`${p.label}: ${result.error}`);
+  }
+
+  if (!sent.length) {
+    return { success: false, error: failures.join(" · ") || "No emails sent" };
+  }
+
+  return { success: true, data: { sent, failures } };
 }
 
 export async function sendAdminTestEmail(): Promise<

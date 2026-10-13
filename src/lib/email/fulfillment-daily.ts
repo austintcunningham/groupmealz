@@ -8,7 +8,9 @@ import {
   type DigestOrder,
   type DigestOrderLine,
 } from "@/lib/email/printable-order-digest";
-import { getEmailFromAddress, getResendClient } from "@/lib/email/resend-client";
+import { htmlToPlainText } from "@/lib/email/html-utils";
+import { getOpsDigestRecipients } from "@/lib/email/ops-recipients";
+import { getResendClient, sendViaResend } from "@/lib/email/resend-client";
 
 import {
   BUSINESS_TZ,
@@ -175,36 +177,26 @@ async function getOfficeAdminEmails(officeId: string): Promise<string[]> {
     .filter(Boolean) as string[];
 }
 
-async function getPlatformOpsEmails(): Promise<string[]> {
-  const fromEnv = process.env.OPS_DIGEST_EMAILS?.split(",")
-    .map((e) => e.trim().toLowerCase())
-    .filter(Boolean);
-  if (fromEnv?.length) return fromEnv;
-
-  const supabase = createAdminClient();
-  const { data: profiles } = await supabase.from("profiles").select("email").eq("role", "admin");
-
-  return (profiles ?? [])
-    .map((p) => p.email?.trim().toLowerCase())
-    .filter(Boolean) as string[];
-}
-
 async function sendHtmlEmail(
   to: string,
   subject: string,
-  html: string
-): Promise<{ ok: boolean; error?: string }> {
-  const resend = getResendClient();
-  const from = getEmailFromAddress();
-  if (!resend) {
+  html: string,
+  tag?: string
+): Promise<{ ok: boolean; error?: string; id?: string }> {
+  if (!getResendClient()) {
     console.log(`[${BRAND.name}] RESEND missing — would send to ${to}: ${subject}`);
-    console.log(html.slice(0, 500));
     return { ok: false, error: "RESEND_API_KEY missing" };
   }
 
-  const { error } = await resend.emails.send({ from, to, subject, html });
-  if (error) return { ok: false, error: error.message };
-  return { ok: true };
+  const result = await sendViaResend({
+    to,
+    subject,
+    html,
+    text: htmlToPlainText(html),
+    tags: tag ? [{ name: "type", value: tag }] : undefined,
+  });
+  if (!result.sent) return { ok: false, error: result.error };
+  return { ok: true, id: result.id };
 }
 
 export type FulfillmentSendResult = {
@@ -269,7 +261,8 @@ export async function sendFulfillmentDigestsForSchedule(
     const r = await sendHtmlEmail(
       restaurantEmail,
       `Kitchen orders — ${subjectBase}`,
-      html
+      html,
+      "fulfillment-restaurant"
     );
     if (r.ok) result.restaurantSent = true;
     else if (r.error) result.errors.push(`Restaurant: ${r.error}`);
@@ -280,7 +273,7 @@ export async function sendFulfillmentDigestsForSchedule(
   const officeEmails = await getOfficeAdminEmails(schedule.office_id);
   const officeHtml = buildOfficeFulfillmentHtml(block);
   for (const to of officeEmails) {
-    const r = await sendHtmlEmail(to, `Today's delivery — ${subjectBase}`, officeHtml);
+    const r = await sendHtmlEmail(to, `Today's delivery — ${subjectBase}`, officeHtml, "fulfillment-office");
     if (r.ok) result.officeSent += 1;
     else if (r.error) result.errors.push(`Office ${to}: ${r.error}`);
   }
@@ -370,12 +363,13 @@ export async function runDailyFulfillmentCron(
     );
 
     const opsHtml = buildAdminFulfillmentHtml(formatChicagoLunchDate(lunchDate), byRestaurant);
-    const opsEmails = await getPlatformOpsEmails();
+    const opsEmails = getOpsDigestRecipients();
     for (const to of opsEmails) {
       const r = await sendHtmlEmail(
         to,
         `${BRAND.name} — daily fulfillment — ${formatChicagoLunchDate(lunchDate)}`,
-        opsHtml
+        opsHtml,
+        "fulfillment-ops"
       );
       if (r.ok) out.opsEmailSent = true;
       else if (r.error) out.errors.push(`Ops ${to}: ${r.error}`);
