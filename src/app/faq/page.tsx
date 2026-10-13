@@ -4,7 +4,7 @@ import { BRAND } from "@/lib/brand";
 
 const sections = [
   {
-    title: "What is Group Meals?",
+    title: "What is GroupMeals?",
     body: `${BRAND.name} connects offices with local restaurants for organized “Restaurant of the Day” lunch delivery. Employees order online during a set window; the restaurant delivers one combined drop to your office — free delivery for the employer, no third-party driver app.`,
   },
   {
@@ -25,7 +25,7 @@ const sections = [
   },
   {
     title: "Fees — what will I pay?",
-    body: "Menu prices are set by the restaurant. Group Meals adds a service fee on each entrée (currently $2.50 per entrée quantity). Sides and drinks do not incur that fee unless marked as entrées. Tax and optional gratuity may apply. Your total is shown before you enter card details.",
+    body: "Menu prices are set by the restaurant. GroupMeals adds a service fee on each entrée (currently $2.50 per entrée quantity). Sides and drinks do not incur that fee unless marked as entrées. Tax and optional gratuity may apply. Your total is shown before you enter card details.",
   },
   {
     title: "Do I need an account?",

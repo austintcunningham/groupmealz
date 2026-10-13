@@ -1,7 +1,7 @@
 import { BRAND } from "@/lib/brand";
 import { normalizeDeliverableEmail } from "@/lib/email/email-routing";
 
-/** Ops / Group Meals admin inbox for the daily fulfillment rollup. */
+/** Ops / GroupMeals admin inbox for the daily fulfillment rollup. */
 export function getOpsDigestRecipients(): string[] {
   const base = [BRAND.opsEmail.trim().toLowerCase()];
   const extra =

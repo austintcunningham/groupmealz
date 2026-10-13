@@ -65,7 +65,7 @@ export async function sendViaResend(params: {
 
     if (error) {
       const msg = error.message || "Unknown Resend error";
-      console.error("[Group Meals] Resend error:", msg, {
+      console.error("[GroupMeals] Resend error:", msg, {
         to: toList,
         subject: params.subject,
         from,
@@ -78,7 +78,7 @@ export async function sendViaResend(params: {
     }
 
     if (!data?.id) {
-      console.error("[Group Meals] Resend returned no message id", {
+      console.error("[GroupMeals] Resend returned no message id", {
         to: toList,
         subject: params.subject,
       });
@@ -89,11 +89,11 @@ export async function sendViaResend(params: {
       };
     }
 
-    console.log("[Group Meals] Email queued:", data.id, toList.join(", "));
+    console.log("[GroupMeals] Email queued:", data.id, toList.join(", "));
     return { sent: true, id: data.id, from };
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
-    console.error("[Group Meals] Resend exception:", msg);
+    console.error("[GroupMeals] Resend exception:", msg);
     return { sent: false, error: msg, from };
   }
 }

@@ -1,4 +1,4 @@
--- Group Meals restaurant partner commission: 12% of food subtotal (pre-tax), before payout.
+-- GroupMeals restaurant partner commission: 12% of food subtotal (pre-tax), before payout.
 
 alter table public.platform_settings
   alter column restaurant_commission_bps set default 1200;

@@ -1,4 +1,4 @@
-# Group Meals
+# GroupMeals
 
 Scheduled corporate lunch platform — offices get a weekly restaurant rotation, employees order up to 48 hours ahead, pay with embedded Stripe checkout, and restaurants receive consolidated order emails.
 
@@ -44,7 +44,7 @@ Add `STRIPE_WEBHOOK_SECRET` to `.env.local`.
 
 ### Restaurant emails
 
-Set `RESEND_API_KEY` and `EMAIL_FROM` in `.env.local`. When an admin **closes** a schedule, Group Meals emails the restaurant contact with full order details and prices.
+Set `RESEND_API_KEY` and `EMAIL_FROM` in `.env.local`. When an admin **closes** a schedule, GroupMeals emails the restaurant contact with full order details and prices.
 
 ## Key flows
 
@@ -64,7 +64,7 @@ Set `RESEND_API_KEY` and `EMAIL_FROM` in `.env.local`. When an admin **closes** 
 
 ## Security
 
-- Card data never touches Group Meals servers (Stripe Elements only)
+- Card data never touches GroupMeals servers (Stripe Elements only)
 - Only safe Stripe references stored (`stripe_customer_id`, `stripe_payment_intent_id`, etc.)
 - RLS on all tables · service role server-only
 

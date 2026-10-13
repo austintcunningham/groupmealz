@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Group Meals E2E test harness — verifies DB schema, seed data, ordering windows,
+ * GroupMeals E2E test harness — verifies DB schema, seed data, ordering windows,
  * order creation, Stripe PaymentIntent, webhook handling, and restaurant email path.
  */
 import { createClient } from "@supabase/supabase-js";
@@ -496,7 +496,7 @@ async function cleanup(userId) {
 }
 
 async function main() {
-  console.log("\n=== Group Meals E2E Test ===\n");
+  console.log("\n=== GroupMeals E2E Test ===\n");
 
   const schemaOk = await checkSchema();
   if (!schemaOk) {

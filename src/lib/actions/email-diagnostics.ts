@@ -131,7 +131,7 @@ export async function sendFulfillmentEmailSamplesToOps(): Promise<
       tag: "sample-fulfillment-office",
     },
     {
-      label: "Group Meals ops rollup",
+      label: "GroupMeals ops rollup",
       subject: `[SAMPLE] ${BRAND.name} — daily fulfillment`,
       html: buildAdminFulfillmentHtml(block.lunchDate, [
         { restaurantName: block.restaurantName, blocks: [block] },
@@ -244,7 +244,7 @@ export async function sendAdminTestEmail(): Promise<
   }
 
   const html = wrapBrandedEmail({
-    preheader: "Group Meals email test",
+    preheader: "GroupMeals email test",
     headline: "Email test",
     subheadline: "Delivery check",
     bodyHtml: `<p style="margin:0;font-size:15px;line-height:1.5;color:#334155 !important;">

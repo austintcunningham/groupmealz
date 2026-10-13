@@ -77,7 +77,7 @@ export default async function RestaurantReportsPage({
     <DashboardShell role={profile.role} title="Sales & payouts">
       <p className="mb-6 max-w-2xl text-sm text-slate-600">
         Track sales by <strong>lunch day</strong>, see your <strong>Mon–Fri check stub</strong> (what
-        Group Meals owes you after commission — same period as the Friday payout email),
+        GroupMeals owes you after commission — same period as the Friday payout email),
         and review all-time totals. Need what to
         cook? Use{" "}
         <Link href="/restaurant/production" className="font-medium text-[var(--geaux-red)] hover:underline">
@@ -113,7 +113,7 @@ export default async function RestaurantReportsPage({
           restaurantId={restaurantId}
         />
         <p className="mb-4 text-xs text-slate-500">
-          Based on paid orders for lunches scheduled Mon–Sun in this week. Group Meals sends payout
+          Based on paid orders for lunches scheduled Mon–Sun in this week. GroupMeals sends payout
           outside the app — save this stub for your records.
         </p>
         {"error" in stub ? (
@@ -157,7 +157,7 @@ export default async function RestaurantReportsPage({
           )}
         </Card>
 
-        <Card title="All-time on Group Meals">
+        <Card title="All-time on GroupMeals">
           {"error" in lifetime ? (
             <p className="text-sm text-red-600">{lifetime.error}</p>
           ) : (

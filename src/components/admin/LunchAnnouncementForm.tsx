@@ -158,7 +158,7 @@ export function LunchAnnouncementForm({
         )}
       </Select>
       <p className="text-xs text-slate-600">
-        Email layout is fixed: Group Meals branding, restaurant logo/banner, order window, and
+        Email layout is fixed: GroupMeals branding, restaurant logo/banner, order window, and
         order button — same style as order confirmations. You only choose the office, day, and
         send time.
       </p>

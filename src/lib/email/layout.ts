@@ -38,7 +38,7 @@ function emailLogoBlock(logoUrl: string): string {
     </table>`;
 }
 
-/** Branded HTML shell matching the Group Meals site (logo, red header, cream body). */
+/** Branded HTML shell matching the GroupMeals site (logo, red header, cream body). */
 export function wrapBrandedEmail(options: {
   preheader: string;
   headline: string;

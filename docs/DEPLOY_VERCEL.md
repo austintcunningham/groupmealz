@@ -1,4 +1,4 @@
-# Deploy Group Meals (Vercel + your domain)
+# Deploy GroupMeals (Vercel + your domain)
 
 ## One-time setup (~20 minutes)
 
@@ -9,7 +9,7 @@ If this repo has no remote yet:
 ```bash
 cd ~/office-lunch
 git add -A
-git commit -m "Group Meals: guest ordering, calendar schedules, Stripe checkout"
+git commit -m "GroupMeals: guest ordering, calendar schedules, Stripe checkout"
 # Create empty repo on GitHub, then:
 git remote add origin git@github.com:YOUR_USER/groupmealz.git
 git push -u origin main

@@ -85,7 +85,7 @@ export function RestaurantPartnerPlaybook() {
         subtitle="Usually opens ~48 hours before cutoff"
       >
         <Step n={1} title="Ordering window opens">
-          Employees at the office use their Group Meals link. They pick items, modifiers, and notes;
+          Employees at the office use their {BRAND.name} link. They pick items, modifiers, and notes;
           pay by card in the app. You do not take payment at the door.
         </Step>
         <Step n={2} title="While the window is open — you hear nothing (by design)">

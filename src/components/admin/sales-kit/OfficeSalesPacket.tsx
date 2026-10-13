@@ -54,7 +54,7 @@ export function OfficeSalesPacket({ appBase }: { appBase: string }) {
             items={[
               "Post-lunch review emails (one per order, not spam).",
               "Star ratings + comments tied to restaurant and date.",
-              "Group Meals monitors trends and responds when something slips.",
+              `${BRAND.name} monitors trends and responds when something slips.`,
             ]}
           />
         </div>

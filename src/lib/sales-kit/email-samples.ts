@@ -1,3 +1,4 @@
+import { BRAND } from "@/lib/brand";
 import { sampleOrderConfirmationHtml } from "@/lib/email/order-confirmation-html";
 import { sampleRestaurantFulfillmentHtml } from "@/lib/email/printable-order-digest";
 import { sampleReviewRequestHtml } from "@/lib/email/review-request";
@@ -114,7 +115,7 @@ export const OFFICE_EMAIL_SAMPLES: {
     title: "Post-lunch satisfaction survey",
     when: "~45 minutes after scheduled delivery",
     pitch:
-      "We ask how lunch landed while it’s fresh — ratings flow to Group Meals and the restaurant so the next week gets better.",
+      `We ask how lunch landed while it’s fresh — ratings flow to ${BRAND.name} and the restaurant so the next week gets better.`,
   },
   {
     id: "weekly-summary",

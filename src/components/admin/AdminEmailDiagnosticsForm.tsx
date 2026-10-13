@@ -178,7 +178,7 @@ export function AdminEmailDiagnosticsForm() {
               >
                 vercel.com/dashboard
               </a>{" "}
-              and click the <strong>Group Meals</strong> project (your production site).
+              and click the <strong>GroupMeals</strong> project (your production site).
             </li>
             <li>
               Top menu: <strong>Settings</strong> → left sidebar: <strong>Environment Variables</strong>.

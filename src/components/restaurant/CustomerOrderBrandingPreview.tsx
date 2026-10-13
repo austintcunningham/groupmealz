@@ -35,7 +35,7 @@ export function CustomerOrderBrandingPreview({
         bannerUrl={bannerUrl}
       />
       <p className="text-xs text-slate-500">
-        Group Meals header above this block is platform branding; your logo and banner appear here on
+        GroupMeals header above this block is platform branding; your logo and banner appear here on
         the order page.
       </p>
     </div>

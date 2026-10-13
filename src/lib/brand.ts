@@ -1,5 +1,5 @@
 export const BRAND = {
-  name: "Group Meals",
+  name: "GroupMeals",
   tagline: "Scheduled office lunch, done right.",
   supportEmail: "office@groupmeals.net",
   /** Daily fulfillment rollup + email verification samples. */
