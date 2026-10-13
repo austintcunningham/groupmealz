@@ -178,14 +178,38 @@ body.geaux-body::before {
   box-shadow: 0 0 0 2px var(--geaux-yellow);
 }
 
-.menu-dragging {
-  opacity: 0.35;
-  filter: grayscale(0.2);
+.menu-dragging-source {
+  opacity: 1;
+}
+
+.menu-drag-placeholder {
+  min-height: 3.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  border: 2px dashed rgb(214 40 40 / 0.45);
+  background: rgb(254 242 242 / 0.85);
+}
+
+.menu-drop-indicator {
+  animation: menu-drop-indicator-pulse 0.9s ease-in-out infinite;
+}
+
+@keyframes menu-drop-indicator-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.75;
+  }
 }
 
 .menu-drag-overlay {
-  min-width: 10rem;
-  max-width: 16rem;
+  min-width: 12rem;
+  max-width: 18rem;
+  cursor: grabbing;
   border-radius: 0.75rem;
   border: 2px solid var(--geaux-yellow);
   background: white;

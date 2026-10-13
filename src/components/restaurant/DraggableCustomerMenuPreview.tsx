@@ -7,7 +7,9 @@ import {
   PointerSensor,
   TouchSensor,
   closestCenter,
+  type DragCancelEvent,
   type DragEndEvent,
+  type DragOverEvent,
   type DragStartEvent,
   useSensor,
   useSensors,
@@ -51,46 +53,97 @@ function parseDragId(raw: string): { kind: DragKind; id: string } | null {
   return { kind, id: raw.slice(idx + 1) };
 }
 
+function dragKindLabel(kind: DragKind): string {
+  if (kind === "item") return "Menu item";
+  if (kind === "sub-cat") return "Sub-category";
+  return "Category";
+}
+
+function MenuDropIndicator({ targetLabel }: { targetLabel: string }) {
+  return (
+    <div
+      className="menu-drop-indicator my-2 flex items-center gap-2 px-1"
+      role="status"
+      aria-live="polite"
+    >
+      <div className="h-1.5 min-w-0 flex-1 rounded-full bg-[var(--geaux-red)] shadow-[0_0_0_2px_var(--geaux-yellow)]" />
+      <span className="shrink-0 rounded-full bg-[var(--geaux-red)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm">
+        Drop here
+      </span>
+      <span className="sr-only">Release to place before {targetLabel}</span>
+    </div>
+  );
+}
+
 function SortableRow({
   id,
   label,
   children,
   className = "",
+  showDropIndicatorBefore = false,
 }: {
   id: string;
   label: string;
   children: ReactNode;
   className?: string;
+  showDropIndicatorBefore?: boolean;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id,
   });
 
   return (
-    <div
-      ref={setNodeRef}
-      style={{
-        transform: CSS.Transform.toString(transform),
-        transition,
-      }}
-      className={`${className} ${isDragging ? "menu-dragging" : ""}`}
-    >
-      <div className="flex items-stretch gap-2">
-        <button
-          type="button"
-          className={`menu-drag-grip ${isDragging ? "menu-drag-grip-active" : ""}`}
-          aria-label={`Drag to reorder ${label}`}
-          {...attributes}
-          {...listeners}
-        >
-          <span className="block h-0.5 w-4 rounded-full bg-current" />
-          <span className="block h-0.5 w-4 rounded-full bg-current" />
-          <span className="block h-0.5 w-4 rounded-full bg-current" />
-        </button>
-        <div className="min-w-0 flex-1">{children}</div>
+    <>
+      {showDropIndicatorBefore ? <MenuDropIndicator targetLabel={label} /> : null}
+      <div
+        ref={setNodeRef}
+        style={{
+          transform: CSS.Transform.toString(transform),
+          transition,
+        }}
+        className={`${className} ${isDragging ? "menu-dragging-source" : ""}`}
+      >
+        <div className="flex items-stretch gap-2">
+          <button
+            type="button"
+            className={`menu-drag-grip ${isDragging ? "menu-drag-grip-active" : ""}`}
+            aria-label={`Drag to reorder ${label}`}
+            {...attributes}
+            {...listeners}
+          >
+            <span className="block h-0.5 w-4 rounded-full bg-current" />
+            <span className="block h-0.5 w-4 rounded-full bg-current" />
+            <span className="block h-0.5 w-4 rounded-full bg-current" />
+          </button>
+          <div className="min-w-0 flex-1">
+            {isDragging ? (
+              <div
+                className="menu-drag-placeholder"
+                aria-hidden
+              >
+                <span className="text-xs font-medium text-slate-500">Moving…</span>
+              </div>
+            ) : (
+              children
+            )}
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
+}
+
+function dropIndicatorBefore(
+  rowId: string,
+  activeDragId: string | null,
+  overDragId: string | null
+): boolean {
+  if (!activeDragId || !overDragId || rowId !== overDragId || rowId === activeDragId) {
+    return false;
+  }
+  const active = parseDragId(activeDragId);
+  const over = parseDragId(overDragId);
+  return Boolean(active && over && active.kind === over.kind);
 }
 
 export function DraggableCustomerMenuPreview({
@@ -118,6 +171,7 @@ export function DraggableCustomerMenuPreview({
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isPending, startTransition] = useTransition();
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
+  const [overDragId, setOverDragId] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
 
   const menuCreatorScroll = editorMode || layout === "full";
@@ -221,11 +275,36 @@ export function DraggableCustomerMenuPreview({
 
   function handleDragStart(event: DragStartEvent) {
     setActiveDragId(String(event.active.id));
+    setOverDragId(null);
     setStatus(null);
   }
 
-  function handleDragEnd(event: DragEndEvent) {
+  function handleDragOver(event: DragOverEvent) {
+    const { active, over } = event;
+    if (!over) {
+      setOverDragId(null);
+      return;
+    }
+    const activeParsed = parseDragId(String(active.id));
+    const overParsed = parseDragId(String(over.id));
+    if (activeParsed && overParsed && activeParsed.kind === overParsed.kind) {
+      setOverDragId(String(over.id));
+    } else {
+      setOverDragId(null);
+    }
+  }
+
+  function clearDragState() {
     setActiveDragId(null);
+    setOverDragId(null);
+  }
+
+  function handleDragCancel(_event: DragCancelEvent) {
+    clearDragState();
+  }
+
+  function handleDragEnd(event: DragEndEvent) {
+    clearDragState();
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
@@ -259,7 +338,16 @@ export function DraggableCustomerMenuPreview({
       <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
         <div className="space-y-0">
           {items.map((item) => (
-            <SortableRow key={item.id} id={toDragId("item", item.id)} label={item.name}>
+            <SortableRow
+              key={item.id}
+              id={toDragId("item", item.id)}
+              label={item.name}
+              showDropIndicatorBefore={dropIndicatorBefore(
+                toDragId("item", item.id),
+                activeDragId,
+                overDragId
+              )}
+            >
               <div
                 className={`relative ${!item.available && editorMode ? "opacity-75" : ""}`}
               >
@@ -290,15 +378,27 @@ export function DraggableCustomerMenuPreview({
 
   const topSortableIds = tops.map((c) => toDragId("top-cat", c.id));
 
-  const overlayLabel = useMemo(() => {
+  const activeDragMeta = useMemo(() => {
     if (!activeDragId) return null;
     const parsed = parseDragId(activeDragId);
     if (!parsed) return null;
     if (parsed.kind === "item") {
-      return visibleItems.find((i) => i.id === parsed.id)?.name ?? "Item";
+      const name = visibleItems.find((i) => i.id === parsed.id)?.name ?? "Item";
+      return { kind: parsed.kind, name };
     }
-    return visibleCategories.find((c) => c.id === parsed.id)?.name ?? "Category";
+    const name = visibleCategories.find((c) => c.id === parsed.id)?.name ?? "Category";
+    return { kind: parsed.kind, name };
   }, [activeDragId, visibleCategories, visibleItems]);
+
+  const overDropLabel = useMemo(() => {
+    if (!overDragId || overDragId === activeDragId) return null;
+    const parsed = parseDragId(overDragId);
+    if (!parsed) return null;
+    if (parsed.kind === "item") {
+      return visibleItems.find((i) => i.id === parsed.id)?.name ?? null;
+    }
+    return visibleCategories.find((c) => c.id === parsed.id)?.name ?? null;
+  }, [overDragId, activeDragId, visibleCategories, visibleItems]);
 
   if (visibleItems.length === 0) {
     return (
@@ -322,6 +422,8 @@ export function DraggableCustomerMenuPreview({
         collisionDetection={closestCenter}
         autoScroll={menuCreatorScroll}
         onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
+        onDragCancel={handleDragCancel}
         onDragEnd={handleDragEnd}
       >
         <div className={`space-y-6 ${isPending ? "pointer-events-none opacity-75" : ""}`}>
@@ -350,7 +452,16 @@ export function DraggableCustomerMenuPreview({
                 key={top.id}
                 className={`rounded-xl border border-slate-200 bg-white shadow-sm ${editorMode ? "" : "overflow-hidden"}`}
               >
-                <SortableRow id={toDragId("top-cat", top.id)} label={top.name} className="border-b border-slate-100 bg-slate-50/50 px-3 py-2">
+                <SortableRow
+                  id={toDragId("top-cat", top.id)}
+                  label={top.name}
+                  className="border-b border-slate-100 bg-slate-50/50 px-3 py-2"
+                  showDropIndicatorBefore={dropIndicatorBefore(
+                    toDragId("top-cat", top.id),
+                    activeDragId,
+                    overDragId
+                  )}
+                >
                   <h2 className="py-1 text-lg font-semibold text-slate-900">{top.name}</h2>
                 </SortableRow>
                 <div className="space-y-5 px-4 py-3">
@@ -365,6 +476,11 @@ export function DraggableCustomerMenuPreview({
                             id={toDragId("sub-cat", sub.id)}
                             label={sub.name}
                             className="border-b border-slate-100 px-2 py-1"
+                            showDropIndicatorBefore={dropIndicatorBefore(
+                              toDragId("sub-cat", sub.id),
+                              activeDragId,
+                              overDragId
+                            )}
                           >
                             <h3 className="py-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
                               {sub.name}
@@ -428,11 +544,27 @@ export function DraggableCustomerMenuPreview({
         ) : null}
       </div>
 
-      <DragOverlay dropAnimation={{ duration: 200, easing: "cubic-bezier(0.2, 0, 0, 1)" }}>
-        {activeDragId && overlayLabel ? (
+      <DragOverlay
+        dropAnimation={{ duration: 200, easing: "cubic-bezier(0.2, 0, 0, 1)" }}
+        zIndex={250}
+      >
+        {activeDragMeta ? (
           <div className="menu-drag-overlay">
-            <p className="text-sm font-semibold text-slate-900">{overlayLabel}</p>
-            <p className="text-xs text-slate-500">Release to set order</p>
+            <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--geaux-red)]">
+              {dragKindLabel(activeDragMeta.kind)}
+            </p>
+            <p className="mt-0.5 text-sm font-semibold text-slate-900">{activeDragMeta.name}</p>
+            {overDropLabel ? (
+              <p className="mt-2 border-t border-slate-100 pt-2 text-xs leading-snug text-slate-600">
+                Release to drop{" "}
+                <span className="font-semibold text-[var(--geaux-red-dark)]">before</span>{" "}
+                <strong className="text-slate-900">{overDropLabel}</strong>
+              </p>
+            ) : (
+              <p className="mt-2 text-xs text-slate-500">
+                Hover another row — red line marks where it will land
+              </p>
+            )}
           </div>
         ) : null}
       </DragOverlay>
