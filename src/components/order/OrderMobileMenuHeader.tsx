@@ -11,7 +11,7 @@ export function OrderMobileMenuHeader({
   onOpenCart: () => void;
 }) {
   return (
-    <div className="xl:hidden -mx-4 mb-2 px-4">
+    <div className="xl:hidden mb-2 w-full">
       <button
         type="button"
         onClick={onOpenCart}

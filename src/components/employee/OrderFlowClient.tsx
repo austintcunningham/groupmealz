@@ -286,7 +286,7 @@ export function OrderFlowClient({
 
   return (
     <div
-      className={`geaux-main-enter space-y-6 ${cartLines.length > 0 && step === "menu" && orderingOpen ? "pb-28 xl:pb-8" : "pb-8"}`}
+      className={`geaux-main-enter w-full min-w-0 space-y-6 overflow-x-hidden ${cartLines.length > 0 && step === "menu" && orderingOpen ? "pb-28 xl:pb-8" : "pb-8"}`}
     >
       <CustomerOrderRestaurantHero
         officeLabel={office.company_name || office.name}
@@ -398,8 +398,8 @@ export function OrderFlowClient({
           </div>
         </Card>
       ) : orderingOpen ? (
-        <div className="grid gap-8 xl:grid-cols-12">
-          <div className="space-y-6 xl:col-span-8">
+        <div className="grid w-full min-w-0 gap-8 xl:grid-cols-12">
+          <div className="min-w-0 space-y-6 xl:col-span-8">
             <OrderMobileMenuHeader
               itemCount={cartLines.reduce((s, l) => s + l.quantity, 0)}
               totalLabel={

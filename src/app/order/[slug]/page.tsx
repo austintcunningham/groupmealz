@@ -25,9 +25,9 @@ export default async function OfficeOrderPage({
   const ctx = await loadOfficeOrderContext(office, selectedDate);
 
   const header = (
-    <header className="geaux-header-gradient text-white shadow-md">
+    <header className="geaux-header-gradient w-full text-white shadow-md">
       <div className="geaux-accent-bar" />
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
+      <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-4">
         <div className="min-w-0">
           <GroupMealsLogo size="md" href="/order" priority surface="light" />
           <p className="mt-1 truncate text-sm text-white/85">{office.name}</p>
@@ -41,9 +41,9 @@ export default async function OfficeOrderPage({
 
   if (!ctx.schedule) {
     return (
-      <div className="min-h-screen">
+      <div className="min-h-screen w-full min-w-0 overflow-x-hidden bg-[var(--geaux-cream)]">
         {header}
-        <main className="geaux-main-enter mx-auto max-w-6xl px-4 py-8 pb-16">
+        <main className="geaux-main-enter mx-auto w-full min-w-0 max-w-6xl px-4 py-8 pb-16">
           <Card title="No lunches scheduled">
             <p className="text-slate-600">Check back soon — your office hasn&apos;t posted this week&apos;s menu yet.</p>
           </Card>
@@ -53,9 +53,9 @@ export default async function OfficeOrderPage({
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen w-full min-w-0 overflow-x-hidden bg-[var(--geaux-cream)]">
       {header}
-      <main className="geaux-main-enter mx-auto max-w-6xl px-4 py-8 pb-16">
+      <main className="geaux-main-enter mx-auto w-full min-w-0 max-w-6xl px-4 py-8 pb-16">
         <Suspense fallback={<p className="text-sm text-slate-500">Loading menu…</p>}>
           <OrderFlowClient
             office={office}

@@ -23,9 +23,9 @@ export default async function AdminSimulateOrderPage({
   if (!simulation) notFound();
 
   return (
-    <div className="min-h-screen bg-slate-100">
-      <div className="border-b border-slate-200 bg-white px-4 py-2.5 shadow-sm">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+    <div className="min-h-screen w-full min-w-0 overflow-x-hidden bg-[var(--geaux-cream)]">
+      <div className="w-full border-b border-slate-200 bg-white px-4 py-2.5 shadow-sm">
+        <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 text-sm">
           <Link href="/admin" className="font-medium text-[var(--geaux-red)] hover:underline">
             ← Admin
           </Link>

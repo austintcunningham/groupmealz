@@ -65,8 +65,8 @@ export function MenuCategoryJumpNav({
   const trimmed = searchQuery.trim();
 
   return (
-    <div className="sticky top-0 z-30 -mx-1 mb-4 space-y-2 border-b border-slate-200/80 bg-[var(--geaux-cream)]/98 py-2 shadow-[0_1px_0_rgba(0,0,0,0.04)] backdrop-blur-md">
-      <div className="px-1">
+    <div className="sticky top-0 z-30 mb-4 w-full space-y-2 rounded-xl border border-slate-200/80 bg-white py-2 shadow-sm">
+      <div className="px-3">
         <div className="relative min-w-0">
           <label htmlFor="menu-search" className="sr-only">
             Search menu
@@ -99,7 +99,7 @@ export function MenuCategoryJumpNav({
       </div>
 
       {!hideWhenSearching && sections.length >= 2 ? (
-        <nav ref={navRef} aria-label="Menu categories" className="px-1">
+        <nav ref={navRef} aria-label="Menu categories" className="px-3">
           <div className="flex gap-1.5 overflow-x-auto overscroll-x-contain pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {sections.map((s) => {
               const active = activeId === s.id;

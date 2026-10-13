@@ -15,10 +15,10 @@ export function CustomerOrderSimulationShell({
     simulation;
 
   return (
-    <div className="min-h-screen">
-      <header className="geaux-header-gradient text-white shadow-md">
+    <div className="min-h-screen w-full min-w-0 bg-[var(--geaux-cream)]">
+      <header className="geaux-header-gradient w-full text-white shadow-md">
         <div className="geaux-accent-bar" />
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
+        <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-4">
           <div className="min-w-0">
             <GroupMealsLogo size="md" href="/order" priority surface="light" />
             <p className="mt-1 truncate text-sm text-white/85">{office.name}</p>
@@ -28,11 +28,11 @@ export function CustomerOrderSimulationShell({
           </Link>
         </div>
       </header>
-      <div className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-center text-sm text-amber-950">
+      <div className="w-full border-b border-amber-200 bg-amber-50 px-4 py-2 text-center text-sm text-amber-950">
         <strong>Simulation only</strong> — full customer menu (sizes, ingredients, restaurant note). Checkout
         is disabled; no order is placed.
       </div>
-      <main className="geaux-main-enter mx-auto max-w-6xl px-4 py-8 pb-16">
+      <main className="geaux-main-enter mx-auto w-full min-w-0 max-w-6xl px-4 py-8 pb-16">
         <Suspense fallback={<p className="text-sm text-slate-500">Loading menu…</p>}>
           <OrderFlowClient
             office={office}
