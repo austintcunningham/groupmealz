@@ -6,7 +6,7 @@ create table if not exists public.weekly_digest_runs (
 );
 
 comment on table public.weekly_digest_runs is
-  'Tracks last completed weekly digest send for a Mon–Sun week_start (Central).';
+  'Tracks weekly digest send for work week starting Monday (Central); emails Fri 4 PM Mon–Fri orders.';
 
 alter table public.weekly_digest_runs enable row level security;
 

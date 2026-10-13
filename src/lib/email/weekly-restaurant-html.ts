@@ -35,7 +35,11 @@ export function sampleRestaurantWeeklyPayoutHtml(): string {
   return buildRestaurantWeeklyPayoutHtml({
     restaurantName: "Firehouse Subs Gonzales",
     restaurantAddress: "1234 W Main St, Gonzales, LA",
-    period: { weekStart: "2026-10-06", weekEnd: "2026-10-12", label: "10/06/2026 – 10/12/2026" },
+    period: {
+      weekStart: "2026-10-06",
+      weekEnd: "2026-10-10",
+      label: "10/06/2026 – 10/10/2026 (Mon–Fri)",
+    },
     orderCount: 87,
     subtotalCents: 125000,
     gratuityCents: 0,

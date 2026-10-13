@@ -228,8 +228,8 @@ export function AdminEmailDiagnosticsForm() {
             <strong>9:30 AM Central</strong> when there are paid orders for that lunch date.
           </li>
           <li>
-            <strong>Weekly payout / office summary / ops report</strong> — Mondays at{" "}
-            <strong>8:00 AM Central</strong> for the prior Mon–Sun week (restaurant uses{" "}
+            <strong>Weekly payout / office summary / ops report</strong> — Fridays at{" "}
+            <strong>4:00 PM Central</strong> for Mon–Fri lunch orders this week (restaurant uses{" "}
             <strong>restaurants.email</strong> only).
           </li>
         </ul>
@@ -243,7 +243,7 @@ export function AdminEmailDiagnosticsForm() {
           Send 3 weekly samples to office@groupmeals.net
         </Button>
         <Button type="button" variant="secondary" loading={isPending} onClick={sendWeeklyLive}>
-          Send live weekly digests (last full week)
+          Send live weekly digests (this Mon–Fri)
         </Button>
         <Button type="button" variant="secondary" loading={isPending} onClick={sendTest}>
           Send test email to me

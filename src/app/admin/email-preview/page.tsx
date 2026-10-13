@@ -128,7 +128,7 @@ export default async function AdminEmailPreviewPage({
         ))}
       </div>
 
-      <p className="mb-3 text-sm font-medium text-slate-700">Weekly (Monday 8 AM Central)</p>
+      <p className="mb-3 text-sm font-medium text-slate-700">Weekly (Friday 4 PM Central, Mon–Fri)</p>
       <div className="mb-4 flex flex-wrap gap-2">
         {weeklyPreviews.map((p) => (
           <Link

@@ -90,12 +90,35 @@ export function weekBoundsChicago(dateStr: string): {
   };
 }
 
-/** Last fully completed Mon–Sun week before the current Central week. */
-export function lastCompletedWeekPeriod(asOf?: string) {
-  const anchor = asOf ?? getChicagoDateString();
-  const current = weekBoundsChicago(anchor);
-  const prevMonday = addChicagoDays(current.weekStart, -7);
-  return weekBoundsChicago(prevMonday);
+/** Mon–Fri work week containing `dateStr` (Central calendar). */
+export function workWeekBoundsChicago(dateStr: string): {
+  weekStart: string;
+  weekEnd: string;
+  label: string;
+} {
+  const dow = getChicagoDayOfWeek(dateStr);
+  const diffToMonday = dow === 0 ? -6 : 1 - dow;
+  const weekStart = addChicagoDays(dateStr, diffToMonday);
+  const weekEnd = addChicagoDays(weekStart, 4);
+
+  const fmt = (iso: string) =>
+    chicagoWallClockToDate(iso, "12:00:00").toLocaleDateString("en-US", {
+      timeZone: BUSINESS_TZ,
+      month: "2-digit",
+      day: "2-digit",
+      year: "numeric",
+    });
+
+  return {
+    weekStart,
+    weekEnd,
+    label: `${fmt(weekStart)} – ${fmt(weekEnd)} (Mon–Fri)`,
+  };
+}
+
+/** Work week used for Friday 4 PM weekly digests (orders with lunch dates Mon–Fri). */
+export function workWeekForWeeklyDigest(asOf?: string) {
+  return workWeekBoundsChicago(asOf ?? getChicagoDateString());
 }
 
 export function isChicagoWeeklySendWindow(now = new Date()): boolean {
@@ -109,7 +132,7 @@ export function isChicagoWeeklySendWindow(now = new Date()): boolean {
   const weekday = parts.find((p) => p.type === "weekday")?.value ?? "";
   const hour = Number(parts.find((p) => p.type === "hour")?.value ?? -1);
   const minute = Number(parts.find((p) => p.type === "minute")?.value ?? -1);
-  return weekday === "Monday" && hour === 8 && minute >= 0 && minute <= 5;
+  return weekday === "Friday" && hour === 16 && minute >= 0 && minute <= 5;
 }
 
 export function getChicagoDayOfWeek(lunchDate: string): number {

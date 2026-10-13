@@ -6,7 +6,7 @@ import { buildRestaurantWeeklyPayoutHtml } from "@/lib/email/weekly-restaurant-h
 import { buildOfficeWeeklySummaryHtml } from "@/lib/email/weekly-office-html";
 import { buildOpsWeeklySummaryHtml } from "@/lib/email/weekly-ops-html";
 import { getResendClient, sendViaResend } from "@/lib/email/resend-client";
-import { lastCompletedWeekPeriod } from "@/lib/scheduling/chicago";
+import { workWeekForWeeklyDigest } from "@/lib/scheduling/chicago";
 import type { SettlementPeriod } from "@/lib/accounting/restaurant-settlement";
 import {
   buildOpsWeekSummary,
@@ -65,7 +65,7 @@ export async function runWeeklyDigest(opts?: {
   force?: boolean;
   period?: SettlementPeriod;
 }): Promise<WeeklyDigestResult> {
-  const period = opts?.period ?? lastCompletedWeekPeriod();
+  const period = opts?.period ?? workWeekForWeeklyDigest();
   const out: WeeklyDigestResult = {
     period,
     restaurantsSent: 0,

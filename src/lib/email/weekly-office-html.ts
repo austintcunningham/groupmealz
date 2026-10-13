@@ -41,6 +41,10 @@ export function sampleOfficeWeeklySummaryHtml(): string {
         { restaurantName: "Panera Bread", meals: 12 },
       ],
     },
-    { weekStart: "2026-10-06", weekEnd: "2026-10-12", label: "10/06/2026 – 10/12/2026" }
+    {
+      weekStart: "2026-10-06",
+      weekEnd: "2026-10-10",
+      label: "10/06/2026 – 10/10/2026 (Mon–Fri)",
+    }
   );
 }

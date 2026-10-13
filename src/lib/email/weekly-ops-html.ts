@@ -70,7 +70,11 @@ export function buildOpsWeeklySummaryHtml(summary: OpsWeekSummary): string {
 
 export function sampleOpsWeeklySummaryHtml(): string {
   return buildOpsWeeklySummaryHtml({
-    period: { weekStart: "2026-10-06", weekEnd: "2026-10-12", label: "10/06/2026 – 10/12/2026" },
+    period: {
+      weekStart: "2026-10-06",
+      weekEnd: "2026-10-10",
+      label: "10/06/2026 – 10/10/2026 (Mon–Fri)",
+    },
     reviewCount: 23,
     averageRating: 4.6,
     byRestaurantRating: [
