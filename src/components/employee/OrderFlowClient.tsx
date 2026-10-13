@@ -8,6 +8,8 @@ import { calculateOrderTotals, countBillableEntrees } from "@/lib/fees/calculate
 import { OrderCheckoutSummary } from "@/components/order/OrderCheckoutSummary";
 import { OrderCartDrawer } from "@/components/order/OrderCartDrawer";
 import { OrderCartPanel } from "@/components/order/OrderCartPanel";
+import { OrderMobileCartBar } from "@/components/order/OrderMobileCartBar";
+import { OrderMobileMenuHeader } from "@/components/order/OrderMobileMenuHeader";
 import { CustomerOrderMenu, type CustomerCartLine } from "@/components/order/CustomerOrderMenu";
 import {
   buildCartLineKey,
@@ -283,7 +285,9 @@ export function OrderFlowClient({
   });
 
   return (
-    <div className="geaux-main-enter space-y-6 pb-8">
+    <div
+      className={`geaux-main-enter space-y-6 ${cartLines.length > 0 && step === "menu" && orderingOpen ? "pb-28 xl:pb-8" : "pb-8"}`}
+    >
       <CustomerOrderRestaurantHero
         officeLabel={office.company_name || office.name}
         restaurantName={restaurant?.name ?? "Lunch"}
@@ -294,49 +298,27 @@ export function OrderFlowClient({
 
       <OrderingRulesCard schedule={schedule} advanceOrderHours={advanceOrderHours} />
 
-      <Card title="This week">
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
-          {weekDays.map((day) => {
-            const active = day.lunchDate === selectedDate;
-            const disabled = !day.schedule;
-            return (
-              <button
-                key={day.lunchDate}
-                type="button"
-                disabled={disabled}
-                onClick={() => day.schedule && pickDay(day.lunchDate)}
-                className={`rounded-xl border p-3 text-left text-sm transition-all duration-200 active:scale-[0.98] ${
-                  active
-                    ? "border-[var(--geaux-red)] bg-red-50/80 shadow-[var(--geaux-shadow-md)] ring-2 ring-[var(--geaux-yellow)]"
-                    : disabled
-                      ? "cursor-not-allowed border-slate-100 bg-slate-50/80 opacity-60"
-                      : "border-[var(--geaux-border)] bg-white shadow-[var(--geaux-shadow-sm)] hover:-translate-y-0.5 hover:border-[var(--geaux-yellow)] hover:shadow-[var(--geaux-shadow-md)]"
-                }`}
-              >
-                <p className="font-semibold text-slate-800">{day.label}</p>
-                {day.schedule ? (
-                  <>
-                    <p className="mt-1 line-clamp-2 text-xs text-slate-600">
-                      {day.schedule.restaurants?.name ?? "TBD"}
-                    </p>
-                    <p className="mt-1 text-xs font-medium">
-                      {day.orderable ? (
-                        <span className="text-green-700">Order now</span>
-                      ) : (
-                        <span className="capitalize text-slate-500">{day.schedule.status}</span>
-                      )}
-                    </p>
-                  </>
-                ) : (
-                  <p className="mt-1 text-xs text-slate-400">No lunch</p>
-                )}
-              </button>
-            );
-          })}
+      <details className="xl:hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <summary className="cursor-pointer list-none px-4 py-3 marker:content-none [&::-webkit-details-marker]:hidden">
+          <p className="text-sm font-bold text-slate-900">This week</p>
+          <p className="text-xs text-slate-500">
+            {restaurant?.name ?? "Pick a day"} · tap to change day
+          </p>
+        </summary>
+        <div className="border-t border-slate-100 p-3 pt-2">
+          <WeekDayGrid
+            weekDays={weekDays}
+            selectedDate={selectedDate}
+            onPickDay={pickDay}
+          />
         </div>
+      </details>
+
+      <Card title="This week" className="hidden xl:block">
+        <WeekDayGrid weekDays={weekDays} selectedDate={selectedDate} onPickDay={pickDay} />
       </Card>
 
-      <Card className="border-slate-200">
+      <Card className="hidden border-slate-200 xl:flex">
         <div className="flex flex-wrap items-center gap-3 text-sm">
           <span>
             <span className="text-slate-500">Order window:</span> {formatOrderingWindow(schedule)}
@@ -350,6 +332,15 @@ export function OrderFlowClient({
           </Badge>
         </div>
       </Card>
+
+      <div className="flex flex-wrap items-center gap-2 text-sm xl:hidden">
+        <Badge tone={orderingOpen ? "success" : "warning"}>
+          {orderingOpen ? "Ordering open" : "Ordering closed"}
+        </Badge>
+        <span className="text-xs text-slate-500">
+          Delivery {new Date(schedule.delivery_at).toLocaleString(undefined, { weekday: "short", hour: "numeric", minute: "2-digit" })}
+        </span>
+      </div>
 
       {error ? <ErrorMessage message={error} /> : null}
 
@@ -409,6 +400,13 @@ export function OrderFlowClient({
       ) : orderingOpen ? (
         <div className="grid gap-8 xl:grid-cols-12">
           <div className="space-y-6 xl:col-span-8">
+            <OrderMobileMenuHeader
+              itemCount={cartLines.reduce((s, l) => s + l.quantity, 0)}
+              totalLabel={
+                feePreview ? formatCents(feePreview.totalCents) : formatCents(subtotal)
+              }
+              onOpenCart={() => setCartDrawerOpen(true)}
+            />
             {menuItems.length === 0 ? (
               <Card>
                 <p className="text-slate-500">No menu items available for this day.</p>
@@ -427,15 +425,6 @@ export function OrderFlowClient({
                   updateSimpleQty(lineKey, menuItemId, qty);
                 }}
                 onAddConfigured={addConfiguredLine}
-                toolbarAction={
-                  <MobileCartButton
-                    itemCount={cartLines.reduce((s, l) => s + l.quantity, 0)}
-                    totalLabel={
-                      feePreview ? formatCents(feePreview.totalCents) : formatCents(subtotal)
-                    }
-                    onClick={() => setCartDrawerOpen(true)}
-                  />
-                }
               />
             )}
             <Card title="Note for the restaurant">
@@ -465,6 +454,18 @@ export function OrderFlowClient({
             />
           </Card>
         </div>
+      ) : null}
+
+      {orderingOpen && step === "menu" ? (
+        <OrderMobileCartBar
+          itemCount={cartLines.reduce((s, l) => s + l.quantity, 0)}
+          subtotalCents={subtotal}
+          totalCents={feePreview?.totalCents ?? null}
+          onOpenCart={() => setCartDrawerOpen(true)}
+          onCheckout={proceedToCheckout}
+          previewMode={previewMode}
+          isPending={isPending}
+        />
       ) : null}
 
       <OrderCartDrawer
@@ -530,31 +531,54 @@ function GratuityPicker({
   );
 }
 
-function MobileCartButton({
-  itemCount,
-  totalLabel,
-  onClick,
+function WeekDayGrid({
+  weekDays,
+  selectedDate,
+  onPickDay,
 }: {
-  itemCount: number;
-  totalLabel: string;
-  onClick: () => void;
+  weekDays: WeekDay[];
+  selectedDate: string;
+  onPickDay: (lunchDate: string) => void;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="relative flex shrink-0 flex-col items-center justify-center rounded-xl border border-slate-200 bg-white px-3.5 py-2 shadow-sm transition-colors hover:border-[var(--geaux-red)]"
-      aria-label={`Open cart, ${itemCount} items, ${totalLabel}`}
-    >
-      <span className="text-xs font-bold text-[var(--geaux-red)]">Cart</span>
-      <span className="text-[10px] font-medium text-slate-500">
-        {itemCount > 0 ? totalLabel : "Empty"}
-      </span>
-      {itemCount > 0 ? (
-        <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--geaux-red)] px-1 text-[10px] font-bold text-white">
-          {itemCount > 99 ? "99+" : itemCount}
-        </span>
-      ) : null}
-    </button>
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
+      {weekDays.map((day) => {
+        const active = day.lunchDate === selectedDate;
+        const disabled = !day.schedule;
+        return (
+          <button
+            key={day.lunchDate}
+            type="button"
+            disabled={disabled}
+            onClick={() => day.schedule && onPickDay(day.lunchDate)}
+            className={`rounded-xl border p-3 text-left text-sm transition-all duration-200 active:scale-[0.98] ${
+              active
+                ? "border-[var(--geaux-red)] bg-red-50/80 shadow-[var(--geaux-shadow-md)] ring-2 ring-[var(--geaux-yellow)]"
+                : disabled
+                  ? "cursor-not-allowed border-slate-100 bg-slate-50/80 opacity-60"
+                  : "border-[var(--geaux-border)] bg-white shadow-[var(--geaux-shadow-sm)] hover:-translate-y-0.5 hover:border-[var(--geaux-yellow)] hover:shadow-[var(--geaux-shadow-md)]"
+            }`}
+          >
+            <p className="font-semibold text-slate-800">{day.label}</p>
+            {day.schedule ? (
+              <>
+                <p className="mt-1 line-clamp-2 text-xs text-slate-600">
+                  {day.schedule.restaurants?.name ?? "TBD"}
+                </p>
+                <p className="mt-1 text-xs font-medium">
+                  {day.orderable ? (
+                    <span className="text-green-700">Order now</span>
+                  ) : (
+                    <span className="capitalize text-slate-500">{day.schedule.status}</span>
+                  )}
+                </p>
+              </>
+            ) : (
+              <p className="mt-1 text-xs text-slate-400">No lunch</p>
+            )}
+          </button>
+        );
+      })}
+    </div>
   );
 }

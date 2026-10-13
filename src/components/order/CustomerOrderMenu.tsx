@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState } from "react";
 import {
   MenuCategoryJumpNav,
   menuSectionDomId,
@@ -305,7 +305,6 @@ export function CustomerOrderMenu({
   sizesByMenuItemId = {},
   ingredientsByMenuItemId = {},
   showItemOptions,
-  toolbarAction,
 }: {
   categories: MenuCategory[];
   menuItems: MenuItem[];
@@ -319,8 +318,6 @@ export function CustomerOrderMenu({
   emptyMessage?: string;
   sizesByMenuItemId?: Record<string, MenuItemSize[]>;
   ingredientsByMenuItemId?: Record<string, MenuItemIngredient[]>;
-  /** e.g. mobile cart button — shown beside search (hidden on xl where sidebar cart exists). */
-  toolbarAction?: ReactNode;
 }) {
   const promoDate = lunchDateForPromos(lunchDate);
   const [searchQuery, setSearchQuery] = useState("");
@@ -401,7 +398,6 @@ export function CustomerOrderMenu({
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         hideWhenSearching={searchTrim.length > 0}
-        trailingAction={toolbarAction}
       />
 
       {searchTrim ? (

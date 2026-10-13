@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export type MenuJumpSection = { id: string; label: string };
 
@@ -13,14 +13,12 @@ export function MenuCategoryJumpNav({
   searchQuery,
   onSearchChange,
   hideWhenSearching,
-  trailingAction,
 }: {
   sections: MenuJumpSection[];
   searchQuery: string;
   onSearchChange: (q: string) => void;
   /** Hide category pills while search results are shown */
   hideWhenSearching?: boolean;
-  trailingAction?: ReactNode;
 }) {
   const [activeId, setActiveId] = useState<string | null>(sections[0]?.id ?? null);
   const navRef = useRef<HTMLElement>(null);
@@ -67,9 +65,9 @@ export function MenuCategoryJumpNav({
   const trimmed = searchQuery.trim();
 
   return (
-    <div className="sticky top-0 z-20 -mx-1 mb-4 space-y-2 border-b border-slate-200/80 bg-[var(--geaux-cream)]/95 py-2 backdrop-blur-sm">
-      <div className="flex items-center gap-2 px-1">
-        <div className="relative min-w-0 flex-1">
+    <div className="sticky top-0 z-30 -mx-1 mb-4 space-y-2 border-b border-slate-200/80 bg-[var(--geaux-cream)]/98 py-2 shadow-[0_1px_0_rgba(0,0,0,0.04)] backdrop-blur-md">
+      <div className="px-1">
+        <div className="relative min-w-0">
           <label htmlFor="menu-search" className="sr-only">
             Search menu
           </label>
@@ -98,7 +96,6 @@ export function MenuCategoryJumpNav({
             </button>
           ) : null}
         </div>
-        {trailingAction}
       </div>
 
       {!hideWhenSearching && sections.length >= 2 ? (
