@@ -175,7 +175,7 @@ async function buildOrderFromItems(
     flat_fee_cents: 250,
     percentage_bps: 0,
     sales_tax_bps: 0,
-    restaurant_commission_bps: 1000,
+    restaurant_commission_bps: 1200,
     stripe_fee_fixed_cents: 35,
     stripe_fee_bps: 270,
   }) as PlatformSettings;

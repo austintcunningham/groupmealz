@@ -85,7 +85,7 @@ export const RESTAURANT_EMAIL_SAMPLES: {
     title: "Weekly payout estimate",
     when: "Friday afternoon (Mon–Fri lunches)",
     pitch:
-      "A check-stub style summary of meals sold, gross food sales, tax, commission, and estimated settlement — includes sales tax remittance note for your accountant.",
+      "Check stub with 150 sample orders: food subtotal, 12% commission line, tax, and check total — plus commission-base and sales tax footnotes for your accountant.",
   },
 ];
 

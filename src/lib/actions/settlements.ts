@@ -53,7 +53,7 @@ export async function getRestaurantWeeklyCheckStub(
   if (!restaurant) return { error: "Restaurant not found" };
 
   const { data: settings } = await supabase.from("platform_settings").select("*").limit(1).single();
-  const commissionBps = settings?.restaurant_commission_bps ?? 1000;
+  const commissionBps = settings?.restaurant_commission_bps ?? 1200;
 
   const period = weekBoundsForDate(weekDate ?? getChicagoDateString());
 

@@ -6,6 +6,7 @@ import {
 } from "@/lib/sales-kit/email-samples";
 import { EmailSampleFrame } from "./EmailSampleFrame";
 import { RestaurantPartnerPlaybook } from "./RestaurantPartnerPlaybook";
+import { RestaurantPartnerPayoutTerms } from "./RestaurantPartnerPayoutTerms";
 import { RestaurantSalesTaxNotice } from "./RestaurantSalesTaxNotice";
 import { ReviewScreenMock, SatisfactionFlowCard } from "./SatisfactionFlowCard";
 
@@ -89,13 +90,15 @@ export function RestaurantSalesPacket() {
             knows what is coming.
           </Bullet>
           <Bullet>
-            <strong>Sales tax flow</strong> — tax is collected at checkout and paid to you on
-            settlement; you remit to the state/local authorities.
+            <strong>Transparent economics</strong> —{" "}
+            <strong>12% commission on food sales (pre-tax)</strong> before payout; sales tax collected
+            and passed through on settlement for your remittance.
           </Bullet>
         </ul>
       </section>
 
-      <RestaurantSalesTaxNotice />
+      <RestaurantPartnerPayoutTerms />
+      <RestaurantSalesTaxNotice compact />
 
       <section className="sales-kit-section break-inside-avoid">
         <h2 className="mb-4 text-xl font-bold text-[var(--geaux-charcoal)]">

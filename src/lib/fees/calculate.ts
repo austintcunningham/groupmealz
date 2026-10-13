@@ -91,7 +91,7 @@ export function calculateOrderTotals(
   const totalCents = subtotalCents + taxCents + platformFeeCents + gratuity;
   const restaurantCommissionCents = calculateRestaurantCommissionCents(
     subtotalCents,
-    settings.restaurant_commission_bps ?? 1000
+    settings.restaurant_commission_bps ?? 1200
   );
   const stripeProcessingFeeCents = estimateStripeProcessingFeeCents(
     totalCents,

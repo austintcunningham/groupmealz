@@ -3,7 +3,7 @@ import type { RestaurantCheckStub } from "@/lib/accounting/restaurant-settlement
 import { BRAND } from "@/lib/brand";
 
 export function RestaurantCheckStubView({ stub }: { stub: RestaurantCheckStub }) {
-  const commissionPct = (stub.commissionBps / 100).toFixed(2);
+  const commissionPct = (stub.commissionBps / 100).toFixed(stub.commissionBps % 100 === 0 ? 0 : 2);
 
   return (
     <div className="mx-auto max-w-md rounded-xl border-2 border-slate-900 bg-white font-mono text-sm shadow-md">
@@ -26,7 +26,7 @@ export function RestaurantCheckStubView({ stub }: { stub: RestaurantCheckStub })
         <StubRow label="Gross sales" value={formatCents(stub.grossSalesCents)} bold />
         <div className="my-2 border-t border-slate-300" />
         <StubRow
-          label={`${BRAND.name} commission (${commissionPct}%)`}
+          label={`${BRAND.name} commission (${commissionPct}% of food subtotal)`}
           value={`−${formatCents(stub.commissionCents)}`}
         />
         <StubRow label="Check total" value={formatCents(stub.checkTotalCents)} bold />

@@ -146,10 +146,11 @@ export function RestaurantPartnerPlaybook() {
           Repeated labeling or modifier misses show up in reviews. {BRAND.name} shares trends with
           partners so you can correct before the next rotation day.
         </Step>
-        <Step n={3} title="Settlement & sales tax">
-          Use the weekly restaurant email for payout estimates; follow your agreed settlement process
-          with {BRAND.name}. Sales tax collected on orders is paid to you with settlement — your
-          restaurant remits tax to the authorities (see Sales tax in this packet).
+        <Step n={3} title="Settlement, commission & sales tax">
+          Use the weekly restaurant email for payout estimates. {BRAND.name} withholds{" "}
+          <strong>12% commission on pre-tax food subtotal</strong> before your check total; sales tax
+          collected on orders is paid to you with settlement for your remittance (see Payouts in this
+          packet).
         </Step>
       </Phase>
 
