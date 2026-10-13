@@ -266,7 +266,7 @@ export function AdminEmailDiagnosticsForm() {
           Send live weekly digests (this Mon–Fri)
         </Button>
         <Button type="button" variant="secondary" loading={isPending} onClick={sendReviewSample}>
-          Send review invite sample to orders@groupmeals.net
+          Send review invite sample to office@groupmeals.net
         </Button>
         <Button type="button" variant="secondary" loading={isPending} onClick={sendTest}>
           Send test email to me

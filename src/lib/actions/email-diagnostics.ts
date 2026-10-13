@@ -210,14 +210,14 @@ export async function sendWeeklyEmailSamplesToOps(): Promise<
   return { success: true, data: { sent, failures } };
 }
 
-/** Sample review invitation to orders@groupmeals.net (same template customers receive). */
+/** Sample review invitation to office@groupmeals.net (same template customers receive). */
 export async function sendReviewInvitationSampleToAdmin(): Promise<
   ActionResult<{ id: string; to: string }>
 > {
   const auth = await requireProfileRole(["admin"]);
   if ("error" in auth) return { success: false, error: auth.error };
 
-  const to = getEmailFromRawAddress();
+  const to = BRAND.opsEmail;
 
   const html = sampleReviewRequestHtml();
   const result = await sendViaResend({
