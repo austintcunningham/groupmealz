@@ -60,3 +60,12 @@ export async function sendReviewRequestEmail(input: {
   if (error) return { sent: false, error: error.message };
   return { sent: true };
 }
+
+export function sampleReviewRequestHtml(): string {
+  return buildReviewRequestHtml({
+    customerName: "Alex",
+    restaurantName: "Firehouse Subs Gonzales",
+    lunchDateLabel: "Monday, October 13, 2026",
+    reviewUrl: "https://www.groupmeals.net/review/00000000-0000-4000-8000-000000000099",
+  });
+}

@@ -1,4 +1,5 @@
 import type { Order } from "@/types/database";
+import { workWeekBoundsChicago } from "@/lib/scheduling/chicago";
 
 export type SettlementPeriod = {
   weekStart: string;
@@ -22,22 +23,9 @@ export type RestaurantCheckStub = {
   checkTotalCents: number;
 };
 
-/** Monday–Sunday week containing `date` (local date string YYYY-MM-DD). */
+/** Mon–Fri work week containing `dateStr` (Central Time — matches weekly payout emails). */
 export function weekBoundsForDate(dateStr: string): SettlementPeriod {
-  const d = new Date(`${dateStr}T12:00:00`);
-  const day = d.getDay();
-  const diffToMonday = day === 0 ? -6 : 1 - day;
-  const monday = new Date(d);
-  monday.setDate(d.getDate() + diffToMonday);
-  const sunday = new Date(monday);
-  sunday.setDate(monday.getDate() + 6);
-
-  const fmt = (x: Date) => x.toISOString().slice(0, 10);
-  const weekStart = fmt(monday);
-  const weekEnd = fmt(sunday);
-  const label = `${monday.toLocaleDateString(undefined, { month: "2-digit", day: "2-digit", year: "numeric" })} – ${sunday.toLocaleDateString(undefined, { month: "2-digit", day: "2-digit", year: "numeric" })}`;
-
-  return { weekStart, weekEnd, label };
+  return workWeekBoundsChicago(dateStr);
 }
 
 type OrderRow = Pick<

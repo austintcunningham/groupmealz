@@ -33,7 +33,7 @@ export function RestaurantCheckStubView({ stub }: { stub: RestaurantCheckStub })
         <StubRow label="Check total" value={formatCents(stub.checkTotalCents)} bold />
       </div>
       <p className="border-t border-slate-200 px-4 py-2 text-center text-[10px] text-slate-500">
-        Weekly payout — amounts based on paid orders in this period.
+        Work-week payout (Mon–Fri lunch dates) — matches the Friday weekly email.
       </p>
     </div>
   );

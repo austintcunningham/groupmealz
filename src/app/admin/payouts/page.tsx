@@ -43,7 +43,7 @@ export default async function AdminPayoutsPage({
       ) : stub && "error" in stub ? (
         <p className="text-sm text-red-600">{stub.error}</p>
       ) : stub && "data" in stub ? (
-        <Card title="This week's check stub">
+        <Card title="This work week (Mon–Fri) check stub">
           <RestaurantCheckStubView stub={stub.data} />
           <p className="mt-4 text-sm text-slate-600">
             Restaurants also see daily reports and lifetime totals under{" "}

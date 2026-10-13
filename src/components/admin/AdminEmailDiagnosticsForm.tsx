@@ -6,6 +6,7 @@ import {
   sendAdminTestEmail,
   sendFulfillmentEmailSamplesToOps,
   sendWeeklyEmailSamplesToOps,
+  sendReviewInvitationSampleToAdmin,
 } from "@/lib/actions/email-diagnostics";
 import { sendDailyFulfillmentNow } from "@/lib/actions/fulfillment";
 import { sendWeeklyDigestNow } from "@/lib/actions/weekly-digest";
@@ -47,6 +48,21 @@ export function AdminEmailDiagnosticsForm() {
         `Live fulfillment digests sent for ${schedulesProcessed} schedule(s) with orders today.${
           errors.length ? ` Notes: ${errors.join("; ")}` : ""
         }`
+      );
+    });
+  }
+
+  function sendReviewSample() {
+    setError(null);
+    setSuccess(null);
+    startTransition(async () => {
+      const result = await sendReviewInvitationSampleToAdmin();
+      if (!result.success) {
+        setError(result.error);
+        return;
+      }
+      setSuccess(
+        `Review invitation sample queued to ${result.data.to} (Resend ID: ${result.data.id}). Production sends to each customer’s checkout email after delivery + 45 min.`
       );
     });
   }
@@ -224,6 +240,10 @@ export function AdminEmailDiagnosticsForm() {
             <strong>Customer</strong> — order confirmation right after Stripe payment.
           </li>
           <li>
+            <strong>Review invitation</strong> — to <code className="rounded bg-slate-100 px-1">customer_email</code>{" "}
+            on the order, once, ~45 min after scheduled delivery (hourly cron).
+          </li>
+          <li>
             <strong>Restaurant + office admin + office@groupmeals.net</strong> — every day at{" "}
             <strong>9:30 AM Central</strong> when there are paid orders for that lunch date.
           </li>
@@ -244,6 +264,9 @@ export function AdminEmailDiagnosticsForm() {
         </Button>
         <Button type="button" variant="secondary" loading={isPending} onClick={sendWeeklyLive}>
           Send live weekly digests (this Mon–Fri)
+        </Button>
+        <Button type="button" variant="secondary" loading={isPending} onClick={sendReviewSample}>
+          Send review invite sample to me
         </Button>
         <Button type="button" variant="secondary" loading={isPending} onClick={sendTest}>
           Send test email to me

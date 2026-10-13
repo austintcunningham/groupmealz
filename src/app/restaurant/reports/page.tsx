@@ -17,6 +17,7 @@ import { ReviewList } from "@/components/reviews/ReviewList";
 import { createClient } from "@/lib/supabase/server";
 import { formatCents } from "@/lib/money/format";
 import { weekBoundsForDate } from "@/lib/accounting/restaurant-settlement";
+import { getChicagoDateString } from "@/lib/scheduling/chicago";
 
 function formatLunchDate(iso: string): string {
   return new Date(`${iso}T12:00:00`).toLocaleDateString(undefined, {
@@ -60,7 +61,7 @@ export default async function RestaurantReportsPage({
     );
   }
 
-  const weekAnchor = params.week ?? new Date().toISOString().slice(0, 10);
+  const weekAnchor = params.week ?? getChicagoDateString();
   const [daily, lifetime, stub, reviewSummary, reviewsResult] = await Promise.all([
     getRestaurantDailySummaries(restaurantId),
     getRestaurantLifetimeTotals(restaurantId),
@@ -75,8 +76,9 @@ export default async function RestaurantReportsPage({
   return (
     <DashboardShell role={profile.role} title="Sales & payouts">
       <p className="mb-6 max-w-2xl text-sm text-slate-600">
-        Track sales by <strong>lunch day</strong>, see your <strong>weekly check stub</strong> (what
-        Group Meals owes you after commission and card fees), and review all-time totals. Need what to
+        Track sales by <strong>lunch day</strong>, see your <strong>Mon–Fri check stub</strong> (what
+        Group Meals owes you after commission and card fees — same period as the Friday payout email),
+        and review all-time totals. Need what to
         cook? Use{" "}
         <Link href="/restaurant/production" className="font-medium text-[var(--geaux-red)] hover:underline">
           Prep list

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { shiftWeekAnchor } from "@/lib/accounting/restaurant-settlement";
+import { getChicagoDateString } from "@/lib/scheduling/chicago";
 
 export function ReportsWeekNav({
   weekAnchor,
@@ -10,7 +11,7 @@ export function ReportsWeekNav({
   periodLabel: string;
   restaurantId: string;
 }) {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = getChicagoDateString();
   const prevWeek = shiftWeekAnchor(weekAnchor, -1);
   const nextWeek = shiftWeekAnchor(weekAnchor, 1);
 
@@ -24,7 +25,7 @@ export function ReportsWeekNav({
 
   return (
     <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <p className="text-sm font-semibold text-slate-900">Week of {periodLabel}</p>
+      <p className="text-sm font-semibold text-slate-900">Work week {periodLabel}</p>
       <div className="flex flex-wrap items-center gap-2">
         <Link href={href(prevWeek)} className={linkClass} aria-label="Previous week">
           ← Previous

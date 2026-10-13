@@ -14,6 +14,7 @@ import { buildOrderConfirmationHtml } from "@/lib/email/order-confirmation-html"
 import { sampleRestaurantWeeklyPayoutHtml } from "@/lib/email/weekly-restaurant-html";
 import { sampleOfficeWeeklySummaryHtml } from "@/lib/email/weekly-office-html";
 import { sampleOpsWeeklySummaryHtml } from "@/lib/email/weekly-ops-html";
+import { sampleReviewRequestHtml } from "@/lib/email/review-request";
 import {
   getEmailFromAddress,
   getEmailFromRawAddress,
@@ -207,6 +208,29 @@ export async function sendWeeklyEmailSamplesToOps(): Promise<
 
   if (!sent.length) return { success: false, error: failures.join(" · ") };
   return { success: true, data: { sent, failures } };
+}
+
+/** Sample review invitation to the logged-in admin (same template customers receive). */
+export async function sendReviewInvitationSampleToAdmin(): Promise<
+  ActionResult<{ id: string; to: string }>
+> {
+  const auth = await requireProfileRole(["admin"]);
+  if ("error" in auth) return { success: false, error: auth.error };
+
+  const to = auth.profile.email?.trim();
+  if (!to) return { success: false, error: "Your admin profile has no email." };
+
+  const html = sampleReviewRequestHtml();
+  const result = await sendViaResend({
+    to,
+    subject: `[SAMPLE] How was Firehouse Subs Gonzales? Rate your ${BRAND.name} lunch`,
+    html,
+    text: htmlToPlainText(html),
+    tags: [{ name: "type", value: "sample-review-invite" }],
+  });
+
+  if (!result.sent) return { success: false, error: result.error };
+  return { success: true, data: { id: result.id, to } };
 }
 
 export async function sendAdminTestEmail(): Promise<

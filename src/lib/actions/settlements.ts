@@ -10,6 +10,7 @@ import {
   type RestaurantCheckStub,
   type DailyRestaurantSummary,
 } from "@/lib/accounting/restaurant-settlement";
+import { getChicagoDateString } from "@/lib/scheduling/chicago";
 import type { Order } from "@/types/database";
 
 async function assertRestaurantAccess(
@@ -54,7 +55,7 @@ export async function getRestaurantWeeklyCheckStub(
   const { data: settings } = await supabase.from("platform_settings").select("*").limit(1).single();
   const commissionBps = settings?.restaurant_commission_bps ?? 1000;
 
-  const period = weekBoundsForDate(weekDate ?? new Date().toISOString().slice(0, 10));
+  const period = weekBoundsForDate(weekDate ?? getChicagoDateString());
 
   const { data: orders, error } = await supabase
     .from("orders")

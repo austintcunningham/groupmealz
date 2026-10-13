@@ -23,7 +23,7 @@ export function getEmailFromAddress(): string {
 
 export function getReplyToAddress(): string {
   return (
-    process.env.EMAIL_REPLY_TO?.trim() ?? `support@${BRAND.mailDomain}`
+    process.env.EMAIL_REPLY_TO?.trim() ?? BRAND.supportEmail
   );
 }
 
