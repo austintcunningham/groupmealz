@@ -120,7 +120,8 @@ export function DraggableCustomerMenuPreview({
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
 
-  usePreviewEdgeAutoScroll(scrollRef, activeDragId != null, layout === "full");
+  const menuCreatorScroll = editorMode || layout === "full";
+  usePreviewEdgeAutoScroll(scrollRef, activeDragId != null, menuCreatorScroll);
 
   const promoDate = new Date().toISOString().slice(0, 10);
 
@@ -319,7 +320,7 @@ export function DraggableCustomerMenuPreview({
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
-        autoScroll={false}
+        autoScroll={menuCreatorScroll}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >

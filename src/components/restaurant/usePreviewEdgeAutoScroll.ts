@@ -7,19 +7,27 @@ const EDGE_PX = 100;
 /** Max scroll speed per animation frame (px). */
 const MAX_SPEED = 28;
 
+function scrollRoot(): HTMLElement {
+  return document.scrollingElement ?? document.documentElement;
+}
+
 type ScrollSurface =
-  | { kind: "element"; el: HTMLElement; rect: DOMRect }
-  | { kind: "window"; rect: { top: number; bottom: number } };
+  | { kind: "element"; el: HTMLElement; top: number; bottom: number }
+  | { kind: "document"; top: number; bottom: number };
 
 function pickScrollSurface(
   scrollRef: RefObject<HTMLDivElement | null>,
-  preferViewport: boolean
+  useDocumentScroll: boolean
 ): ScrollSurface {
-  const el = scrollRef.current;
-  if (!preferViewport && el && el.scrollHeight > el.clientHeight + 4) {
-    return { kind: "element", el, rect: el.getBoundingClientRect() };
+  if (useDocumentScroll) {
+    return { kind: "document", top: 0, bottom: window.innerHeight };
   }
-  return { kind: "window", rect: { top: 0, bottom: window.innerHeight } };
+  const el = scrollRef.current;
+  if (el && el.scrollHeight > el.clientHeight + 4) {
+    const rect = el.getBoundingClientRect();
+    return { kind: "element", el, top: rect.top, bottom: rect.bottom };
+  }
+  return { kind: "document", top: 0, bottom: window.innerHeight };
 }
 
 function applyScroll(surface: ScrollSurface, delta: number) {
@@ -27,18 +35,20 @@ function applyScroll(surface: ScrollSurface, delta: number) {
   if (surface.kind === "element") {
     surface.el.scrollTop += delta;
   } else {
-    window.scrollBy({ top: delta, left: 0, behavior: "auto" });
+    const root = scrollRoot();
+    root.scrollTop += delta;
   }
 }
 
 /**
- * Smooth edge auto-scroll while dragging in the menu preview.
- * Scrolls the preview panel when it has its own overflow, otherwise the page (full editor layout).
+ * Edge auto-scroll while dragging in the menu preview (admin + restaurant menu editor).
+ * Menu creator uses document scroll; embedded preview panels scroll their own container.
  */
 export function usePreviewEdgeAutoScroll(
   scrollRef: RefObject<HTMLDivElement | null>,
   dragging: boolean,
-  preferViewport = false
+  /** True for RestaurantMenuEditor (admin / manager menu creator). */
+  useDocumentScroll = false
 ) {
   useEffect(() => {
     if (!dragging) return;
@@ -46,19 +56,20 @@ export function usePreviewEdgeAutoScroll(
     let pointerY = 0;
     let rafId = 0;
 
-    const onPointerMove = (e: PointerEvent) => {
-      pointerY = e.clientY;
+    const setPointerY = (y: number) => {
+      pointerY = y;
+    };
+
+    const onPointerMove = (e: PointerEvent) => setPointerY(e.clientY);
+    const onTouchMove = (e: TouchEvent) => {
+      const t = e.touches[0];
+      if (t) setPointerY(t.clientY);
     };
 
     const tick = () => {
-      const surface = pickScrollSurface(scrollRef, preferViewport);
-      const { top, bottom } =
-        surface.kind === "element"
-          ? { top: surface.rect.top, bottom: surface.rect.bottom }
-          : surface.rect;
-
-      const distFromTop = pointerY - top;
-      const distFromBottom = bottom - pointerY;
+      const surface = pickScrollSurface(scrollRef, useDocumentScroll);
+      const distFromTop = pointerY - surface.top;
+      const distFromBottom = surface.bottom - pointerY;
 
       let delta = 0;
       if (distFromTop < EDGE_PX) {
@@ -74,11 +85,13 @@ export function usePreviewEdgeAutoScroll(
     };
 
     window.addEventListener("pointermove", onPointerMove, { passive: true });
+    window.addEventListener("touchmove", onTouchMove, { passive: true });
     rafId = requestAnimationFrame(tick);
 
     return () => {
       window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("touchmove", onTouchMove);
       cancelAnimationFrame(rafId);
     };
-  }, [dragging, scrollRef, preferViewport]);
+  }, [dragging, scrollRef, useDocumentScroll]);
 }

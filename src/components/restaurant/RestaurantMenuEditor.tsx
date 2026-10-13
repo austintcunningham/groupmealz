@@ -93,6 +93,7 @@ function MenuEditorItemSearch({
   );
 }
 
+/** Shared menu creator for Admin → Menus and Restaurant → Menu (managers). */
 export function RestaurantMenuEditor({
   restaurantId: initialRestaurantId,
   restaurantName: initialRestaurantName,
