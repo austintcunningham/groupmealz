@@ -120,7 +120,7 @@ export function DraggableCustomerMenuPreview({
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
 
-  usePreviewEdgeAutoScroll(scrollRef, activeDragId != null);
+  usePreviewEdgeAutoScroll(scrollRef, activeDragId != null, layout === "full");
 
   const promoDate = new Date().toISOString().slice(0, 10);
 

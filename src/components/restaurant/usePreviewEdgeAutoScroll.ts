@@ -3,17 +3,42 @@
 import { useEffect, type RefObject } from "react";
 
 /** Distance from top/bottom of scroll area where auto-scroll begins (px). */
-const EDGE_PX = 88;
+const EDGE_PX = 100;
 /** Max scroll speed per animation frame (px). */
-const MAX_SPEED = 24;
+const MAX_SPEED = 28;
+
+type ScrollSurface =
+  | { kind: "element"; el: HTMLElement; rect: DOMRect }
+  | { kind: "window"; rect: { top: number; bottom: number } };
+
+function pickScrollSurface(
+  scrollRef: RefObject<HTMLDivElement | null>,
+  preferViewport: boolean
+): ScrollSurface {
+  const el = scrollRef.current;
+  if (!preferViewport && el && el.scrollHeight > el.clientHeight + 4) {
+    return { kind: "element", el, rect: el.getBoundingClientRect() };
+  }
+  return { kind: "window", rect: { top: 0, bottom: window.innerHeight } };
+}
+
+function applyScroll(surface: ScrollSurface, delta: number) {
+  if (delta === 0) return;
+  if (surface.kind === "element") {
+    surface.el.scrollTop += delta;
+  } else {
+    window.scrollBy({ top: delta, left: 0, behavior: "auto" });
+  }
+}
 
 /**
- * Smooth edge auto-scroll while dragging inside a fixed-height preview panel.
- * Uses rAF (not interval) so it feels immediate when the pointer nears the edge.
+ * Smooth edge auto-scroll while dragging in the menu preview.
+ * Scrolls the preview panel when it has its own overflow, otherwise the page (full editor layout).
  */
 export function usePreviewEdgeAutoScroll(
   scrollRef: RefObject<HTMLDivElement | null>,
-  dragging: boolean
+  dragging: boolean,
+  preferViewport = false
 ) {
   useEffect(() => {
     if (!dragging) return;
@@ -26,20 +51,25 @@ export function usePreviewEdgeAutoScroll(
     };
 
     const tick = () => {
-      const el = scrollRef.current;
-      if (el) {
-        const rect = el.getBoundingClientRect();
-        const distFromTop = pointerY - rect.top;
-        const distFromBottom = rect.bottom - pointerY;
+      const surface = pickScrollSurface(scrollRef, preferViewport);
+      const { top, bottom } =
+        surface.kind === "element"
+          ? { top: surface.rect.top, bottom: surface.rect.bottom }
+          : surface.rect;
 
-        if (distFromTop >= 0 && distFromTop < EDGE_PX) {
-          const intensity = 1 - distFromTop / EDGE_PX;
-          el.scrollTop -= MAX_SPEED * intensity * intensity;
-        } else if (distFromBottom >= 0 && distFromBottom < EDGE_PX) {
-          const intensity = 1 - distFromBottom / EDGE_PX;
-          el.scrollTop += MAX_SPEED * intensity * intensity;
-        }
+      const distFromTop = pointerY - top;
+      const distFromBottom = bottom - pointerY;
+
+      let delta = 0;
+      if (distFromTop < EDGE_PX) {
+        const intensity = distFromTop <= 0 ? 1 : 1 - distFromTop / EDGE_PX;
+        delta = -MAX_SPEED * intensity * intensity;
+      } else if (distFromBottom < EDGE_PX) {
+        const intensity = distFromBottom <= 0 ? 1 : 1 - distFromBottom / EDGE_PX;
+        delta = MAX_SPEED * intensity * intensity;
       }
+
+      applyScroll(surface, delta);
       rafId = requestAnimationFrame(tick);
     };
 
@@ -50,5 +80,5 @@ export function usePreviewEdgeAutoScroll(
       window.removeEventListener("pointermove", onPointerMove);
       cancelAnimationFrame(rafId);
     };
-  }, [dragging, scrollRef]);
+  }, [dragging, scrollRef, preferViewport]);
 }
