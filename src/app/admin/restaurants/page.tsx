@@ -2,6 +2,7 @@ import Link from "next/link";
 import { DashboardShell } from "@/components/DashboardShell";
 import { Card, EmptyState } from "@/components/ui";
 import { CreateRestaurantForm } from "@/components/admin/CreateRestaurantForm";
+import { EditRestaurantContactForm } from "@/components/admin/EditRestaurantContactForm";
 import { AssignRestaurantManagerForm } from "@/components/admin/AssignRestaurantManagerForm";
 import { RestaurantBrandingPanel } from "@/components/restaurant/RestaurantBrandingPanel";
 import { requireAdmin } from "@/lib/auth/guards";
@@ -41,7 +42,14 @@ export default async function AdminRestaurantsPage() {
                   <p className="text-sm text-slate-500">{r.slug}</p>
                   <p className="text-xs text-slate-400">
                     {r.city}, {r.state} · {r.active ? "Active" : "Inactive"}
+                    {r.email ? ` · ${r.email}` : " · No email on file"}
                   </p>
+                  <EditRestaurantContactForm
+                    restaurantId={r.id}
+                    name={r.name}
+                    email={r.email}
+                    phone={r.phone}
+                  />
                   <details className="mt-3 rounded-lg border border-slate-200 bg-slate-50/50">
                     <summary className="cursor-pointer px-3 py-2 text-sm font-medium text-[var(--geaux-red)]">
                       Branding — upload logo &amp; banner

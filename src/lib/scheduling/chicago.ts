@@ -58,6 +58,60 @@ export function chicagoWallClockToDate(lunchDate: string, time: string): Date {
 }
 
 /** True during the 9:30 AM Central minute (allows ~2 min cron jitter). */
+export function addChicagoDays(dateStr: string, days: number): string {
+  const d = chicagoWallClockToDate(dateStr, "12:00:00");
+  d.setUTCDate(d.getUTCDate() + days);
+  return getChicagoDateString(d);
+}
+
+/** Monday–Sunday week containing `dateStr` (Central calendar dates). */
+export function weekBoundsChicago(dateStr: string): {
+  weekStart: string;
+  weekEnd: string;
+  label: string;
+} {
+  const dow = getChicagoDayOfWeek(dateStr);
+  const diffToMonday = dow === 0 ? -6 : 1 - dow;
+  const weekStart = addChicagoDays(dateStr, diffToMonday);
+  const weekEnd = addChicagoDays(weekStart, 6);
+
+  const fmt = (iso: string) =>
+    chicagoWallClockToDate(iso, "12:00:00").toLocaleDateString("en-US", {
+      timeZone: BUSINESS_TZ,
+      month: "2-digit",
+      day: "2-digit",
+      year: "numeric",
+    });
+
+  return {
+    weekStart,
+    weekEnd,
+    label: `${fmt(weekStart)} – ${fmt(weekEnd)}`,
+  };
+}
+
+/** Last fully completed Mon–Sun week before the current Central week. */
+export function lastCompletedWeekPeriod(asOf?: string) {
+  const anchor = asOf ?? getChicagoDateString();
+  const current = weekBoundsChicago(anchor);
+  const prevMonday = addChicagoDays(current.weekStart, -7);
+  return weekBoundsChicago(prevMonday);
+}
+
+export function isChicagoWeeklySendWindow(now = new Date()): boolean {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: BUSINESS_TZ,
+    weekday: "long",
+    hour: "numeric",
+    minute: "numeric",
+    hour12: false,
+  }).formatToParts(now);
+  const weekday = parts.find((p) => p.type === "weekday")?.value ?? "";
+  const hour = Number(parts.find((p) => p.type === "hour")?.value ?? -1);
+  const minute = Number(parts.find((p) => p.type === "minute")?.value ?? -1);
+  return weekday === "Monday" && hour === 8 && minute >= 0 && minute <= 5;
+}
+
 export function getChicagoDayOfWeek(lunchDate: string): number {
   const ref = chicagoWallClockToDate(lunchDate, "12:00:00");
   const weekday = new Intl.DateTimeFormat("en-US", {

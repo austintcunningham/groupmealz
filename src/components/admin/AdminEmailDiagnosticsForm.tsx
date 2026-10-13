@@ -5,8 +5,10 @@ import {
   getEmailSetupSummary,
   sendAdminTestEmail,
   sendFulfillmentEmailSamplesToOps,
+  sendWeeklyEmailSamplesToOps,
 } from "@/lib/actions/email-diagnostics";
 import { sendDailyFulfillmentNow } from "@/lib/actions/fulfillment";
+import { sendWeeklyDigestNow } from "@/lib/actions/weekly-digest";
 import { Button, ErrorMessage, SuccessMessage } from "@/components/ui";
 
 export function AdminEmailDiagnosticsForm() {
@@ -45,6 +47,37 @@ export function AdminEmailDiagnosticsForm() {
         `Live fulfillment digests sent for ${schedulesProcessed} schedule(s) with orders today.${
           errors.length ? ` Notes: ${errors.join("; ")}` : ""
         }`
+      );
+    });
+  }
+
+  function sendWeeklySamples() {
+    setError(null);
+    setSuccess(null);
+    startTransition(async () => {
+      const result = await sendWeeklyEmailSamplesToOps();
+      if (!result.success) {
+        setError(result.error);
+        return;
+      }
+      setSuccess(
+        `Weekly samples queued to office@groupmeals.net: ${result.data.sent.map((s) => s.label).join(", ")}`
+      );
+    });
+  }
+
+  function sendWeeklyLive() {
+    setError(null);
+    setSuccess(null);
+    startTransition(async () => {
+      const result = await sendWeeklyDigestNow();
+      if (!result.success) {
+        setError(result.error);
+        return;
+      }
+      const d = result.data;
+      setSuccess(
+        `Weekly digests for ${d.periodLabel}: ${d.restaurantsSent} restaurant, ${d.officesSent} office admin, ops ${d.opsSent ? "yes" : "no"}.${d.errors.length ? ` Notes: ${d.errors.join("; ")}` : ""}`
       );
     });
   }
@@ -194,12 +227,23 @@ export function AdminEmailDiagnosticsForm() {
             <strong>Restaurant + office admin + office@groupmeals.net</strong> — every day at{" "}
             <strong>9:30 AM Central</strong> when there are paid orders for that lunch date.
           </li>
+          <li>
+            <strong>Weekly payout / office summary / ops report</strong> — Mondays at{" "}
+            <strong>8:00 AM Central</strong> for the prior Mon–Sun week (restaurant uses{" "}
+            <strong>restaurants.email</strong> only).
+          </li>
         </ul>
       </div>
 
       <div className="flex flex-wrap gap-2">
         <Button type="button" variant="secondary" loading={isPending} onClick={sendSamples}>
-          Send all 4 sample emails to office@groupmeals.net
+          Send 4 daily samples to office@groupmeals.net
+        </Button>
+        <Button type="button" variant="secondary" loading={isPending} onClick={sendWeeklySamples}>
+          Send 3 weekly samples to office@groupmeals.net
+        </Button>
+        <Button type="button" variant="secondary" loading={isPending} onClick={sendWeeklyLive}>
+          Send live weekly digests (last full week)
         </Button>
         <Button type="button" variant="secondary" loading={isPending} onClick={sendTest}>
           Send test email to me

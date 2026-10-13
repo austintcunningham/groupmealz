@@ -24,7 +24,7 @@ export function CreateRestaurantForm() {
         state: String(formData.get("state") ?? "") || undefined,
         zip: String(formData.get("zip") ?? "") || undefined,
         phone: String(formData.get("phone") ?? "") || undefined,
-        email: String(formData.get("email") ?? "") || undefined,
+        email: String(formData.get("email") ?? ""),
       });
       if (!result.success) {
         setError(result.error);
@@ -49,7 +49,13 @@ export function CreateRestaurantForm() {
         <Input name="zip" label="ZIP" />
       </div>
       <Input name="phone" label="Phone" />
-      <Input name="email" label="Email" type="email" />
+      <Input
+        name="email"
+        label="Kitchen / payout email"
+        type="email"
+        required
+        placeholder="One inbox for orders & weekly payouts"
+      />
       <Button type="submit" loading={isPending}>
         Create restaurant
       </Button>

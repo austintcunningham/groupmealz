@@ -60,7 +60,7 @@ const restaurantSchema = z.object({
   state: z.string().optional(),
   zip: z.string().optional(),
   phone: z.string().optional(),
-  email: z.string().email().optional().or(z.literal("")),
+  email: z.string().email("Kitchen / payout email is required"),
   active: z.boolean().optional(),
 });
 
@@ -90,6 +90,39 @@ export async function createRestaurant(
   await logAudit("create_restaurant", "restaurant", data.id);
   revalidatePath("/admin/restaurants");
   return { success: true, data: { id: data.id } };
+}
+
+const contactSchema = z.object({
+  email: z.string().email("Enter a valid email"),
+  phone: z.string().optional(),
+});
+
+/** Single kitchen/payout inbox for daily & weekly restaurant emails. */
+export async function updateRestaurantContact(
+  id: string,
+  input: z.infer<typeof contactSchema>
+): Promise<ActionResult> {
+  const auth = await requireProfileRole(["admin"]);
+  if ("error" in auth) return { success: false, error: auth.error };
+
+  const parsed = contactSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.errors[0]?.message ?? "Invalid input" };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("restaurants")
+    .update({
+      email: parsed.data.email.trim().toLowerCase(),
+      phone: parsed.data.phone?.trim() || null,
+    })
+    .eq("id", id);
+
+  if (error) return { success: false, error: error.message };
+  await logAudit("update_restaurant_contact", "restaurant", id);
+  revalidatePath("/admin/restaurants");
+  return { success: true, data: undefined };
 }
 
 export async function updateRestaurant(

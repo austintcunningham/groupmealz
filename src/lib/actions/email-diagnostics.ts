@@ -11,6 +11,9 @@ import {
 } from "@/lib/email/printable-order-digest";
 import { getOpsDigestRecipients } from "@/lib/email/ops-recipients";
 import { buildOrderConfirmationHtml } from "@/lib/email/order-confirmation-html";
+import { sampleRestaurantWeeklyPayoutHtml } from "@/lib/email/weekly-restaurant-html";
+import { sampleOfficeWeeklySummaryHtml } from "@/lib/email/weekly-office-html";
+import { sampleOpsWeeklySummaryHtml } from "@/lib/email/weekly-ops-html";
 import {
   getEmailFromAddress,
   getEmailFromRawAddress,
@@ -155,6 +158,54 @@ export async function sendFulfillmentEmailSamplesToOps(): Promise<
     return { success: false, error: failures.join(" · ") || "No emails sent" };
   }
 
+  return { success: true, data: { sent, failures } };
+}
+
+/** Sample weekly emails to office@groupmeals.net for layout verification. */
+export async function sendWeeklyEmailSamplesToOps(): Promise<
+  ActionResult<{ sent: { label: string; id: string }[]; failures: string[] }>
+> {
+  const auth = await requireProfileRole(["admin"]);
+  if ("error" in auth) return { success: false, error: auth.error };
+
+  const to = BRAND.opsEmail;
+  const payloads = [
+    {
+      label: "Weekly restaurant payout",
+      subject: `[SAMPLE] ${BRAND.name} — weekly payout estimate`,
+      html: sampleRestaurantWeeklyPayoutHtml(),
+      tag: "sample-weekly-restaurant",
+    },
+    {
+      label: "Weekly office summary",
+      subject: `[SAMPLE] ${BRAND.name} — weekly meals`,
+      html: sampleOfficeWeeklySummaryHtml(),
+      tag: "sample-weekly-office",
+    },
+    {
+      label: "Weekly ops report",
+      subject: `[SAMPLE] ${BRAND.name} — weekly report`,
+      html: sampleOpsWeeklySummaryHtml(),
+      tag: "sample-weekly-ops",
+    },
+  ];
+
+  const sent: { label: string; id: string }[] = [];
+  const failures: string[] = [];
+
+  for (const p of payloads) {
+    const result = await sendViaResend({
+      to,
+      subject: p.subject,
+      html: p.html,
+      text: htmlToPlainText(p.html),
+      tags: [{ name: "type", value: p.tag }],
+    });
+    if (result.sent) sent.push({ label: p.label, id: result.id });
+    else failures.push(`${p.label}: ${result.error}`);
+  }
+
+  if (!sent.length) return { success: false, error: failures.join(" · ") };
   return { success: true, data: { sent, failures } };
 }
 
