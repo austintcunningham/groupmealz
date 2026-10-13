@@ -77,7 +77,7 @@ export default async function RestaurantReportsPage({
     <DashboardShell role={profile.role} title="Sales & payouts">
       <p className="mb-6 max-w-2xl text-sm text-slate-600">
         Track sales by <strong>lunch day</strong>, see your <strong>Mon–Fri check stub</strong> (what
-        Group Meals owes you after commission and card fees — same period as the Friday payout email),
+        Group Meals owes you after commission — same period as the Friday payout email),
         and review all-time totals. Need what to
         cook? Use{" "}
         <Link href="/restaurant/production" className="font-medium text-[var(--geaux-red)] hover:underline">

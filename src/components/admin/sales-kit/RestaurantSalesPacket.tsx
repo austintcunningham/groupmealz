@@ -6,6 +6,7 @@ import {
 } from "@/lib/sales-kit/email-samples";
 import { EmailSampleFrame } from "./EmailSampleFrame";
 import { RestaurantPartnerPlaybook } from "./RestaurantPartnerPlaybook";
+import { RestaurantSalesTaxNotice } from "./RestaurantSalesTaxNotice";
 import { ReviewScreenMock, SatisfactionFlowCard } from "./SatisfactionFlowCard";
 
 export function RestaurantSalesPacket() {
@@ -45,7 +46,7 @@ export function RestaurantSalesPacket() {
           <RevenueStat
             label="Example office"
             value="45 people"
-            detail="3 lunch days / week on rotation"
+            detail="Lunch Mon–Fri when you're on rotation"
           />
           <RevenueStat
             label="Avg entrée"
@@ -54,8 +55,8 @@ export function RestaurantSalesPacket() {
           />
           <RevenueStat
             label="Illustrative week"
-            value="$1,755–$2,160"
-            detail="45 × 3 days × entrée (food only)"
+            value="$2,925–$3,600"
+            detail="45 × 5 days × entrée (food only)"
           />
         </div>
         <p className="mt-4 text-xs text-slate-500">
@@ -87,8 +88,14 @@ export function RestaurantSalesPacket() {
             <strong>Settlement visibility</strong> — weekly payout-style summaries so accounting
             knows what is coming.
           </Bullet>
+          <Bullet>
+            <strong>Sales tax flow</strong> — tax is collected at checkout and paid to you on
+            settlement; you remit to the state/local authorities.
+          </Bullet>
         </ul>
       </section>
+
+      <RestaurantSalesTaxNotice />
 
       <section className="sales-kit-section break-inside-avoid">
         <h2 className="mb-4 text-xl font-bold text-[var(--geaux-charcoal)]">
@@ -158,8 +165,11 @@ export function RestaurantSalesPacket() {
       <section className="sales-kit-section break-inside-avoid rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <h2 className="text-xl font-bold text-[var(--geaux-charcoal)]">Getting on the rotation</h2>
         <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm text-slate-700">
-          <li>Share your kitchen contact email and payout details with {BRAND.name}.</li>
-          <li>We build your menu (sizes, combos, modifiers) in the platform.</li>
+          <li>
+            Meet your onboarding specialist — we tailor menu, timing, and kitchen workflow to your
+            operation.
+          </li>
+          <li>Share kitchen email and payout details; we configure digests and weekly summaries.</li>
           <li>Branding review so your order page looks sharp.</li>
           <li>First office day — we watch fulfillment closely and tune with your team.</li>
         </ol>

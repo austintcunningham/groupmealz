@@ -14,8 +14,14 @@ export function CustomerOrderRestaurantHero({
   return (
     <div className="geaux-hero-restaurant overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
       {bannerUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={bannerUrl} alt="" className="h-32 w-full object-cover sm:h-40" />
+        <div className="flex h-32 w-full items-center justify-center bg-slate-100 sm:h-40">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={bannerUrl}
+            alt=""
+            className="max-h-full max-w-full object-contain object-center"
+          />
+        </div>
       ) : (
         <div className="h-16 bg-gradient-to-r from-red-50 to-amber-50 sm:h-20" aria-hidden />
       )}

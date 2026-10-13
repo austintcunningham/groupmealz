@@ -100,7 +100,7 @@ export function calculateOrderTotals(
   );
   const payoutDueCents = Math.max(
     0,
-    subtotalCents + taxCents + gratuity - restaurantCommissionCents - stripeProcessingFeeCents
+    subtotalCents + taxCents + gratuity - restaurantCommissionCents
   );
 
   return {

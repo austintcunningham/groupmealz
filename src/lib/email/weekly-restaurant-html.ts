@@ -23,10 +23,10 @@ export function buildRestaurantWeeklyPayoutHtml(stub: RestaurantCheckStub): stri
       ${stubRow("Gross sales", formatCents(stub.grossSalesCents), true)}
       <hr class="rule" />
       ${stubRow(`${BRAND.name} commission (${commissionPct}%)`, `−${formatCents(stub.commissionCents)}`)}
-      ${stubRow("Est. card processing", `−${formatCents(stub.stripeFeeCents)}`)}
       ${stubRow("Check total", formatCents(stub.checkTotalCents), true)}
     </div>
-    <p class="muted" style="margin-top:16px;">Work-week payout — paid orders with lunch dates Mon–Fri in this period (matches Admin → Payouts).</p>`;
+    <p class="muted" style="margin-top:16px;">Work-week payout — paid orders with lunch dates Mon–Fri in this period (matches Admin → Payouts).</p>
+    <p class="muted" style="margin-top:8px;"><strong>Sales tax:</strong> Tax collected on customer orders is included in the amounts above and paid to you with settlement. Your restaurant is responsible for remitting sales tax to the appropriate tax authorities.</p>`;
 
   return wrapPrintableEmail(body);
 }
@@ -40,15 +40,15 @@ export function sampleRestaurantWeeklyPayoutHtml(): string {
       weekEnd: "2026-10-10",
       label: "10/06/2026 – 10/10/2026 (Mon–Fri)",
     },
-    orderCount: 87,
-    subtotalCents: 125000,
+    orderCount: 150,
+    subtotalCents: 270000,
     gratuityCents: 0,
-    taxCents: 13125,
+    taxCents: 28350,
     deliveryCents: 0,
-    grossSalesCents: 138125,
+    grossSalesCents: 298350,
     commissionBps: 1000,
-    commissionCents: 12500,
-    stripeFeeCents: 4200,
-    checkTotalCents: 121425,
+    commissionCents: 27000,
+    stripeFeeCents: 0,
+    checkTotalCents: 271350,
   });
 }

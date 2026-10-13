@@ -31,23 +31,36 @@ export function RestaurantPartnerPlaybook() {
       <Phase
         number="A"
         title="Before your first lunch day"
-        subtitle="One-time setup with Group Meals"
+        subtitle="One-time setup with a dedicated onboarding specialist"
       >
-        <Step n={1} title="Kitchen & finance contacts">
+        <p className="rounded-lg border border-[var(--geaux-yellow)] bg-white px-4 py-3 text-sm leading-relaxed text-slate-700">
+          A {BRAND.name} <strong>onboarding specialist</strong> walks you through the entire process
+          start to finish — menu structure, kitchen workflow, delivery handoff, and payout rhythm.
+          Because we are a small business serving local partners, we can tailor a lot of the platform
+          to how <em>your</em> kitchen actually runs (cutoff timing, bagging standards, contact
+          routing, and more). Tell us what would make office lunch easy for your team; we will
+          configure what we can before day one.
+        </p>
+        <Step n={1} title="Kickoff call with your specialist">
+          Align on goals, volume expectations, and who on your team opens the morning digest, labels
+          bags, and delivers.
+        </Step>
+        <Step n={2} title="Kitchen & finance contacts">
           Provide one email for daily kitchen digests (printed or forwarded to the line). Confirm
           payout contact info for weekly settlement summaries.
         </Step>
-        <Step n={2} title="Menu in the platform">
+        <Step n={3} title="Menu in the platform">
           We enter entrées, sizes, combos, and modifiers (e.g. “no tomato”) so customer choices match
-          what your POS/kitchen understands.
+          what your POS/kitchen understands — with your specialist adjusting until it reads right for
+          your line.
         </Step>
-        <Step n={3} title="Branding">
+        <Step n={4} title="Branding">
           Logo and banner on the employee order screen — customers should recognize your restaurant
           before they checkout.
         </Step>
-        <Step n={4} title="Dry run">
-          Walk through a sample kitchen email (see below) with whoever will open the digest on
-          delivery mornings. Agree who labels bags and who drives or dispatches delivery.
+        <Step n={5} title="Dry run">
+          Your specialist walks through a sample kitchen email (see below) with your team. Agree who
+          labels bags and who drives or dispatches delivery before the first live office day.
         </Step>
       </Phase>
 
@@ -133,9 +146,10 @@ export function RestaurantPartnerPlaybook() {
           Repeated labeling or modifier misses show up in reviews. {BRAND.name} shares trends with
           partners so you can correct before the next rotation day.
         </Step>
-        <Step n={3} title="Settlement">
+        <Step n={3} title="Settlement & sales tax">
           Use the weekly restaurant email for payout estimates; follow your agreed settlement process
-          with {BRAND.name}.
+          with {BRAND.name}. Sales tax collected on orders is paid to you with settlement — your
+          restaurant remits tax to the authorities (see Sales tax in this packet).
         </Step>
       </Phase>
 
@@ -287,7 +301,7 @@ function DeliveryExpectationsSection() {
         />
         <ExpectRow
           label="Parking & access"
-          detail="Plan ahead for downtown/security buildings. If access takes 10 minutes, leave the restaurant earlier — lateness affects reviews for the whole office."
+          detail="Plan ahead for secured buildings, loading docks, and front-desk check-in. If access takes extra time, leave the restaurant earlier — lateness affects reviews for the whole office."
         />
         <ExpectRow
           label="Who delivers"
