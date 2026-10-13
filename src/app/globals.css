@@ -267,4 +267,13 @@ body.geaux-body::before {
   #production-print {
     display: block !important;
   }
+
+  .sales-kit-document {
+    max-width: none !important;
+  }
+
+  .sales-kit-section {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
 }

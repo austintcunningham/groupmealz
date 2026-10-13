@@ -32,6 +32,7 @@ const adminNavGroups: DashboardNavGroup[] = [
       { href: "/admin/reviews", label: "Feedback" },
       { href: "/admin/settings", label: "Settings" },
       { href: "/admin/email-preview", label: "Email preview" },
+      { href: "/admin/sales-kit", label: "Sales kit" },
       { href: "/admin/simulate-order", label: "Order simulation" },
     ],
   },
