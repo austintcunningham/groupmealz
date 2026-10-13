@@ -16,8 +16,8 @@ import { sampleOfficeWeeklySummaryHtml } from "@/lib/email/weekly-office-html";
 import { sampleOpsWeeklySummaryHtml } from "@/lib/email/weekly-ops-html";
 import { sampleReviewRequestHtml } from "@/lib/email/review-request";
 import {
-  getEmailFromAddress,
   getEmailFromRawAddress,
+  getEmailFromAddress,
   getReplyToAddress,
   getResendClient,
   sendViaResend,
@@ -210,15 +210,14 @@ export async function sendWeeklyEmailSamplesToOps(): Promise<
   return { success: true, data: { sent, failures } };
 }
 
-/** Sample review invitation to the logged-in admin (same template customers receive). */
+/** Sample review invitation to orders@groupmeals.net (same template customers receive). */
 export async function sendReviewInvitationSampleToAdmin(): Promise<
   ActionResult<{ id: string; to: string }>
 > {
   const auth = await requireProfileRole(["admin"]);
   if ("error" in auth) return { success: false, error: auth.error };
 
-  const to = auth.profile.email?.trim();
-  if (!to) return { success: false, error: "Your admin profile has no email." };
+  const to = getEmailFromRawAddress();
 
   const html = sampleReviewRequestHtml();
   const result = await sendViaResend({

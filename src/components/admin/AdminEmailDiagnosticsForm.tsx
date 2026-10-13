@@ -62,7 +62,7 @@ export function AdminEmailDiagnosticsForm() {
         return;
       }
       setSuccess(
-        `Review invitation sample queued to ${result.data.to} (Resend ID: ${result.data.id}). Production sends to each customer’s checkout email after delivery + 45 min.`
+        `Review invitation sample queued to ${result.data.to} (Resend ID: ${result.data.id}). Button links to /review/demo. Production sends to each customer’s checkout email after delivery + 45 min.`
       );
     });
   }
@@ -266,7 +266,7 @@ export function AdminEmailDiagnosticsForm() {
           Send live weekly digests (this Mon–Fri)
         </Button>
         <Button type="button" variant="secondary" loading={isPending} onClick={sendReviewSample}>
-          Send review invite sample to me
+          Send review invite sample to orders@groupmeals.net
         </Button>
         <Button type="button" variant="secondary" loading={isPending} onClick={sendTest}>
           Send test email to me

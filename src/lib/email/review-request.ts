@@ -61,11 +61,15 @@ export async function sendReviewRequestEmail(input: {
   return { sent: true };
 }
 
-export function sampleReviewRequestHtml(): string {
+export function sampleReviewRequestHtml(appBase?: string): string {
+  const base = (appBase ?? process.env.NEXT_PUBLIC_APP_URL ?? "https://www.groupmeals.net").replace(
+    /\/$/,
+    ""
+  );
   return buildReviewRequestHtml({
     customerName: "Alex",
     restaurantName: "Firehouse Subs Gonzales",
     lunchDateLabel: "Monday, October 13, 2026",
-    reviewUrl: "https://www.groupmeals.net/review/00000000-0000-4000-8000-000000000099",
+    reviewUrl: `${base}/review/demo`,
   });
 }

@@ -13,8 +13,10 @@ export function buildOpsWeeklySummaryHtml(summary: OpsWeekSummary): string {
   const satisfaction =
     summary.reviewCount === 0
       ? `<p class="muted">No verified reviews submitted this week yet. Review surveys will populate this section.</p>`
-      : `${stubRow("Average rating", `${fmtRating(summary.averageRating)} / 5`, true)}
+      : `<div style="margin-bottom:12px;">
+         ${stubRow("Average rating", `${fmtRating(summary.averageRating)} / 5`, true)}
          ${stubRow("Review count", String(summary.reviewCount))}
+         </div>
          <table class="simple">
            <thead><tr><th>Restaurant</th><th class="num">Avg</th><th class="num">Reviews</th></tr></thead>
            <tbody>${summary.byRestaurantRating

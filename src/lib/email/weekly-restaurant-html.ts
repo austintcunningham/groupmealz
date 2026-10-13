@@ -26,7 +26,7 @@ export function buildRestaurantWeeklyPayoutHtml(stub: RestaurantCheckStub): stri
       ${stubRow("Est. card processing", `−${formatCents(stub.stripeFeeCents)}`)}
       ${stubRow("Check total", formatCents(stub.checkTotalCents), true)}
     </div>
-    <p class="muted">Weekly payout — amounts based on paid orders with lunch dates in this period (same as Admin → Payouts).</p>`;
+    <p class="muted" style="margin-top:16px;">Work-week payout — paid orders with lunch dates Mon–Fri in this period (matches Admin → Payouts).</p>`;
 
   return wrapPrintableEmail(body);
 }

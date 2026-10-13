@@ -111,14 +111,14 @@ export default async function AdminEmailPreviewPage({
 
   const weeklyLabels: Record<WeeklyKind, string> = {
     "weekly-restaurant": "Restaurant weekly payout (check stub)",
-    "weekly-office": "Office admin weekly meals (no pricing)",
+    "weekly-office": "Office admin weekly lunch summary",
     "weekly-ops": "Group Meals weekly ops report",
   };
 
   let description = "";
   if (cadence === "after-lunch" || type === "review-invite") {
     description =
-      "Sent to the customer’s checkout email (orders.customer_email) for each paid order, one time only, after scheduled delivery + 45 minutes. Hourly cron; subject: “How was [Restaurant]? Rate your Group Meals lunch”. Button links to /review/[orderId].";
+      "Sent to the customer’s checkout email (orders.customer_email) for each paid order, one time only, after scheduled delivery + 45 minutes. Hourly cron; subject: “How was [Restaurant]? Rate your Group Meals lunch”. Try the full survey: /review/demo (samples use this link). Real orders: /review/[orderId].";
   } else if (cadence === "weekly") {
     description = weeklyLabels[weeklyPreviews.includes(type as WeeklyKind) ? (type as WeeklyKind) : "weekly-restaurant"];
   } else {

@@ -17,7 +17,7 @@ export function buildOfficeWeeklySummaryHtml(
 
   const body = `
     <h1>Weekly lunch summary — ${escapeHtml(summary.officeName)}</h1>
-    <p class="muted">Week of ${escapeHtml(period.label)} (Central Time). Meal counts only — no pricing.</p>
+    <p class="muted">Week of ${escapeHtml(period.label)} (Central Time).</p>
     <div class="bar">Meals by restaurant</div>
     <table class="simple">
       <thead><tr><th>Restaurant</th><th class="num">Meals</th></tr></thead>

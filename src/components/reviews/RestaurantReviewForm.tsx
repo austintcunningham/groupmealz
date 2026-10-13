@@ -32,7 +32,13 @@ function Stars({
   );
 }
 
-export function RestaurantReviewForm({ context }: { context: ReviewOrderContext }) {
+export function RestaurantReviewForm({
+  context,
+  demoMode = false,
+}: {
+  context: ReviewOrderContext;
+  demoMode?: boolean;
+}) {
   const router = useRouter();
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
@@ -77,6 +83,10 @@ export function RestaurantReviewForm({ context }: { context: ReviewOrderContext 
     }
 
     startTransition(async () => {
+      if (demoMode) {
+        setDone(true);
+        return;
+      }
       const result = await submitRestaurantReview({
         orderId: context.orderId,
         rating,
