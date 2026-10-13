@@ -1,6 +1,6 @@
 import { BRAND } from "@/lib/brand";
 
-/** Commission + sales tax explanation for restaurant sales packet (not legal advice). */
+/** Commission + sales tax explanation for restaurant sales packet. */
 export function RestaurantPartnerPayoutTerms() {
   return (
     <section className="sales-kit-section space-y-5 break-inside-avoid">
@@ -39,16 +39,6 @@ export function RestaurantPartnerPayoutTerms() {
           not on sales tax and not on the customer service fee. That matches common marketplace and
           delivery-platform practice: sales tax is a pass-through amount you hold for remittance, not
           revenue the platform should share in.
-        </p>
-        <p className="mt-3 text-xs leading-relaxed text-slate-600">
-          <strong>Not tax or legal advice.</strong> State and local rules vary (including Louisiana
-          marketplace-facilitator and prepared-food rules). Industry examples and rulings often base
-          platform fees on the <strong>food portion</strong> of the sale — e.g. Washington DOR
-          marketplace examples compute commission on the selling price of food before tax is broken out
-          separately, and Virginia has described commission as a percentage of the charge for the food
-          portion. Your CPA should confirm reporting for your entity, especially how marketplace sales
-          appear on Louisiana returns if {BRAND.name} collects tax at checkout and pays it through to
-          you for remittance.
         </p>
       </div>
     </section>
