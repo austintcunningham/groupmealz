@@ -75,13 +75,16 @@ export function RestaurantPartnerPlaybook() {
           Employees at the office use their Group Meals link. They pick items, modifiers, and notes;
           pay by card in the app. You do not take payment at the door.
         </Step>
-        <Step n={2} title="While the window is open">
-          Order count can grow through cutoff. Do not prep the full batch from early counts — wait for
-          the final digest after cutoff.
+        <Step n={2} title="While the window is open — you hear nothing (by design)">
+          {BRAND.name} does <strong>not</strong> send partial counts, live totals, or order updates
+          while employees are still ordering. Your kitchen should not prep this office lunch from
+          guesses, walk-ins asking “how many so far?”, or yesterday’s volume — wait for the one
+          authoritative email after cutoff.
         </Step>
         <Step n={3} title="Cutoff (default 9:30 AM Central on lunch day)">
-          Ordering closes. The schedule locks. No add-ons after cutoff unless {BRAND.name} ops
-          coordinates an exception (rare).
+          Ordering closes and the schedule locks. That morning you receive a single kitchen digest
+          (typically at 9:30 AM Central) with the final headcount and every order detail. No add-ons
+          after cutoff unless {BRAND.name} ops coordinates an exception (rare).
         </Step>
       </Phase>
 
