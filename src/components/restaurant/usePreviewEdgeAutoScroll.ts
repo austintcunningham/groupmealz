@@ -8,7 +8,7 @@ const EDGE_PX = 100;
 const MAX_SPEED = 28;
 
 function scrollRoot(): HTMLElement {
-  return document.scrollingElement ?? document.documentElement;
+  return (document.scrollingElement as HTMLElement | null) ?? document.documentElement;
 }
 
 type ScrollSurface =
