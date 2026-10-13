@@ -10,20 +10,17 @@ import {
 } from "@/lib/email/printable-order-digest";
 import { getEmailFromAddress, getResendClient } from "@/lib/email/resend-client";
 
-const CHICAGO_TZ = "America/Chicago";
+import {
+  BUSINESS_TZ,
+  getChicagoDateString,
+  isChicagoNineThirtySendWindow,
+} from "@/lib/scheduling/chicago";
 
-export function getChicagoDateString(date = new Date()): string {
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone: CHICAGO_TZ,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(date);
-}
+export { getChicagoDateString };
 
 export function formatChicagoLunchDate(isoDate: string): string {
   return new Date(isoDate + "T12:00:00").toLocaleDateString("en-US", {
-    timeZone: CHICAGO_TZ,
+    timeZone: BUSINESS_TZ,
     weekday: "long",
     month: "long",
     day: "numeric",
@@ -33,7 +30,7 @@ export function formatChicagoLunchDate(isoDate: string): string {
 
 function formatPlacedAt(iso: string): string {
   return new Date(iso).toLocaleString("en-US", {
-    timeZone: CHICAGO_TZ,
+    timeZone: BUSINESS_TZ,
     month: "2-digit",
     day: "2-digit",
     year: "numeric",
@@ -46,7 +43,7 @@ function formatPlacedAt(iso: string): string {
 
 function formatDeliveryAt(iso: string): string {
   return new Date(iso).toLocaleString("en-US", {
-    timeZone: CHICAGO_TZ,
+    timeZone: BUSINESS_TZ,
     weekday: "short",
     hour: "numeric",
     minute: "2-digit",
@@ -329,6 +326,8 @@ export async function runDailyFulfillmentCron(
     return out;
   }
 
+  await closeSchedulesReadyForFulfillment(lunchDate);
+
   if (!schedules?.length) return out;
 
   const blocks: { restaurantId: string; restaurantName: string; block: DigestOfficeBlock }[] = [];
@@ -387,13 +386,31 @@ export async function runDailyFulfillmentCron(
 }
 
 export function isChicagoFulfillmentWindow(now = new Date()): boolean {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: CHICAGO_TZ,
-    hour: "numeric",
-    minute: "numeric",
-    hour12: false,
-  }).formatToParts(now);
-  const hour = Number(parts.find((p) => p.type === "hour")?.value ?? -1);
-  const minute = Number(parts.find((p) => p.type === "minute")?.value ?? -1);
-  return hour === 9 && minute >= 30 && minute < 45;
+  return isChicagoNineThirtySendWindow(now);
+}
+
+/** Close open schedules whose cutoff has passed (same run as 9:30 fulfillment). */
+async function closeSchedulesReadyForFulfillment(lunchDate: string): Promise<number> {
+  const supabase = createAdminClient();
+  const nowIso = new Date().toISOString();
+
+  const { data: rows } = await supabase
+    .from("daily_lunch_schedules")
+    .select("id")
+    .eq("lunch_date", lunchDate)
+    .eq("status", "open")
+    .lte("order_cutoff_at", nowIso);
+
+  if (!rows?.length) return 0;
+
+  const { error } = await supabase
+    .from("daily_lunch_schedules")
+    .update({ status: "closed" })
+    .in(
+      "id",
+      rows.map((r) => r.id)
+    );
+
+  if (error) return 0;
+  return rows.length;
 }

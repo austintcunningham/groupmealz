@@ -13,7 +13,7 @@
     },
     {
       "path": "/api/cron/send-daily-fulfillment",
-      "schedule": "*/15 * * * *"
+      "schedule": "30 14,15 * * *"
     }
   ]
 }

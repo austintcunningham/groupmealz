@@ -3,6 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { sendFulfillmentDigestsForSchedule } from "@/lib/email/fulfillment-daily";
+import {
+  chicagoWallClockToDate,
+  DEFAULT_CUTOFF_TIME,
+  DEFAULT_DELIVERY_TIME,
+  getChicagoDateString,
+  getChicagoDayOfWeek,
+} from "@/lib/scheduling/chicago";
 import { computeOrderOpensAt, getAdvanceOrderHours } from "@/lib/scheduling/window";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -32,6 +39,27 @@ const weeklyTemplateSchema = z.object({
   delivery_time: z.string().regex(/^\d{2}:\d{2}(:\d{2})?$/),
   active: z.boolean().optional(),
 });
+
+/** Admin form: times are Central wall clock on lunch_date. */
+export async function createLunchScheduleCentral(input: {
+  office_id: string;
+  restaurant_id: string;
+  lunch_date: string;
+  cutoff_time: string;
+  delivery_time: string;
+  status?: z.infer<typeof scheduleSchema>["status"];
+}): Promise<ActionResult<{ id: string }>> {
+  const cutoffAt = chicagoWallClockToDate(input.lunch_date, input.cutoff_time);
+  const deliveryAt = chicagoWallClockToDate(input.lunch_date, input.delivery_time);
+  return createLunchSchedule({
+    office_id: input.office_id,
+    restaurant_id: input.restaurant_id,
+    lunch_date: input.lunch_date,
+    order_cutoff_at: cutoffAt.toISOString(),
+    delivery_at: deliveryAt.toISOString(),
+    status: input.status,
+  });
+}
 
 export async function createLunchSchedule(
   input: z.infer<typeof scheduleSchema>
@@ -112,17 +140,17 @@ export async function generateSchedulesFromTemplates(
   const advanceHours = await getAdvanceOrderHours(settings);
 
   let created = 0;
-  const today = new Date();
+  const startChicago = getChicagoDateString();
 
   for (let d = 0; d < daysAhead; d++) {
-    const date = new Date(today);
-    date.setDate(date.getDate() + d);
-    const lunchDate = date.toISOString().slice(0, 10);
-    const dow = date.getDay();
+    const base = chicagoWallClockToDate(startChicago, "12:00:00");
+    base.setUTCDate(base.getUTCDate() + d);
+    const lunchDate = getChicagoDateString(base);
+    const dow = getChicagoDayOfWeek(lunchDate);
 
     for (const tmpl of templates.filter((t) => t.day_of_week === dow)) {
-      const cutoffAt = new Date(`${lunchDate}T${tmpl.cutoff_time}`);
-      const deliveryAt = new Date(`${lunchDate}T${tmpl.delivery_time}`);
+      const cutoffAt = chicagoWallClockToDate(lunchDate, tmpl.cutoff_time);
+      const deliveryAt = chicagoWallClockToDate(lunchDate, tmpl.delivery_time);
       const orderOpensAt = computeOrderOpensAt(lunchDate, cutoffAt, advanceHours);
 
       const { error } = await supabase.from("daily_lunch_schedules").upsert(
@@ -181,15 +209,6 @@ export async function updateScheduleStatus(
 
   if (error) return { success: false, error: error.message };
 
-  if (status === "closed") {
-    const emailResult = await emailRestaurantForSchedule(scheduleId);
-    if (!emailResult.success) {
-      await logAudit("schedule_close_email_failed", "daily_lunch_schedule", scheduleId, {
-        error: emailResult.error,
-      });
-    }
-  }
-
   await logAudit("update_schedule_status", "daily_lunch_schedule", scheduleId, { status });
   revalidatePath("/admin/schedules");
   revalidatePath("/app/order");
@@ -213,10 +232,10 @@ export async function upsertDaySchedule(input: {
   const { data: settings } = await supabase.from("platform_settings").select("*").limit(1).single();
   const advanceHours = await getAdvanceOrderHours(settings);
 
-  const cutoffTime = input.cutoffTime ?? "11:00:00";
-  const deliveryTime = input.deliveryTime ?? "12:00:00";
-  const cutoffAt = new Date(`${input.lunchDate}T${cutoffTime}`);
-  const deliveryAt = new Date(`${input.lunchDate}T${deliveryTime}`);
+  const cutoffTime = input.cutoffTime ?? DEFAULT_CUTOFF_TIME;
+  const deliveryTime = input.deliveryTime ?? DEFAULT_DELIVERY_TIME;
+  const cutoffAt = chicagoWallClockToDate(input.lunchDate, cutoffTime);
+  const deliveryAt = chicagoWallClockToDate(input.lunchDate, deliveryTime);
   const orderOpensAt = computeOrderOpensAt(input.lunchDate, cutoffAt, advanceHours);
 
   const { data, error } = await supabase

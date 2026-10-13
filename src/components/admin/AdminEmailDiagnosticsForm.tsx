@@ -94,11 +94,26 @@ export function AdminEmailDiagnosticsForm() {
       {error ? <ErrorMessage message={error} /> : null}
       {success ? <SuccessMessage message={success} /> : null}
 
-      <p>
-        Daily kitchen sheets go out at <strong>9:30 AM America/Chicago</strong> via cron. Ops rollup
-        uses <code className="rounded bg-slate-100 px-1">OPS_DIGEST_EMAILS</code> (comma-separated)
-        or all platform admin profiles.
-      </p>
+      <div className="rounded-lg border border-slate-200 bg-white p-3 text-slate-700">
+        <p className="font-medium text-slate-900">Daily fulfillment (9:30 AM Central)</p>
+        <p className="mt-1">
+          Order cutoff is <strong>9:30 AM Central</strong>. At that time the app closes the lunch
+          window and emails the restaurant, each office admin, and your ops team.
+        </p>
+        <p className="mt-2 text-xs text-slate-500">
+          <strong>Vercel (only if something is missing):</strong> Project → Settings → Environment
+          Variables — <code className="rounded bg-slate-100 px-1">RESEND_API_KEY</code> (sends mail),{" "}
+          <code className="rounded bg-slate-100 px-1">SUPABASE_SERVICE_ROLE_KEY</code> (cron + admin
+          orders), <code className="rounded bg-slate-100 px-1">CRON_SECRET</code> (protects cron
+          URLs). Redeploy after adding variables.
+        </p>
+        <p className="mt-2 text-xs text-slate-500">
+          <strong>Optional:</strong>{" "}
+          <code className="rounded bg-slate-100 px-1">OPS_DIGEST_EMAILS</code> = comma-separated
+          inboxes for the internal rollup. If unset, every account with the platform admin role
+          receives it.
+        </p>
+      </div>
 
       <div className="flex flex-wrap gap-2">
         <Button type="button" variant="secondary" loading={isPending} onClick={sendTest}>

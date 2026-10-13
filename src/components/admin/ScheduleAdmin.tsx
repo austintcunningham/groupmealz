@@ -2,7 +2,12 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { createLunchSchedule, openLunchSchedule, closeLunchSchedule } from "@/lib/actions/schedules";
+import {
+  createLunchScheduleCentral,
+  openLunchSchedule,
+  closeLunchSchedule,
+} from "@/lib/actions/schedules";
+import { DEFAULT_CUTOFF_TIME, DEFAULT_DELIVERY_TIME } from "@/lib/scheduling/chicago";
 import { Button, ErrorMessage, SuccessMessage } from "@/components/ui";
 import type { Office, Restaurant } from "@/types/database";
 
@@ -19,19 +24,16 @@ export function ScheduleAdmin({
   function createSchedule(formData: FormData) {
     setError(null);
     const lunchDate = String(formData.get("lunch_date") ?? "");
-    const cutoffTime = String(formData.get("cutoff_time") ?? "11:00");
-    const deliveryTime = String(formData.get("delivery_time") ?? "12:00");
-
-    const orderCutoffAt = new Date(`${lunchDate}T${cutoffTime}:00`).toISOString();
-    const deliveryAt = new Date(`${lunchDate}T${deliveryTime}:00`).toISOString();
+    const cutoffTime = String(formData.get("cutoff_time") ?? DEFAULT_CUTOFF_TIME.slice(0, 5));
+    const deliveryTime = String(formData.get("delivery_time") ?? DEFAULT_DELIVERY_TIME.slice(0, 5));
 
     startTransition(async () => {
-      const result = await createLunchSchedule({
+      const result = await createLunchScheduleCentral({
         office_id: String(formData.get("office_id") ?? ""),
         restaurant_id: String(formData.get("restaurant_id") ?? ""),
         lunch_date: lunchDate,
-        order_cutoff_at: orderCutoffAt,
-        delivery_at: deliveryAt,
+        cutoff_time: cutoffTime,
+        delivery_time: deliveryTime,
         status: "draft",
       });
       if (!result.success) setError(result.error);
@@ -76,8 +78,9 @@ export function ScheduleAdmin({
           ))}
         </select>
         <input name="lunch_date" type="date" required className="rounded-lg border px-3 py-2 text-sm" />
-        <input name="cutoff_time" type="time" defaultValue="11:00" className="rounded-lg border px-3 py-2 text-sm" />
+        <input name="cutoff_time" type="time" defaultValue="09:30" className="rounded-lg border px-3 py-2 text-sm" />
         <input name="delivery_time" type="time" defaultValue="12:00" className="rounded-lg border px-3 py-2 text-sm" />
+        <p className="sm:col-span-2 text-xs text-slate-500">Cutoff and delivery times are Central Time (Baton Rouge).</p>
         <Button type="submit" loading={isPending}>
           Create schedule
         </Button>

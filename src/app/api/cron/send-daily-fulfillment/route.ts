@@ -18,7 +18,7 @@ export async function GET(request: Request) {
   if (!force && !isChicagoFulfillmentWindow()) {
     return NextResponse.json({
       skipped: true,
-      reason: "Outside 9:30 AM America/Chicago window (use ?force=1 to test)",
+      reason: "Outside 9:30 AM Central window (use ?force=1 to test)",
     });
   }
 

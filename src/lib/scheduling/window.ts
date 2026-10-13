@@ -1,4 +1,5 @@
 import type { DailyLunchSchedule, PlatformSettings } from "@/types/database";
+import { chicagoWallClockToDate } from "@/lib/scheduling/chicago";
 
 export function isOrderingWindowOpen(
   schedule: Pick<
@@ -20,7 +21,7 @@ export function computeOrderOpensAt(
   cutoffAt: Date,
   advanceHours: number
 ): Date {
-  const lunch = new Date(`${lunchDate}T12:00:00`);
+  const lunch = chicagoWallClockToDate(lunchDate, "12:00:00");
   const opens = new Date(lunch.getTime() - advanceHours * 60 * 60 * 1000);
   // Never open after cutoff
   return opens < cutoffAt ? opens : new Date(cutoffAt.getTime() - advanceHours * 60 * 60 * 1000);

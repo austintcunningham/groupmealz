@@ -66,8 +66,8 @@ export function WeeklyTemplateAdmin({
             <option key={r.id} value={r.id}>{r.name}</option>
           ))}
         </Select>
-        <Select name="cutoff_time" label="Cutoff" defaultValue="11:00:00">
-          {["10:00:00", "10:30:00", "11:00:00", "11:30:00"].map((t) => (
+        <Select name="cutoff_time" label="Cutoff (Central)" defaultValue="09:30:00">
+          {["09:00:00", "09:30:00", "10:00:00", "10:30:00", "11:00:00"].map((t) => (
             <option key={t} value={t}>{t.slice(0, 5)}</option>
           ))}
         </Select>
