@@ -8,9 +8,15 @@ import { EmailSampleFrame } from "./EmailSampleFrame";
 import { RestaurantPartnerPlaybook } from "./RestaurantPartnerPlaybook";
 import { RestaurantPartnerPayoutTerms } from "./RestaurantPartnerPayoutTerms";
 import { RestaurantSalesTaxNotice } from "./RestaurantSalesTaxNotice";
+import { RestaurantSalesKitOrderPreview } from "./RestaurantSalesKitOrderPreview";
 import { ReviewScreenMock, SatisfactionFlowCard } from "./SatisfactionFlowCard";
+import type { SalesKitOrderPreviewSample } from "@/lib/sales-kit/order-preview-sample";
 
-export function RestaurantSalesPacket() {
+export function RestaurantSalesPacket({
+  orderPreview,
+}: {
+  orderPreview: SalesKitOrderPreviewSample;
+}) {
   return (
     <article className="sales-kit-document mx-auto max-w-3xl space-y-8 pb-12">
       <header className="sales-kit-cover break-inside-avoid overflow-hidden rounded-2xl geaux-header-gradient text-white shadow-lg">
@@ -96,6 +102,8 @@ export function RestaurantSalesPacket() {
           </Bullet>
         </ul>
       </section>
+
+      <RestaurantSalesKitOrderPreview sample={orderPreview} />
 
       <RestaurantPartnerPayoutTerms />
       <RestaurantSalesTaxNotice compact />
