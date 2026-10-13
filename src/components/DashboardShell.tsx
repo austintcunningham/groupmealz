@@ -3,10 +3,9 @@ import { SignOutForm } from "@/components/auth/SignOutForm";
 import { GroupMealsLogo } from "@/components/brand/GroupMealsLogo";
 import { DashboardNav, type DashboardNavGroup } from "@/components/DashboardNav";
 
-/** Same order as before the audit — grouped in code only for maintainability. */
 const adminNavGroups: DashboardNavGroup[] = [
   {
-    label: "Overview",
+    label: "Dashboard",
     links: [{ href: "/admin", label: "Dashboard" }],
   },
   {
@@ -28,7 +27,7 @@ const adminNavGroups: DashboardNavGroup[] = [
     ],
   },
   {
-    label: "More",
+    label: "Tools",
     links: [
       { href: "/admin/reviews", label: "Feedback" },
       { href: "/admin/settings", label: "Settings" },
