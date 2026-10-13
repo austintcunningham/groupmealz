@@ -2,10 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { sendRestaurantOrderEmail } from "@/lib/email/restaurant";
+import { sendFulfillmentDigestsForSchedule } from "@/lib/email/fulfillment-daily";
 import { computeOrderOpensAt, getAdvanceOrderHours } from "@/lib/scheduling/window";
 import { createClient } from "@/lib/supabase/server";
-import { getProductionSheet } from "@/lib/actions/reports";
 import {
   logAudit,
   requireProfileRole,
@@ -150,77 +149,13 @@ export async function generateSchedulesFromTemplates(
 
 async function emailRestaurantForSchedule(scheduleId: string): Promise<ActionResult> {
   const supabase = await createClient();
+  const result = await sendFulfillmentDigestsForSchedule(scheduleId, { force: true });
 
-  const { data: schedule } = await supabase
-    .from("daily_lunch_schedules")
-    .select("*, offices(*), restaurants(*)")
-    .eq("id", scheduleId)
-    .single();
-
-  if (!schedule) return { success: false, error: "Schedule not found" };
-
-  const sheet = await getProductionSheet(scheduleId);
-  if ("error" in sheet) return { success: false, error: sheet.error };
-
-  const { data: orders } = await supabase
-    .from("orders")
-    .select("*, order_items(*), profiles(full_name, email)")
-    .eq("schedule_id", scheduleId)
-    .in("status", ["paid", "authorized"]);
-
-  const office = schedule.offices as {
-    name: string;
-    street_address: string;
-    city: string;
-    state: string;
-    zip: string;
-    delivery_instructions: string | null;
-    contact_name: string | null;
-    contact_phone: string | null;
-  } | null;
-
-  const restaurant = schedule.restaurants as {
-    name: string;
-    email: string | null;
-  } | null;
-
-  const grandTotal = (orders ?? []).reduce((s, o) => s + o.total_cents, 0);
-
-  const emailResult = await sendRestaurantOrderEmail({
-    restaurantName: restaurant?.name ?? "Restaurant",
-    restaurantEmail: restaurant?.email ?? "",
-    officeName: office?.name ?? "Office",
-    officeAddress: [office?.street_address, office?.city, office?.state, office?.zip]
-      .filter(Boolean)
-      .join(", "),
-    deliveryInstructions: office?.delivery_instructions ?? null,
-    contactName: office?.contact_name ?? null,
-    contactPhone: office?.contact_phone ?? null,
-    lunchDate: schedule.lunch_date,
-    deliveryAt: new Date(schedule.delivery_at).toLocaleString(),
-    productionItems: sheet.data,
-    orders: (orders ?? []).map((o) => ({
-      customerName: o.customer_name,
-      customerEmail: o.customer_email,
-      customerNote: (o as { customer_note?: string | null }).customer_note ?? null,
-      totalCents: o.total_cents,
-      items: (o.order_items ?? []).map((i: {
-        item_name_snapshot: string;
-        quantity: number;
-        base_price_cents: number;
-        special_instructions: string | null;
-      }) => ({
-        name: i.item_name_snapshot,
-        qty: i.quantity,
-        priceCents: i.base_price_cents,
-        instructions: i.special_instructions,
-      })),
-    })),
-    grandTotalCents: grandTotal,
-  });
-
-  if (!emailResult.sent && emailResult.error) {
-    return { success: false, error: emailResult.error };
+  if (!result.restaurantSent && !result.officeSent) {
+    return {
+      success: false,
+      error: result.errors.join("; ") || "No fulfillment emails sent",
+    };
   }
 
   await supabase

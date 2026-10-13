@@ -3,18 +3,32 @@ import { DashboardShell } from "@/components/DashboardShell";
 import { Badge, Card, EmptyState } from "@/components/ui";
 import { requireAdmin } from "@/lib/auth/guards";
 import { formatCents } from "@/lib/money/format";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getRelationName } from "@/lib/supabase/relation";
+import type { Order } from "@/types/database";
+
+type OrderRow = Order & {
+  restaurants: { name: string } | { name: string }[] | null;
+  offices: { name: string } | { name: string }[] | null;
+};
 
 export default async function AdminOrdersPage() {
   const profile = await requireAdmin();
-  const supabase = await createClient();
+  let orders: OrderRow[] | null = null;
+  let loadError: string | null = null;
 
-  const { data: orders } = await supabase
-    .from("orders")
-    .select("*, restaurants(name), offices(name)")
-    .order("created_at", { ascending: false })
-    .limit(100);
+  try {
+    const supabase = createAdminClient();
+    const { data, error } = await supabase
+      .from("orders")
+      .select("*, restaurants(name), offices(name)")
+      .order("created_at", { ascending: false })
+      .limit(100);
+    if (error) loadError = error.message;
+    else orders = (data ?? []) as OrderRow[];
+  } catch (e) {
+    loadError = e instanceof Error ? e.message : "Could not load orders";
+  }
 
   const paid = orders?.filter((o) => o.status === "paid") ?? [];
   const monthStart = new Date().toISOString().slice(0, 7) + "-01";
@@ -36,7 +50,9 @@ export default async function AdminOrdersPage() {
           <Summary label="Payout due (this month)" value={formatCents(totalPayout)} />
         </div>
         <Card title="All orders">
-          {!orders?.length ? (
+          {loadError ? (
+            <EmptyState message={`Could not load orders: ${loadError}. Check SUPABASE_SERVICE_ROLE_KEY on the server.`} />
+          ) : !orders?.length ? (
             <EmptyState message="No orders yet." />
           ) : (
             <div className="overflow-x-auto">
@@ -60,12 +76,8 @@ export default async function AdminOrdersPage() {
                           {order.customer_name}
                         </Link>
                       </td>
-                      <td className="py-3 pr-4">
-                        {getRelationName(order.offices)}
-                      </td>
-                      <td className="py-3 pr-4">
-                        {getRelationName(order.restaurants)}
-                      </td>
+                      <td className="py-3 pr-4">{getRelationName(order.offices)}</td>
+                      <td className="py-3 pr-4">{getRelationName(order.restaurants)}</td>
                       <td className="py-3 pr-4">{formatCents(order.total_cents)}</td>
                       <td className="py-3 pr-4">{formatCents(order.platform_fee_cents)}</td>
                       <td className="py-3 pr-4">{formatCents(order.payout_due_cents)}</td>

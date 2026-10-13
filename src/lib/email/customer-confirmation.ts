@@ -53,6 +53,8 @@ export async function sendCustomerOrderConfirmation(
     base_price_cents: number;
     line_total_cents: number;
     special_instructions: string | null;
+    size_label_snapshot: string | null;
+    removed_ingredients: string[] | null;
   };
 
   const items = ((order.order_items ?? []) as OrderItemRow[]).map((i) => ({
@@ -60,6 +62,8 @@ export async function sendCustomerOrderConfirmation(
     qty: i.quantity,
     lineCents: i.line_total_cents ?? i.base_price_cents * i.quantity,
     instructions: i.special_instructions,
+    sizeLabel: i.size_label_snapshot,
+    removedIngredients: Array.isArray(i.removed_ingredients) ? i.removed_ingredients : [],
   }));
   const entreeCount = items.reduce((s, i) => s + i.qty, 0);
 

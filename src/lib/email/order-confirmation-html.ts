@@ -23,6 +23,8 @@ export type OrderConfirmationEmailData = {
     qty: number;
     lineCents: number;
     instructions: string | null;
+    sizeLabel?: string | null;
+    removedIngredients?: string[];
   }[];
   subtotalCents: number;
   taxCents: number;
@@ -33,13 +35,21 @@ export type OrderConfirmationEmailData = {
 
 export function buildOrderConfirmationHtml(data: OrderConfirmationEmailData): string {
   const itemRows = data.items
-    .map(
-      (i) => `
+    .map((i) => {
+      const size = i.sizeLabel ? ` — ${i.sizeLabel}` : "";
+      const removed =
+        i.removedIngredients?.length ?
+          `<br/><span style="font-size:12px;color:#64748b;">No: ${i.removedIngredients.join(", ")}</span>`
+        : "";
+      const note = i.instructions
+        ? `<br/><span style="font-size:12px;color:#64748b;font-style:italic;">${i.instructions}</span>`
+        : "";
+      return `
       <tr>
-        <td style="padding:12px 8px;border-bottom:1px solid #e2e8f0;font-size:14px;">${i.qty}× ${i.name}${i.instructions ? `<br/><span style="font-size:12px;color:#64748b;font-style:italic;">${i.instructions}</span>` : ""}</td>
+        <td style="padding:12px 8px;border-bottom:1px solid #e2e8f0;font-size:14px;">${i.qty}× ${i.name}${size}${removed}${note}</td>
         <td style="padding:12px 8px;border-bottom:1px solid #e2e8f0;font-size:14px;text-align:right;font-weight:600;">${formatCents(i.lineCents)}</td>
-      </tr>`
-    )
+      </tr>`;
+    })
     .join("");
 
   const totalsBlock = `

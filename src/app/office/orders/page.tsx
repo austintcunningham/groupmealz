@@ -19,7 +19,7 @@ export default async function OfficeOrdersPage() {
   const { data: orders } = officeIds.length
     ? await supabase
         .from("orders")
-        .select("*, profiles(full_name), restaurants(name)")
+        .select("*, restaurants(name)")
         .in("office_id", officeIds)
         .order("created_at", { ascending: false })
         .limit(100)
@@ -44,9 +44,7 @@ export default async function OfficeOrdersPage() {
               <tbody>
                 {orders.map((order) => (
                   <tr key={order.id} className="border-b border-slate-100">
-                    <td className="py-3 pr-4">
-                      {(order.profiles as { full_name: string } | null)?.full_name}
-                    </td>
+                    <td className="py-3 pr-4">{order.customer_name}</td>
                     <td className="py-3 pr-4">
                       {getRelationName(order.restaurants)}
                     </td>

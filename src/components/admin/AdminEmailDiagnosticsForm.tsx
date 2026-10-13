@@ -5,6 +5,7 @@ import {
   getEmailSetupSummary,
   sendAdminTestEmail,
 } from "@/lib/actions/email-diagnostics";
+import { sendDailyFulfillmentNow } from "@/lib/actions/fulfillment";
 import { Button, ErrorMessage, SuccessMessage } from "@/components/ui";
 
 export function AdminEmailDiagnosticsForm() {
@@ -25,6 +26,24 @@ export function AdminEmailDiagnosticsForm() {
       if (r.success) setSummary(r.data);
     });
   }, []);
+
+  function sendFulfillmentDigest() {
+    setError(null);
+    setSuccess(null);
+    startTransition(async () => {
+      const result = await sendDailyFulfillmentNow();
+      if (!result.success) {
+        setError(result.error);
+        return;
+      }
+      const { schedulesProcessed, errors } = result.data;
+      setSuccess(
+        `Fulfillment digests sent for ${schedulesProcessed} schedule(s).${
+          errors.length ? ` Notes: ${errors.join("; ")}` : ""
+        }`
+      );
+    });
+  }
 
   function sendTest() {
     setError(null);
@@ -75,9 +94,20 @@ export function AdminEmailDiagnosticsForm() {
       {error ? <ErrorMessage message={error} /> : null}
       {success ? <SuccessMessage message={success} /> : null}
 
-      <Button type="button" variant="secondary" loading={isPending} onClick={sendTest}>
-        Send test email to me
-      </Button>
+      <p>
+        Daily kitchen sheets go out at <strong>9:30 AM America/Chicago</strong> via cron. Ops rollup
+        uses <code className="rounded bg-slate-100 px-1">OPS_DIGEST_EMAILS</code> (comma-separated)
+        or all platform admin profiles.
+      </p>
+
+      <div className="flex flex-wrap gap-2">
+        <Button type="button" variant="secondary" loading={isPending} onClick={sendTest}>
+          Send test email to me
+        </Button>
+        <Button type="button" variant="secondary" loading={isPending} onClick={sendFulfillmentDigest}>
+          Send today&apos;s fulfillment digests now
+        </Button>
+      </div>
     </div>
   );
 }
