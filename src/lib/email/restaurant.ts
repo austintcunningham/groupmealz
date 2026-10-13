@@ -1,6 +1,7 @@
 import { formatCents } from "@/lib/money/format";
 import { BRAND } from "@/lib/brand";
 import { emailSection, wrapBrandedEmail } from "@/lib/email/layout";
+import { normalizeDeliverableEmail } from "@/lib/email/email-routing";
 import { getEmailFromAddress, getResendClient } from "@/lib/email/resend-client";
 import type { ProductionSheetItem } from "@/types/database";
 
@@ -85,7 +86,7 @@ export async function sendRestaurantOrderEmail(
 
   const { error } = await resend.emails.send({
     from,
-    to: data.restaurantEmail,
+    to: normalizeDeliverableEmail(data.restaurantEmail),
     subject: `${BRAND.name} order — ${data.officeName} — ${data.lunchDate}`,
     html: buildHtml(data),
   });

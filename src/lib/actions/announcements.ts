@@ -10,6 +10,7 @@ import {
   buildRestaurantOfTheDayHtml,
   defaultRotdEmailSubject,
 } from "@/lib/email/restaurant-of-the-day";
+import { normalizeDeliverableEmail } from "@/lib/email/email-routing";
 import { getEmailFromAddress, getReplyToAddress, getResendClient } from "@/lib/email/resend-client";
 import { officeOrderPath } from "@/lib/offices/slug";
 import { formatOrderingWindow } from "@/lib/scheduling/window";
@@ -133,7 +134,7 @@ function sendBrandedEmail(
 ) {
   return resend.emails.send({
     from: params.from,
-    to: params.to,
+    to: normalizeDeliverableEmail(params.to),
     replyTo: getReplyToAddress(),
     subject: params.subject,
     html: params.html,

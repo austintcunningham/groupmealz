@@ -1,6 +1,7 @@
 import { BRAND } from "@/lib/brand";
 import { htmlToPlainText } from "@/lib/email/html-utils";
 import { emailPrimaryButton, wrapBrandedEmail } from "@/lib/email/layout";
+import { normalizeDeliverableEmail } from "@/lib/email/email-routing";
 import { getEmailFromAddress, getReplyToAddress, getResendClient } from "@/lib/email/resend-client";
 
 export function buildReviewRequestHtml(input: {
@@ -50,7 +51,7 @@ export async function sendReviewRequestEmail(input: {
 
   const { error } = await resend.emails.send({
     from: getEmailFromAddress(),
-    to: input.to,
+    to: normalizeDeliverableEmail(input.to),
     replyTo: getReplyToAddress(),
     subject: `How was ${input.restaurantName}? Rate your ${BRAND.name} lunch`,
     html,

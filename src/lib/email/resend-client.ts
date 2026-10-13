@@ -1,5 +1,9 @@
 import { Resend } from "resend";
 import { BRAND } from "@/lib/brand";
+import {
+  normalizeDeliverableEmail,
+  normalizeDeliverableList,
+} from "@/lib/email/email-routing";
 
 export function getResendClient(): Resend | null {
   const key = process.env.RESEND_API_KEY?.trim();
@@ -15,16 +19,15 @@ export function getEmailFromRawAddress(): string {
 }
 
 export function getEmailFromAddress(): string {
-  const addr =
-    process.env.EMAIL_FROM?.trim() ?? `orders@${BRAND.mailDomain}`;
+  const raw = process.env.EMAIL_FROM?.trim() ?? BRAND.opsEmail;
+  const addr = normalizeDeliverableEmail(raw);
   if (addr.includes("<")) return addr;
   return `${BRAND.name} <${addr}>`;
 }
 
 export function getReplyToAddress(): string {
-  return (
-    process.env.EMAIL_REPLY_TO?.trim() ?? BRAND.supportEmail
-  );
+  const raw = process.env.EMAIL_REPLY_TO?.trim() ?? BRAND.supportEmail;
+  return normalizeDeliverableEmail(raw);
 }
 
 export type SendViaResendResult =
@@ -45,12 +48,8 @@ export async function sendViaResend(params: {
     return { sent: false, error: "RESEND_API_KEY missing on server", from };
   }
 
-  const toList = Array.isArray(params.to) ? params.to : [params.to];
-  const bccList = params.bcc
-    ? Array.isArray(params.bcc)
-      ? params.bcc.filter(Boolean)
-      : [params.bcc]
-    : undefined;
+  const toList = normalizeDeliverableList(params.to);
+  const bccList = params.bcc ? normalizeDeliverableList(params.bcc) : undefined;
 
   try {
     const { data, error } = await resend.emails.send({
@@ -73,7 +72,7 @@ export async function sendViaResend(params: {
       });
       return {
         sent: false,
-        error: `${msg} — verify domain ${BRAND.mailDomain} in Resend and set EMAIL_FROM to e.g. orders@${BRAND.mailDomain} on Vercel.`,
+        error: `${msg} — verify domain ${BRAND.mailDomain} in Resend and set EMAIL_FROM to e.g. office@${BRAND.mailDomain} on Vercel.`,
         from,
       };
     }

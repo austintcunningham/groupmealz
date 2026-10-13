@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { BRAND } from "@/lib/brand";
 import { htmlToPlainText } from "@/lib/email/html-utils";
+import { normalizeDeliverableEmail } from "@/lib/email/email-routing";
 import { getEmailFromAddress, getReplyToAddress, getResendClient } from "@/lib/email/resend-client";
 import { buildOrderConfirmationHtml } from "@/lib/email/order-confirmation-html";
 import { getRelationName } from "@/lib/supabase/relation";
@@ -91,7 +92,7 @@ export async function sendCustomerOrderConfirmation(
   const lunchLabel = formatLunchDate(scheduleRow.lunch_date);
   const { error } = await resend.emails.send({
     from: getEmailFromAddress(),
-    to: order.customer_email,
+    to: normalizeDeliverableEmail(order.customer_email),
     replyTo: getReplyToAddress(),
     subject: `${BRAND.name} — order confirmed for ${lunchLabel}`,
     html,

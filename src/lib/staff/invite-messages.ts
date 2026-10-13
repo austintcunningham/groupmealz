@@ -5,7 +5,7 @@ export function staffInviteEmailFailureMessage(result: {
   if (result.emailSent) return null;
   return (
     result.emailError ??
-    "Email was not sent. In Vercel → Production env, set RESEND_API_KEY and EMAIL_FROM (e.g. orders@groupmeals.net on your verified domain), redeploy, then run Admin → Settings → Email delivery → Send test."
+    "Email was not sent. In Vercel → Production env, set RESEND_API_KEY and EMAIL_FROM (e.g. office@groupmeals.net on your verified domain), redeploy, then run Admin → Settings → Email delivery → Send test."
   );
 }
 

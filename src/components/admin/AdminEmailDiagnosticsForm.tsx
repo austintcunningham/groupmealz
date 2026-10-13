@@ -217,7 +217,8 @@ export function AdminEmailDiagnosticsForm() {
             <li>Reload this page — all three lines above should say OK.</li>
           </ol>
           <p className="mt-3 text-xs text-slate-600">
-            Optional: <strong>EMAIL_FROM</strong> = <code className="rounded bg-white px-1">orders@groupmeals.net</code>{" "}
+            Optional: <strong>EMAIL_FROM</strong> = <code className="rounded bg-white px-1">office@groupmeals.net</code>{" "}
+            (if set to legacy <code className="rounded bg-white px-1">orders@</code>, the app reroutes to office@)
             if not already set. Optional: <strong>OPS_DIGEST_EMAILS</strong> = extra comma-separated addresses
             copied on the ops rollup (always includes <strong>office@groupmeals.net</strong>).
           </p>
