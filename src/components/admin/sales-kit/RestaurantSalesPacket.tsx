@@ -5,6 +5,7 @@ import {
   RESTAURANT_EMAIL_SAMPLES,
 } from "@/lib/sales-kit/email-samples";
 import { EmailSampleFrame } from "./EmailSampleFrame";
+import { RestaurantPartnerPlaybook } from "./RestaurantPartnerPlaybook";
 import { ReviewScreenMock, SatisfactionFlowCard } from "./SatisfactionFlowCard";
 
 export function RestaurantSalesPacket() {
@@ -91,7 +92,7 @@ export function RestaurantSalesPacket() {
 
       <section className="sales-kit-section break-inside-avoid">
         <h2 className="mb-4 text-xl font-bold text-[var(--geaux-charcoal)]">
-          How it works (you focus on food)
+          At a glance
         </h2>
         <div className="grid gap-3 sm:grid-cols-4">
           {[
@@ -110,7 +111,13 @@ export function RestaurantSalesPacket() {
             </div>
           ))}
         </div>
+        <p className="mt-4 text-sm text-slate-600">
+          The detailed partner playbook below covers onboarding through delivery — including labeling,
+          sealing, and handoff standards.
+        </p>
       </section>
+
+      <RestaurantPartnerPlaybook />
 
       <section className="space-y-6">
         <div>
