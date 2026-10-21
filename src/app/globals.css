@@ -320,5 +320,6 @@ body.geaux-body::before {
 
 @page one-sheet {
   size: letter portrait;
-  margin: 0.35in 0.2in;
+  /* Minimal margin when using browser Print — headers/footers still need Download PDF in Chrome */
+  margin: 0.25in;
 }

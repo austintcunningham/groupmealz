@@ -9,10 +9,14 @@ export default async function AdminRestaurantOneSheetPage() {
   return (
     <DashboardShell role={profile.role} title="Restaurant one-sheet">
       <SalesKitToolbar audience="restaurants-one-sheet" />
+      <p className="-mt-4 mb-6 text-xs text-slate-500 print:hidden">
+        Using <strong>Print…</strong>? In Chrome, open More settings and turn off{" "}
+        <strong>Headers and footers</strong> to hide the date, URL, and page number.
+      </p>
       <p className="mb-6 max-w-2xl text-sm text-slate-600 print:hidden">
-        Leave-behind for owners and GMs — designed to fit <strong>one printed page</strong>. Use Print
-        / Save PDF and hand it off at a site visit or attach to a intro email. For depth (playbook,
-        email samples), use the{" "}
+        Leave-behind for owners and GMs — designed to fit <strong>one page</strong>. Use{" "}
+        <strong>Download PDF</strong> for a clean file (no browser date, URL, or page numbers). For
+        depth (playbook, email samples), use the{" "}
         <a href="/admin/sales-kit/restaurants" className="text-[var(--geaux-red)] hover:underline">
           full restaurant packet
         </a>
