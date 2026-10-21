@@ -17,17 +17,25 @@ export default async function AdminSalesKitPage() {
         to hand off or email as an attachment.
       </p>
       <div className="grid gap-6 md:grid-cols-2">
-        <Card title="Restaurant partner packet">
+        <Card title="Restaurant partner materials">
           <p className="mb-4 text-sm text-slate-600">
-            Revenue growth, predictable batch orders, daily kitchen digests, weekly payout
-            summaries, and verified review feedback.
+            <strong>One-sheet</strong> — quick leave-behind for owners and GMs.{" "}
+            <strong>Full packet</strong> — playbook, email samples, order-screen preview.
           </p>
-          <Link
-            href="/admin/sales-kit/restaurants"
-            className="inline-flex rounded-lg bg-[var(--geaux-red)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--geaux-red-dark)]"
-          >
-            Open restaurant packet →
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/admin/sales-kit/restaurants/one-sheet"
+              className="inline-flex rounded-lg bg-[var(--geaux-red)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--geaux-red-dark)]"
+            >
+              Restaurant one-sheet →
+            </Link>
+            <Link
+              href="/admin/sales-kit/restaurants"
+              className="inline-flex rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+            >
+              Full packet →
+            </Link>
+          </div>
         </Card>
         <Card title="Office customer packet">
           <p className="mb-4 text-sm text-slate-600">

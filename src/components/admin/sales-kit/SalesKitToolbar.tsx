@@ -5,7 +5,7 @@ import Link from "next/link";
 export function SalesKitToolbar({
   audience,
 }: {
-  audience: "restaurants" | "offices" | "hub";
+  audience: "restaurants" | "offices" | "hub" | "restaurants-one-sheet";
 }) {
   return (
     <div className="print:hidden mb-8 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
@@ -16,12 +16,20 @@ export function SalesKitToolbar({
         >
           Sales kit home
         </Link>
-        {audience !== "restaurants" ? (
+        {audience !== "restaurants" && audience !== "restaurants-one-sheet" ? (
           <Link
             href="/admin/sales-kit/restaurants"
             className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"
           >
             Restaurant packet
+          </Link>
+        ) : null}
+        {audience !== "restaurants-one-sheet" ? (
+          <Link
+            href="/admin/sales-kit/restaurants/one-sheet"
+            className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"
+          >
+            Restaurant one-sheet
           </Link>
         ) : null}
         {audience !== "offices" ? (

@@ -277,4 +277,16 @@ body.geaux-body::before {
     break-inside: avoid;
     page-break-inside: avoid;
   }
+
+  .restaurant-one-sheet {
+    max-width: none !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+@page {
+  size: letter;
+  margin: 0.45in;
 }
