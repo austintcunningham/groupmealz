@@ -301,6 +301,17 @@ body.geaux-body::before {
     max-width: none !important;
   }
 
+  .sales-kit-document .sales-kit-order-preview,
+  .sales-kit-document .sales-kit-order-preview * {
+    overflow: visible !important;
+    max-height: none !important;
+  }
+
+  .sales-kit-document .sales-kit-order-preview {
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+  }
+
   body.geaux-body:has(.restaurant-one-sheet) {
     background: white !important;
   }

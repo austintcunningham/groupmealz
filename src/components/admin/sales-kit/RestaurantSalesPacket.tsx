@@ -32,9 +32,9 @@ export function RestaurantSalesPacket({
             Grow weekday lunch revenue — without adding delivery-app chaos
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-white/90">
-            {BRAND.name} brings you recurring corporate volume: offices order days ahead, you get
-            one clean order list every morning, and we handle payments, reminders, and satisfaction
-            tracking.
+            {BRAND.name} puts recurring corporate lunch on your calendar: employees order days ahead,
+            you get one clean order list email every morning, you prepare and deliver — we handle
+            payments, reminders, and satisfaction tracking.
           </p>
         </div>
       </header>
@@ -51,19 +51,19 @@ export function RestaurantSalesPacket({
         </p>
         <div className="mt-6 grid gap-4 sm:grid-cols-3">
           <RevenueStat
-            label="Example office"
-            value="45 people"
-            detail="Lunch Mon–Fri when you're on rotation"
+            label="Example order"
+            value="20–45 people"
+            detail="One office lunch day when you're on rotation"
           />
           <RevenueStat
             label="Avg entrée"
             value="$13–$16"
-            detail="Your menu, your pricing"
+            detail="Your menu, your pricing — update anytime in the portal"
           />
           <RevenueStat
             label="Illustrative week"
-            value="$2,925–$3,600"
-            detail="45 × 5 days × entrée (food only)"
+            value="$1,300–$3,600"
+            detail="20–45 people × 5 days × entrée (food only)"
           />
         </div>
         <p className="mt-4 text-xs text-slate-500">
@@ -76,11 +76,15 @@ export function RestaurantSalesPacket({
         <h2 className="text-xl font-bold text-[var(--geaux-charcoal)]">Why restaurants win</h2>
         <ul className="mt-4 space-y-3 text-sm text-slate-700">
           <Bullet>
-            <strong>Predictable batches</strong> — final headcount lands at cutoff; production
-            matches demand instead of over-prepping.
+            <strong>Predictable batches</strong> — final headcount lands at cutoff; you produce from
+            the order list instead of guessing.
           </Bullet>
           <Bullet>
-            <strong>Corporate discovery</strong> — new offices meet you through rotation, not a
+            <strong>You deliver</strong> — we email the final order list; you prepare, label bags,
+            and handle timely delivery to the office.
+          </Bullet>
+          <Bullet>
+            <strong>Corporate discovery</strong> — new offices meet you on our lunch rotation, not a
             one-off Groupon rush.
           </Bullet>
           <Bullet>
