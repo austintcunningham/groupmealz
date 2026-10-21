@@ -101,15 +101,10 @@ export function RestaurantPartnerOneSheet() {
         </Step>
       </section>
 
-      <footer className="flex flex-col items-center justify-between gap-3 geaux-header-gradient px-6 py-5 text-center text-white sm:flex-row sm:text-left print:py-4">
-        <div>
-          <p className="text-sm font-bold">Let&apos;s put your restaurant on office lunch calendars.</p>
-          <p className="mt-1 text-xs text-white/85">
-            {BRAND.supportEmail} · {BRAND.name} · groupmeals.net
-          </p>
-        </div>
-        <p className="rounded-lg bg-white px-4 py-2 text-sm font-bold text-[var(--geaux-red)] shadow-sm">
-          Ask for a 15-minute partner intro
+      <footer className="geaux-header-gradient px-6 py-5 text-center text-white sm:text-left print:py-4">
+        <p className="text-sm font-bold">Let&apos;s put your restaurant on office lunch calendars.</p>
+        <p className="mt-1 text-xs text-white/85">
+          {BRAND.supportEmail} · {BRAND.name} · groupmeals.net
         </p>
       </footer>
 
