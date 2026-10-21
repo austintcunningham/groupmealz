@@ -3,8 +3,8 @@ import { BRAND } from "@/lib/brand";
 /** Commission + sales tax explanation for restaurant sales packet. */
 export function RestaurantPartnerPayoutTerms() {
   return (
-    <section className="sales-kit-section space-y-5 break-inside-avoid">
-      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="sales-kit-print-flow space-y-5 print:space-y-0">
+      <div className="sales-kit-print-unit rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <h3 className="text-lg font-bold text-[var(--geaux-charcoal)]">
           Weekly payout — how the check adds up
         </h3>
@@ -31,7 +31,7 @@ export function RestaurantPartnerPayoutTerms() {
         </ol>
       </div>
 
-      <div className="rounded-2xl border border-slate-300 bg-slate-50 p-5">
+      <div className="sales-kit-print-unit rounded-2xl border border-slate-300 bg-slate-50 p-5">
         <h4 className="text-sm font-bold uppercase tracking-wide text-slate-800">
           In plain terms
         </h4>

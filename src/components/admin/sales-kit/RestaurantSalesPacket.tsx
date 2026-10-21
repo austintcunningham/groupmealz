@@ -39,7 +39,7 @@ export function RestaurantSalesPacket({
         </div>
       </header>
 
-      <section className="sales-kit-section break-inside-avoid rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <section className="sales-kit-print-unit rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <h2 className="text-xl font-bold text-[var(--geaux-charcoal)]">
           The revenue opportunity
         </h2>
@@ -72,7 +72,7 @@ export function RestaurantSalesPacket({
         </p>
       </section>
 
-      <section className="sales-kit-section break-inside-avoid rounded-2xl bg-[var(--geaux-cream)] p-6 ring-1 ring-slate-200">
+      <section className="sales-kit-print-unit rounded-2xl bg-[var(--geaux-cream)] p-6 ring-1 ring-slate-200">
         <h2 className="text-xl font-bold text-[var(--geaux-charcoal)]">Why restaurants win</h2>
         <ul className="mt-4 space-y-3 text-sm text-slate-700">
           <Bullet>
@@ -110,12 +110,14 @@ export function RestaurantSalesPacket({
       <RestaurantSalesKitOrderPreview sample={orderPreview} />
 
       <RestaurantPartnerPayoutTerms />
-      <RestaurantSalesTaxNotice compact />
+      <div className="sales-kit-print-unit">
+        <RestaurantSalesTaxNotice compact />
+      </div>
 
-      <section className="sales-kit-section break-inside-avoid">
-        <h2 className="mb-4 text-xl font-bold text-[var(--geaux-charcoal)]">
-          At a glance
-        </h2>
+      <section className="sales-kit-print-flow">
+        <div className="sales-kit-print-unit mb-4">
+          <h2 className="text-xl font-bold text-[var(--geaux-charcoal)]">At a glance</h2>
+        </div>
         <div className="grid gap-3 sm:grid-cols-4">
           {[
             ["1", "Get on the rotation", "Onboarding uploads your menu; you control items and pricing anytime."],
@@ -125,7 +127,7 @@ export function RestaurantSalesPacket({
           ].map(([n, t, d]) => (
             <div
               key={n}
-              className="rounded-xl border border-slate-200 bg-white p-4 text-center shadow-sm"
+              className="sales-kit-print-unit rounded-xl border border-slate-200 bg-white p-4 text-center shadow-sm"
             >
               <span className="text-2xl font-bold text-[var(--geaux-red)]">{n}</span>
               <p className="mt-2 text-sm font-semibold text-slate-800">{t}</p>
@@ -133,16 +135,16 @@ export function RestaurantSalesPacket({
             </div>
           ))}
         </div>
-        <p className="mt-4 text-sm text-slate-600">
+        <div className="sales-kit-print-unit mt-4 text-sm text-slate-600">
           The detailed partner playbook below covers onboarding through delivery — including labeling,
           sealing, and handoff standards.
-        </p>
+        </div>
       </section>
 
       <RestaurantPartnerPlaybook />
 
-      <section className="space-y-6 print:space-y-0">
-        <div>
+      <section className="sales-kit-print-flow space-y-6 print:space-y-0">
+        <div className="sales-kit-print-unit">
           <h2 className="text-xl font-bold text-[var(--geaux-charcoal)]">
             Emails you actually receive
           </h2>
@@ -164,8 +166,8 @@ export function RestaurantSalesPacket({
 
       <SatisfactionFlowCard variant="restaurant" />
 
-      <section className="sales-kit-section break-inside-avoid grid gap-6 sm:grid-cols-2">
-        <div>
+      <section className="sales-kit-print-flow grid gap-6 sm:grid-cols-2">
+        <div className="sales-kit-print-unit">
           <h2 className="text-lg font-bold text-[var(--geaux-charcoal)]">
             What customers see after lunch
           </h2>
@@ -174,10 +176,12 @@ export function RestaurantSalesPacket({
             that day, not random internet reviews.
           </p>
         </div>
-        <ReviewScreenMock />
+        <div className="sales-kit-print-unit">
+          <ReviewScreenMock />
+        </div>
       </section>
 
-      <section className="sales-kit-section break-inside-avoid rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <section className="sales-kit-print-unit rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <h2 className="text-xl font-bold text-[var(--geaux-charcoal)]">Getting on the rotation</h2>
         <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm text-slate-700">
           <li>

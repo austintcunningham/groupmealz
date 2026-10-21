@@ -119,20 +119,22 @@ function renderOfficeHeader(block: DigestOfficeBlock, intro: string): string {
     ? `<div class="office-note"><strong>Office delivery notes:</strong> ${escapeHtml(block.deliveryInstructions)}</div>`
     : "";
   return `
-    <h1>${escapeHtml(intro)}</h1>
-    <p class="muted">Deliver individually labeled orders to <strong>${escapeHtml(block.officeName)}</strong><br/>${escapeHtml(addr)}</p>
-    ${note}
-    <table class="meta">
-      <tr><td>Restaurant:</td><td>${escapeHtml(block.restaurantName)}</td></tr>
-      <tr><td>Lunch date:</td><td>${escapeHtml(block.lunchDate)}</td></tr>
-      <tr><td>Delivery:</td><td>${escapeHtml(block.deliveryAt)}</td></tr>
-      ${
-        block.contactName
-          ? `<tr><td>Contact:</td><td>${escapeHtml(block.contactName)}${block.contactPhone ? ` · ${escapeHtml(block.contactPhone)}` : ""}</td></tr>`
-          : ""
-      }
-    </table>
-    <hr class="rule" />`;
+    <div class="digest-shipment-header">
+      <h1>${escapeHtml(intro)}</h1>
+      <p class="muted">Deliver individually labeled orders to <strong>${escapeHtml(block.officeName)}</strong><br/>${escapeHtml(addr)}</p>
+      ${note}
+      <table class="meta">
+        <tr><td>Restaurant:</td><td>${escapeHtml(block.restaurantName)}</td></tr>
+        <tr><td>Lunch date:</td><td>${escapeHtml(block.lunchDate)}</td></tr>
+        <tr><td>Delivery:</td><td>${escapeHtml(block.deliveryAt)}</td></tr>
+        ${
+          block.contactName
+            ? `<tr><td>Contact:</td><td>${escapeHtml(block.contactName)}${block.contactPhone ? ` · ${escapeHtml(block.contactPhone)}` : ""}</td></tr>`
+            : ""
+        }
+      </table>
+      <hr class="rule" />
+    </div>`;
 }
 
 /** Restaurant kitchen — full detail, printable, minimal color. */

@@ -6,8 +6,8 @@ import { BRAND } from "@/lib/brand";
  */
 export function RestaurantPartnerPlaybook() {
   return (
-    <section className="sales-kit-section space-y-8 print:space-y-0">
-      <div className="rounded-2xl border-2 border-[var(--geaux-red)] bg-white p-6 shadow-sm">
+    <section className="sales-kit-print-flow space-y-8 print:space-y-0">
+      <div className="sales-kit-print-unit rounded-2xl border-2 border-[var(--geaux-red)] bg-white p-6 shadow-sm">
         <p className="text-xs font-bold uppercase tracking-[0.15em] text-[var(--geaux-red)]">
           Operations guide
         </p>
@@ -154,7 +154,7 @@ export function RestaurantPartnerPlaybook() {
         </Step>
       </Phase>
 
-      <div className="rounded-xl border border-amber-300 bg-amber-50 p-5 text-sm text-amber-950">
+      <div className="sales-kit-print-unit rounded-xl border border-amber-300 bg-amber-50 p-5 text-sm text-amber-950">
         <p className="font-semibold">If something goes wrong on delivery day</p>
         <ul className="mt-2 list-disc space-y-1 pl-5">
           <li>
@@ -176,7 +176,8 @@ export function RestaurantPartnerPlaybook() {
 
 function LabelingAndSealingSection() {
   return (
-    <div className="break-inside-avoid rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div className="sales-kit-print-flow space-y-8 print:space-y-0">
+      <div className="sales-kit-print-unit rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <h3 className="text-xl font-bold text-[var(--geaux-charcoal)]">
         Labeling every bag correctly
       </h3>
@@ -236,8 +237,10 @@ function LabelingAndSealingSection() {
           name on the <strong>outermost</strong> bag the customer receives.
         </p>
       </div>
+      </div>
 
-      <h3 className="mt-8 text-xl font-bold text-[var(--geaux-charcoal)]">
+      <div className="sales-kit-print-unit rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h3 className="text-xl font-bold text-[var(--geaux-charcoal)]">
         Sealing & packing standards
       </h3>
       <p className="mt-2 text-sm text-slate-600">
@@ -270,13 +273,14 @@ function LabelingAndSealingSection() {
           body="One person counts bags vs. digest line count, spot-checks 3 random labels against tickets, then loads for delivery in stable crates or boxes so bags don’t tip."
         />
       </ul>
+      </div>
     </div>
   );
 }
 
 function DeliveryExpectationsSection() {
   return (
-    <div className="break-inside-avoid rounded-2xl border-2 border-[var(--geaux-yellow)] bg-white p-6 shadow-sm">
+    <div className="sales-kit-print-unit rounded-2xl border-2 border-[var(--geaux-yellow)] bg-white p-6 shadow-sm">
       <h3 className="text-xl font-bold text-[var(--geaux-charcoal)]">Delivery expectations</h3>
       <p className="mt-2 text-sm text-slate-600">
         The kitchen email states a <strong>delivery time</strong> (e.g. 12:00 PM). Treat that as a
@@ -334,7 +338,7 @@ function Phase({
   children: React.ReactNode;
 }) {
   return (
-    <div className="break-inside-avoid rounded-2xl border border-slate-200 bg-[var(--geaux-cream)]/50 p-6">
+    <div className="sales-kit-print-unit rounded-2xl border border-slate-200 bg-[var(--geaux-cream)]/50 p-6">
       <div className="flex items-start gap-4">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--geaux-red)] text-lg font-bold text-white">
           {number}

@@ -11,8 +11,8 @@ const SAMPLE_MENU = [
 
 export function RestaurantSalesKitOrderPreview({ sample }: { sample: SalesKitOrderPreviewSample }) {
   return (
-    <section className="sales-kit-order-preview sales-kit-section break-inside-avoid overflow-hidden rounded-2xl border-2 border-slate-200 bg-white shadow-lg print:overflow-visible print:break-inside-avoid">
-      <div className="border-b border-slate-200 bg-[var(--geaux-cream)] px-5 py-4">
+    <section className="sales-kit-order-preview sales-kit-print-flow overflow-hidden rounded-2xl border-2 border-slate-200 bg-white shadow-lg print:overflow-visible">
+      <div className="sales-kit-print-unit border-b border-slate-200 bg-[var(--geaux-cream)] px-5 py-4">
         <h2 className="text-xl font-bold text-[var(--geaux-charcoal)]">
           Customer order screen — your branding
         </h2>
@@ -37,7 +37,7 @@ export function RestaurantSalesKitOrderPreview({ sample }: { sample: SalesKitOrd
         </Link>
       </div>
 
-      <div className="overflow-hidden rounded-b-2xl border-t border-slate-100 print:overflow-visible">
+      <div className="sales-kit-print-unit overflow-hidden rounded-b-2xl border-t border-slate-100 print:overflow-visible">
         <div className="geaux-header-gradient text-white">
           <div className="geaux-accent-bar" />
           <div className="flex items-center justify-between gap-3 px-4 py-3">

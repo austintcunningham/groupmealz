@@ -284,10 +284,19 @@ body.geaux-body::before {
   }
 
   .sales-kit-document > * + * {
-    margin-top: 0.12in !important;
+    margin-top: 0.06in !important;
   }
 
-  .sales-kit-section {
+  .sales-kit-document .sales-kit-print-flow > * + * {
+    margin-top: 0.05in !important;
+  }
+
+  .sales-kit-document .sales-kit-print-unit {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .sales-kit-document .sales-kit-print-flow {
     break-inside: auto !important;
     page-break-inside: auto !important;
   }
@@ -295,13 +304,6 @@ body.geaux-body::before {
   .sales-kit-document .sales-kit-cover {
     break-inside: avoid !important;
     page-break-inside: avoid !important;
-  }
-
-  .sales-kit-document .break-inside-avoid:not(.sales-kit-cover):not(.email-sample-frame):not(
-      .email-sample-print-block
-    ) {
-    break-inside: auto !important;
-    page-break-inside: auto !important;
   }
 
   .sales-kit-document .shadow-lg,
@@ -341,7 +343,7 @@ body.geaux-body::before {
 
   .sales-kit-document .space-y-8 > :not([hidden]) ~ :not([hidden]),
   .sales-kit-document .space-y-6 > :not([hidden]) ~ :not([hidden]) {
-    margin-top: 0.08in !important;
+    margin-top: 0.05in !important;
   }
 
   .sales-kit-document .gap-6 {
@@ -361,15 +363,18 @@ body.geaux-body::before {
   }
 
   .sales-kit-document .email-sample-frame,
-  .sales-kit-document .email-sample-print-block {
+  .sales-kit-document .email-sample-caption,
+  .sales-kit-document .email-sample-body {
     overflow: visible !important;
-    break-inside: avoid !important;
-    page-break-inside: avoid !important;
   }
 
-  .sales-kit-document .email-inline-preview .wrap,
+  .sales-kit-document .email-inline-preview .digest-shipment-header,
+  .sales-kit-document .email-inline-preview .order-block,
+  .sales-kit-document .email-inline-preview .weekly-payout-stub,
+  .sales-kit-document .email-inline-preview .weekly-payout-footnotes,
   .sales-kit-document .email-inline-preview .stub,
-  .sales-kit-document .email-inline-preview .order-block {
+  .sales-kit-document .email-inline-preview table.meta,
+  .sales-kit-document .email-inline-preview table.kv {
     break-inside: avoid !important;
     page-break-inside: avoid !important;
   }
@@ -407,12 +412,12 @@ body.geaux-body::before {
     line-height: 1.35 !important;
   }
 
-  .sales-kit-document .email-sample-frame > div:last-child {
+  .sales-kit-document .email-sample-body {
     padding: 0 !important;
   }
 
-  .sales-kit-document .email-sample-frame .border-b {
-    padding: 0.06in 0.1in !important;
+  .sales-kit-document .email-sample-caption {
+    padding: 0.05in 0.1in !important;
   }
 
   .sales-kit-document .sales-kit-order-preview,
@@ -422,8 +427,8 @@ body.geaux-body::before {
   }
 
   .sales-kit-document .sales-kit-order-preview {
-    break-inside: avoid !important;
-    page-break-inside: avoid !important;
+    break-inside: auto !important;
+    page-break-inside: auto !important;
   }
 
   body.geaux-body:has(.restaurant-one-sheet) {

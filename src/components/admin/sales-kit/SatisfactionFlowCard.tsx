@@ -31,7 +31,7 @@ export function SatisfactionFlowCard({ variant }: { variant: "restaurant" | "off
       : "You're not buying a faceless meal ticket. You're partnering with a local operator who tracks how lunch actually landed.";
 
   return (
-    <section className="sales-kit-section break-inside-avoid rounded-2xl border-2 border-[var(--geaux-yellow)] bg-white p-6 shadow-sm">
+    <section className="sales-kit-print-unit rounded-2xl border-2 border-[var(--geaux-yellow)] bg-white p-6 shadow-sm">
       <h2 className="text-xl font-bold text-[var(--geaux-charcoal)]">{headline}</h2>
       <p className="mt-2 text-sm leading-relaxed text-slate-600">{sub}</p>
       <ol className="mt-6 grid gap-4 sm:grid-cols-2">
