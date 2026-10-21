@@ -301,6 +301,11 @@ body.geaux-body::before {
 
   .restaurant-one-sheet .one-sheet-main {
     flex: 1 1 auto !important;
+    align-items: stretch !important;
+  }
+
+  .restaurant-one-sheet .one-sheet-main > section {
+    height: 100% !important;
   }
 
   .restaurant-one-sheet,
