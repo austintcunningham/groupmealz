@@ -46,8 +46,8 @@ export function RestaurantPartnerOneSheet() {
           </h2>
           <ul className="mt-4 space-y-3.5 text-[13px] leading-snug text-slate-800 print:text-[12px]">
             <OneSheetBullet title="Recurring office volume">
-              When you&apos;re on the rotation for an office lunch day, that meal is yours — same
-              weekday, new orders every week, not a one-off catering invoice.
+              Companies order lunch Mon–Fri on rotation — predictable demand, not a one-time catering
+              gig.
             </OneSheetBullet>
             <OneSheetBullet title="Final headcount at cutoff">
               No partial counts while people order. One kitchen email after cutoff with every name,
