@@ -9,7 +9,7 @@ import { ReviewScreenMock, SatisfactionFlowCard } from "./SatisfactionFlowCard";
 
 export function OfficeSalesPacket({ appBase }: { appBase: string }) {
   return (
-    <article className="sales-kit-document mx-auto max-w-3xl space-y-8 pb-12">
+    <article className="sales-kit-document mx-auto max-w-3xl space-y-8 pb-12 print:space-y-0 print:pb-0">
       <header className="sales-kit-cover break-inside-avoid overflow-hidden rounded-2xl geaux-header-gradient text-white shadow-lg">
         <div className="geaux-accent-bar" />
         <div className="px-8 py-10 text-center">

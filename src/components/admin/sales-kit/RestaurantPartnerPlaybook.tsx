@@ -6,7 +6,7 @@ import { BRAND } from "@/lib/brand";
  */
 export function RestaurantPartnerPlaybook() {
   return (
-    <section className="sales-kit-section space-y-8">
+    <section className="sales-kit-section space-y-8 print:space-y-0">
       <div className="rounded-2xl border-2 border-[var(--geaux-red)] bg-white p-6 shadow-sm">
         <p className="text-xs font-bold uppercase tracking-[0.15em] text-[var(--geaux-red)]">
           Operations guide

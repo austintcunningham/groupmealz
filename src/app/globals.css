@@ -273,13 +273,89 @@ body.geaux-body::before {
     display: block !important;
   }
 
+  body.geaux-body:has(.sales-kit-document) {
+    background: white !important;
+  }
+
   .sales-kit-document {
     max-width: none !important;
+    page: sales-kit;
+    padding-bottom: 0 !important;
+  }
+
+  .sales-kit-document > * + * {
+    margin-top: 0.12in !important;
   }
 
   .sales-kit-section {
-    break-inside: avoid;
-    page-break-inside: avoid;
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+  }
+
+  .sales-kit-document .sales-kit-cover {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .sales-kit-document .break-inside-avoid:not(.sales-kit-cover) {
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+  }
+
+  .sales-kit-document .shadow-lg,
+  .sales-kit-document .shadow-sm,
+  .sales-kit-document .shadow-inner {
+    box-shadow: none !important;
+  }
+
+  .sales-kit-document .rounded-2xl,
+  .sales-kit-document .rounded-xl {
+    border-radius: 0.15rem !important;
+  }
+
+  .sales-kit-document .p-6 {
+    padding: 0.1in 0.14in !important;
+  }
+
+  .sales-kit-document .p-5 {
+    padding: 0.08in 0.12in !important;
+  }
+
+  .sales-kit-document .px-8 {
+    padding-left: 0.14in !important;
+    padding-right: 0.14in !important;
+  }
+
+  .sales-kit-document .py-10 {
+    padding-top: 0.14in !important;
+    padding-bottom: 0.14in !important;
+  }
+
+  .sales-kit-document .py-4,
+  .sales-kit-document .py-5 {
+    padding-top: 0.08in !important;
+    padding-bottom: 0.08in !important;
+  }
+
+  .sales-kit-document .space-y-8 > :not([hidden]) ~ :not([hidden]),
+  .sales-kit-document .space-y-6 > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 0.08in !important;
+  }
+
+  .sales-kit-document .gap-6 {
+    gap: 0.1in !important;
+  }
+
+  .sales-kit-document .mt-6 {
+    margin-top: 0.1in !important;
+  }
+
+  .sales-kit-document .mt-4 {
+    margin-top: 0.08in !important;
+  }
+
+  .sales-kit-document .pb-12 {
+    padding-bottom: 0 !important;
   }
 
   .sales-kit-document .email-sample-frame {
@@ -299,6 +375,34 @@ body.geaux-body::before {
 
   .sales-kit-document .email-inline-preview {
     max-width: none !important;
+  }
+
+  .sales-kit-document .email-inline-preview .wrap {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .sales-kit-document .email-inline-preview .stub {
+    margin: 0.06in 0 !important;
+    padding: 0.08in 0.1in !important;
+  }
+
+  .sales-kit-document .email-inline-preview .rule {
+    margin: 0.06in 0 !important;
+  }
+
+  .sales-kit-document .email-inline-preview .muted {
+    margin: 0.04in 0 !important;
+    line-height: 1.35 !important;
+  }
+
+  .sales-kit-document .email-sample-frame > div:last-child {
+    padding: 0 !important;
+  }
+
+  .sales-kit-document .email-sample-frame .border-b {
+    padding: 0.06in 0.1in !important;
   }
 
   .sales-kit-document .sales-kit-order-preview,
@@ -363,6 +467,11 @@ body.geaux-body::before {
 @page one-sheet {
   size: letter portrait;
   margin: 0;
+}
+
+@page sales-kit {
+  size: letter portrait;
+  margin: 0.28in 0.38in;
 }
 
 /* Locked dimensions while html-to-image builds the PDF (see download-one-sheet-pdf.ts) */

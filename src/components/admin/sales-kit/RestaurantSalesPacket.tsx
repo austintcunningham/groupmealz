@@ -18,10 +18,10 @@ export function RestaurantSalesPacket({
   orderPreview: SalesKitOrderPreviewSample;
 }) {
   return (
-    <article className="sales-kit-document mx-auto max-w-3xl space-y-8 pb-12">
-      <header className="sales-kit-cover break-inside-avoid overflow-hidden rounded-2xl geaux-header-gradient text-white shadow-lg">
+    <article className="sales-kit-document mx-auto max-w-3xl space-y-8 pb-12 print:space-y-0 print:pb-0">
+      <header className="sales-kit-cover break-inside-avoid overflow-hidden rounded-2xl geaux-header-gradient text-white shadow-lg print:rounded-none print:shadow-none">
         <div className="geaux-accent-bar" />
-        <div className="px-8 py-10 text-center">
+        <div className="px-8 py-10 text-center print:px-4 print:py-4">
           <div className="flex justify-center">
             <GroupMealsLogo size="md" href={undefined} surface="light" />
           </div>
@@ -141,7 +141,7 @@ export function RestaurantSalesPacket({
 
       <RestaurantPartnerPlaybook />
 
-      <section className="space-y-6">
+      <section className="space-y-6 print:space-y-0">
         <div>
           <h2 className="text-xl font-bold text-[var(--geaux-charcoal)]">
             Emails you actually receive
