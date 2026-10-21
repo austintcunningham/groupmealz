@@ -3,6 +3,8 @@ import { RestaurantPartnerOneSheet } from "@/components/admin/sales-kit/Restaura
 import { SalesKitToolbar } from "@/components/admin/sales-kit/SalesKitToolbar";
 import { requireAdmin } from "@/lib/auth/guards";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminRestaurantOneSheetPage() {
   const profile = await requireAdmin();
 

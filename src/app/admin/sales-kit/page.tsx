@@ -5,6 +5,8 @@ import { SalesKitToolbar } from "@/components/admin/sales-kit/SalesKitToolbar";
 import { requireAdmin } from "@/lib/auth/guards";
 import { BRAND } from "@/lib/brand";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminSalesKitPage() {
   const profile = await requireAdmin();
 

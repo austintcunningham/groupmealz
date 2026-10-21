@@ -3,6 +3,8 @@ import { OfficeSalesPacket } from "@/components/admin/sales-kit/OfficeSalesPacke
 import { SalesKitToolbar } from "@/components/admin/sales-kit/SalesKitToolbar";
 import { requireAdmin } from "@/lib/auth/guards";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminOfficeSalesKitPage() {
   const profile = await requireAdmin();
   const appBase = (process.env.NEXT_PUBLIC_APP_URL ?? "https://www.groupmeals.net").replace(
