@@ -23,12 +23,12 @@ export function buildRestaurantWeeklyPayoutHtml(stub: RestaurantCheckStub): stri
       ${stubRow("Tax", formatCents(stub.taxCents))}
       ${stubRow("Gross sales", formatCents(stub.grossSalesCents), true)}
       <hr class="rule" />
-      ${stubRow(`${BRAND.name} commission (${commissionPct}% of tax-inclusive food sales)`, `−${formatCents(stub.commissionCents)}`)}
+      ${stubRow(`${BRAND.name} commission (${commissionPct}% of food subtotal)`, `−${formatCents(stub.commissionCents)}`)}
       ${stubRow("Check total", formatCents(stub.checkTotalCents), true)}
     </div>
     <p class="muted" style="margin-top:16px;">Work-week payout — paid orders with lunch dates Mon–Fri in this period (matches Admin → Payouts).</p>
-    <p class="muted" style="margin-top:8px;"><strong>Commission:</strong> Sales tax is collected on food sales first. ${escapeHtml(BRAND.name)} commission is ${commissionPct}% of the tax-inclusive food total (same as gross sales above) — not assessed on customer service fees or tips.</p>
-    <p class="muted" style="margin-top:8px;"><strong>Check total:</strong> Food subtotal − commission + tax (tax is paid to you with settlement for your remittance to tax authorities).</p>`;
+    <p class="muted" style="margin-top:8px;"><strong>Payout order:</strong> Sales tax is set aside for pass-through. ${escapeHtml(BRAND.name)} commission is ${commissionPct}% of food subtotal only — not on tax, service fees, or tips.</p>
+    <p class="muted" style="margin-top:8px;"><strong>Check total:</strong> Food subtotal − commission + tax (tax included in settlement for your remittance to tax authorities).</p>`;
 
   return wrapPrintableEmail(body);
 }
@@ -38,7 +38,7 @@ export function sampleRestaurantWeeklyPayoutHtml(): string {
   const gratuityCents = 0;
   const taxCents = 28350;
   const commissionBps = 1200;
-  const commissionCents = calculateRestaurantCommissionCents(subtotalCents, taxCents, commissionBps);
+  const commissionCents = calculateRestaurantCommissionCents(subtotalCents, commissionBps);
   const grossSalesCents = subtotalCents + taxCents + gratuityCents;
   const checkTotalCents = subtotalCents + taxCents + gratuityCents - commissionCents;
 

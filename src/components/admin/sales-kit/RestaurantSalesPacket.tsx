@@ -101,8 +101,8 @@ export function RestaurantSalesPacket({
           </Bullet>
           <Bullet>
             <strong>Transparent economics</strong> —{" "}
-            <strong>12% commission on tax-inclusive food sales</strong> (subtotal with tax included,
-            after tax is applied to the order); tax is settled to you for remittance.
+            <strong>12% commission on food subtotal only</strong> — tax is set aside first, then
+            commission; tax is settled to you for remittance.
           </Bullet>
         </ul>
       </section>

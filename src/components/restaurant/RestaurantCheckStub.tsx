@@ -26,7 +26,7 @@ export function RestaurantCheckStubView({ stub }: { stub: RestaurantCheckStub })
         <StubRow label="Gross sales" value={formatCents(stub.grossSalesCents)} bold />
         <div className="my-2 border-t border-slate-300" />
         <StubRow
-          label={`${BRAND.name} commission (${commissionPct}% of tax-inclusive food sales)`}
+          label={`${BRAND.name} commission (${commissionPct}% of food subtotal)`}
           value={`−${formatCents(stub.commissionCents)}`}
         />
         <StubRow label="Check total" value={formatCents(stub.checkTotalCents)} bold />
@@ -35,9 +35,8 @@ export function RestaurantCheckStubView({ stub }: { stub: RestaurantCheckStub })
         Work-week payout (Mon–Fri lunch dates) — matches the Friday weekly email.
       </p>
       <p className="border-t border-slate-100 px-4 py-2 text-[10px] leading-snug text-slate-600">
-        Check total = food subtotal − commission + tax. Commission is 12% of tax-inclusive food sales
-        (gross food subtotal and tax). Tax is included in settlement for your remittance to tax
-        authorities.
+        Payout: sales tax set aside for pass-through, then 12% commission on food subtotal. Check
+        total = food subtotal − commission + tax.
       </p>
     </div>
   );
