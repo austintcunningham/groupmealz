@@ -58,7 +58,7 @@ export function RestaurantPartnerOneSheet() {
               Customers checkout online. You deliver food, we handle the payments.
             </OneSheetBullet>
             <OneSheetBullet title="You run delivery">
-              We bring you the orders, you execute the orders and handle timely delivery.
+              We email you the orders, you execute the orders and handle timely delivery.
             </OneSheetBullet>
             <OneSheetBullet title="Your brand on the order screen">
               Your logo, banner, and menu — you look like you, not a generic app.
