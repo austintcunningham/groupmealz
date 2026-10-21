@@ -7,7 +7,7 @@ import { BRAND } from "@/lib/brand";
  */
 export function RestaurantPartnerOneSheet() {
   return (
-    <article className="restaurant-one-sheet mx-auto max-w-[8.5in] bg-white text-[var(--geaux-charcoal)] shadow-lg">
+    <article className="restaurant-one-sheet mx-auto flex min-h-[11in] w-full max-w-[8.5in] flex-col bg-white text-[var(--geaux-charcoal)] shadow-lg">
       <header className="one-sheet-hero relative overflow-hidden geaux-header-gradient px-8 py-7 text-white">
         <div className="geaux-accent-bar" />
         <div className="flex items-start justify-between gap-6">
@@ -40,8 +40,8 @@ export function RestaurantPartnerOneSheet() {
         </p>
       </div>
 
-      <div className="one-sheet-grid-2 grid gap-0 border-b border-slate-200 sm:grid-cols-2">
-        <section className="border-b border-slate-200 p-6 sm:border-b-0 sm:border-r">
+      <div className="one-sheet-main one-sheet-grid-2 grid min-h-0 flex-1 gap-0 border-b border-slate-200 sm:grid-cols-2">
+        <section className="border-b border-slate-200 p-6 sm:border-b-0 sm:border-r sm:py-7">
           <h2 className="text-xs font-bold uppercase tracking-widest text-[var(--geaux-red)]">
             Why owners say yes
           </h2>
@@ -66,7 +66,7 @@ export function RestaurantPartnerOneSheet() {
           </ul>
         </section>
 
-        <section className="bg-[var(--geaux-cream)] p-6">
+        <section className="flex flex-col bg-[var(--geaux-cream)] p-6 sm:py-7">
           <h2 className="text-xs font-bold uppercase tracking-widest text-[var(--geaux-red)]">
             What lands in your inbox
           </h2>
@@ -80,7 +80,7 @@ export function RestaurantPartnerOneSheet() {
               what="Weekly payout-style summary — meals sold, food sales, settlement estimate."
             />
           </div>
-          <div className="mt-5 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[11px] leading-snug text-slate-700 shadow-sm">
+          <div className="mt-auto rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[11px] leading-snug text-slate-700 shadow-sm">
             <strong className="text-slate-900">Your menu, your timing.</strong> Update items and
             pricing anytime in the platform — perfect for limited-time specials and seasonal pushes
             without waiting on a third party to approve changes.
@@ -88,7 +88,7 @@ export function RestaurantPartnerOneSheet() {
         </section>
       </div>
 
-      <section className="one-sheet-grid-3 grid gap-4 px-6 py-5 sm:grid-cols-3">
+      <section className="one-sheet-grid-3 grid shrink-0 gap-4 px-6 py-5 sm:grid-cols-3 sm:py-6">
         <Step n="1" title="Get on our office lunch rotation">
           Our onboarding specialist uploads your menu, trains you on the portal, and shows you how
           to adjust items and pricing whenever you want.
@@ -102,7 +102,7 @@ export function RestaurantPartnerOneSheet() {
         </Step>
       </section>
 
-      <footer className="geaux-header-gradient px-6 py-5 text-left text-white">
+      <footer className="one-sheet-footer geaux-header-gradient shrink-0 px-6 py-5 text-left text-white sm:py-6">
         <p className="text-sm font-bold">Let&apos;s put your restaurant on office lunch calendars.</p>
         <p className="mt-1 text-xs text-white/85">
           {BRAND.supportEmail} · {BRAND.name} · groupmeals.net

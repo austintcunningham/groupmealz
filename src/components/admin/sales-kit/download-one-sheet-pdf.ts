@@ -3,6 +3,7 @@ import { jsPDF } from "jspdf";
 
 const LETTER_W_IN = 8.5;
 const LETTER_H_IN = 11;
+const CSS_PX_PER_IN = 96;
 
 /** Rasterize the one-sheet and save a letter PDF without browser print headers/footers. */
 export async function downloadRestaurantOneSheetPdf(): Promise<void> {
@@ -17,17 +18,7 @@ export async function downloadRestaurantOneSheetPdf(): Promise<void> {
     backgroundColor: "#ffffff",
   });
 
-  const aspect = el.offsetHeight / el.offsetWidth;
-  let drawW = LETTER_W_IN;
-  let drawH = drawW * aspect;
-  if (drawH > LETTER_H_IN) {
-    drawH = LETTER_H_IN;
-    drawW = drawH / aspect;
-  }
-  const offsetX = (LETTER_W_IN - drawW) / 2;
-  const offsetY = (LETTER_H_IN - drawH) / 2;
-
   const pdf = new jsPDF({ orientation: "portrait", unit: "in", format: "letter" });
-  pdf.addImage(dataUrl, "PNG", offsetX, offsetY, drawW, drawH);
+  pdf.addImage(dataUrl, "PNG", 0, 0, LETTER_W_IN, LETTER_H_IN);
   pdf.save("groupmeals-restaurant-one-sheet.pdf");
 }

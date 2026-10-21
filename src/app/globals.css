@@ -287,13 +287,20 @@ body.geaux-body::before {
   }
 
   .restaurant-one-sheet {
-    width: 8.5in;
+    display: flex !important;
+    flex-direction: column !important;
+    width: 8.5in !important;
+    min-height: 11in !important;
     max-width: 8.5in !important;
-    margin-inline: auto !important;
-    box-shadow: var(--geaux-shadow-lg) !important;
+    margin: 0 auto !important;
+    box-shadow: none !important;
     break-inside: avoid;
     page-break-inside: avoid;
     page: one-sheet;
+  }
+
+  .restaurant-one-sheet .one-sheet-main {
+    flex: 1 1 auto !important;
   }
 
   .restaurant-one-sheet,
@@ -320,6 +327,5 @@ body.geaux-body::before {
 
 @page one-sheet {
   size: letter portrait;
-  /* Minimal margin when using browser Print — headers/footers still need Download PDF in Chrome */
-  margin: 0.25in;
+  margin: 0;
 }
