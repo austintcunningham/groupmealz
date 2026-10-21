@@ -11,5 +11,13 @@ export function emailHtmlForInlinePreview(fullHtml: string): string {
   const bodyMatch = fullHtml.match(/<body[^>]*>([\s\S]*)<\/body>/i);
   const body = bodyMatch?.[1]?.trim() ?? fullHtml;
 
-  return `<style>${styles.join("\n")}</style><div class="email-inline-preview">${body}</div>`;
+  const printKeepTogether = `
+@media print {
+  .wrap, .stub, .order-block, table.meta, .totals {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+}`;
+
+  return `<style>${styles.join("\n")}\n${printKeepTogether}</style><div class="email-inline-preview">${body}</div>`;
 }

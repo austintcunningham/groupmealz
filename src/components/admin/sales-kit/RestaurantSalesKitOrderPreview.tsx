@@ -11,7 +11,7 @@ const SAMPLE_MENU = [
 
 export function RestaurantSalesKitOrderPreview({ sample }: { sample: SalesKitOrderPreviewSample }) {
   return (
-    <section className="sales-kit-order-preview sales-kit-section break-inside-avoid overflow-hidden rounded-2xl border-2 border-slate-200 bg-white shadow-lg print:overflow-visible print:break-inside-auto">
+    <section className="sales-kit-order-preview sales-kit-section break-inside-avoid overflow-hidden rounded-2xl border-2 border-slate-200 bg-white shadow-lg print:overflow-visible print:break-inside-avoid">
       <div className="border-b border-slate-200 bg-[var(--geaux-cream)] px-5 py-4">
         <h2 className="text-xl font-bold text-[var(--geaux-charcoal)]">
           Customer order screen — your branding
