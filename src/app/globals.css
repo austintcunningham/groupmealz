@@ -284,11 +284,21 @@ body.geaux-body::before {
 
   .sales-kit-document .email-sample-frame {
     overflow: visible !important;
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+  }
+
+  .sales-kit-document .email-sample-inline {
+    display: block !important;
+    overflow: visible !important;
   }
 
   .sales-kit-document .email-sample-iframe {
-    overflow: visible !important;
-    max-height: none !important;
+    display: none !important;
+  }
+
+  .sales-kit-document .email-inline-preview {
+    max-width: none !important;
   }
 
   body.geaux-body:has(.restaurant-one-sheet) {
