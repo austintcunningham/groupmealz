@@ -4,6 +4,8 @@ import { jsPDF } from "jspdf";
 const LETTER_W_IN = 8.5;
 const LETTER_H_IN = 11;
 const PX_PER_IN = 96;
+/** Raster scale for PDF (96 × 3 ≈ 288 DPI when drawn at letter size). */
+const CAPTURE_PIXEL_RATIO = 3;
 
 const CAPTURE_PROPS = [
   "width",
@@ -77,7 +79,7 @@ export async function downloadRestaurantOneSheetPdf(): Promise<void> {
       height: heightPx,
       canvasWidth: widthPx,
       canvasHeight: heightPx,
-      pixelRatio: 1,
+      pixelRatio: CAPTURE_PIXEL_RATIO,
       backgroundColor: "#ffffff",
       cacheBust: true,
       style: {
@@ -91,10 +93,10 @@ export async function downloadRestaurantOneSheetPdf(): Promise<void> {
       orientation: "portrait",
       unit: "in",
       format: "letter",
-      compress: true,
+      compress: false,
     });
 
-    const imgData = canvas.toDataURL("image/png");
+    const imgData = canvas.toDataURL("image/png", 1);
     pdf.addImage(imgData, "PNG", 0, 0, LETTER_W_IN, LETTER_H_IN);
     pdf.save("groupmeals-restaurant-one-sheet.pdf");
   } finally {
