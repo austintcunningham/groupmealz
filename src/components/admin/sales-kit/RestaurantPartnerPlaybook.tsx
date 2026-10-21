@@ -148,7 +148,7 @@ export function RestaurantPartnerPlaybook() {
         </Step>
         <Step n={3} title="Settlement, commission & sales tax">
           Use the weekly restaurant email for payout estimates. {BRAND.name} withholds{" "}
-          <strong>12% commission on food subtotal + tax</strong> before your check total; sales tax
+          <strong>12% commission on pre-tax food subtotal</strong> before your check total; sales tax
           collected on orders is paid to you with settlement for your remittance (see Payouts in this
           packet).
         </Step>

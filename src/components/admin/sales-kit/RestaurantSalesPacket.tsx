@@ -97,7 +97,7 @@ export function RestaurantSalesPacket({
           </Bullet>
           <Bullet>
             <strong>Transparent economics</strong> —{" "}
-            <strong>12% commission on food subtotal + tax</strong> before payout; sales tax collected
+            <strong>12% commission on pre-tax food subtotal</strong> before payout; sales tax collected
             and passed through on settlement for your remittance.
           </Bullet>
         </ul>

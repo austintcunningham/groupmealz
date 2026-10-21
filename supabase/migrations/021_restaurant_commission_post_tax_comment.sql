@@ -1,2 +1,2 @@
--- Documentation: partner commission is 12% of (food subtotal + sales tax), stored per order
+-- Documentation: partner commission is 12% of pre-tax food subtotal, stored per order
 -- in restaurant_commission_cents. Calculation lives in src/lib/fees/calculate.ts.

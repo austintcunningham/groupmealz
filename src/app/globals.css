@@ -282,6 +282,15 @@ body.geaux-body::before {
     page-break-inside: avoid;
   }
 
+  .sales-kit-document .email-sample-frame {
+    overflow: visible !important;
+  }
+
+  .sales-kit-document .email-sample-iframe {
+    overflow: visible !important;
+    max-height: none !important;
+  }
+
   body.geaux-body:has(.restaurant-one-sheet) {
     background: white !important;
   }
