@@ -23,12 +23,12 @@ export function buildRestaurantWeeklyPayoutHtml(stub: RestaurantCheckStub): stri
       ${stubRow("Tax", formatCents(stub.taxCents))}
       ${stubRow("Gross sales", formatCents(stub.grossSalesCents), true)}
       <hr class="rule" />
-      ${stubRow(`${BRAND.name} commission (${commissionPct}% of food + tax)`, `−${formatCents(stub.commissionCents)}`)}
+      ${stubRow(`${BRAND.name} commission (${commissionPct}% of tax-inclusive food sales)`, `−${formatCents(stub.commissionCents)}`)}
       ${stubRow("Check total", formatCents(stub.checkTotalCents), true)}
     </div>
     <p class="muted" style="margin-top:16px;">Work-week payout — paid orders with lunch dates Mon–Fri in this period (matches Admin → Payouts).</p>
-    <p class="muted" style="margin-top:8px;"><strong>Commission:</strong> ${escapeHtml(BRAND.name)} commission is ${commissionPct}% of food subtotal plus sales tax (not assessed on customer service fees or tips).</p>
-    <p class="muted" style="margin-top:8px;"><strong>Sales tax:</strong> Tax collected on customer orders is included in the amounts above and paid to you with settlement. Your restaurant is responsible for remitting sales tax to the appropriate tax authorities.</p>`;
+    <p class="muted" style="margin-top:8px;"><strong>Commission:</strong> Sales tax is collected on food sales first. ${escapeHtml(BRAND.name)} commission is ${commissionPct}% of the tax-inclusive food total (same as gross sales above) — not assessed on customer service fees or tips.</p>
+    <p class="muted" style="margin-top:8px;"><strong>Check total:</strong> Food subtotal − commission + tax (tax is paid to you with settlement for your remittance to tax authorities).</p>`;
 
   return wrapPrintableEmail(body);
 }

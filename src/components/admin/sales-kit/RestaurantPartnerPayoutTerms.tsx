@@ -9,23 +9,25 @@ export function RestaurantPartnerPayoutTerms() {
           Payouts: 12% commission & sales tax
         </h3>
         <p className="mt-2 text-sm leading-relaxed text-slate-600">
-          Each paid office lunch order flows through your weekly check stub like this:
+          Each paid office lunch order flows through your weekly check stub in this order:
         </p>
         <ol className="mt-3 list-decimal space-y-1 pl-5 text-sm text-slate-700">
           <li>
             <strong>Food subtotal</strong> — menu items only (your prices).
           </li>
           <li>
-            <strong>Sales tax</strong> — collected at checkout and included in settlement; you remit
-            to tax authorities.
+            <strong>Sales tax</strong> — collected at checkout on those food sales (before we calculate
+            commission).
           </li>
           <li>
-            <strong>{BRAND.name} commission — 12% of food subtotal + tax</strong> — withheld before
-            payout (see line item on the sample stub below).
+            <strong>{BRAND.name} commission — 12% of tax-inclusive food sales</strong> — withheld from
+            payout. The base is food subtotal <em>with</em> sales tax included (see gross sales on the
+            sample stub).
           </li>
           <li>
-            <strong>Check total</strong> — food subtotal + tax (+ tips if any) − commission. Customer
-            service fees paid to {BRAND.name} are separate from your food sales.
+            <strong>Check total</strong> — food subtotal <strong>− commission + tax</strong> (+ tips if
+            any). Tax is settled to you for remittance; commission is not assessed on customer service
+            fees.
           </li>
         </ol>
       </div>
@@ -35,9 +37,10 @@ export function RestaurantPartnerPayoutTerms() {
           Commission base
         </h4>
         <p className="mt-2 text-sm leading-relaxed text-slate-700">
-          {BRAND.name} calculates the <strong>12% partner commission on food subtotal plus sales tax</strong>{" "}
-          for each order — not on customer service fees or tips. Your stub and Friday weekly email show
-          the same math as Admin → Payouts.
+          Sales tax is applied to the order first. {BRAND.name} then calculates{" "}
+          <strong>12% commission on the tax-inclusive food total</strong> (subtotal and sales tax
+          together). That matches <strong>gross food sales</strong> on your stub — not service fees or
+          tips. Your Friday email and Admin → Payouts use the same math.
         </p>
       </div>
     </section>

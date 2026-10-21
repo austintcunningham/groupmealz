@@ -55,7 +55,7 @@ export function calculateTaxCents(subtotalCents: number, salesTaxBps: number): n
   return Math.round((subtotalCents * salesTaxBps) / 10000);
 }
 
-/** Partner commission: 12% of food subtotal + sales tax (not assessed on fees or tips). */
+/** Partner commission: 12% of tax-inclusive food sales (subtotal + sales tax; not fees or tips). */
 export function calculateRestaurantCommissionCents(
   subtotalCents: number,
   taxCents: number,
