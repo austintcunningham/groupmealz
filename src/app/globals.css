@@ -334,3 +334,15 @@ body.geaux-body::before {
   size: letter portrait;
   margin: 0;
 }
+
+/* Locked dimensions while html-to-image builds the PDF (see download-one-sheet-pdf.ts) */
+.restaurant-one-sheet.one-sheet-capture {
+  width: 8.5in !important;
+  max-width: 8.5in !important;
+  min-height: 11in !important;
+  height: 11in !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  overflow: hidden !important;
+  border-radius: 0 !important;
+}
