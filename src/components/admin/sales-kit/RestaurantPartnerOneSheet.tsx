@@ -43,7 +43,7 @@ export function RestaurantPartnerOneSheet() {
       <div className="one-sheet-main one-sheet-grid-2 grid min-h-0 flex-1 grid-cols-1 items-stretch bg-[var(--geaux-cream)] sm:grid-cols-2">
         <section className="flex min-h-0 flex-col border-b border-slate-200/90 px-8 py-6 sm:border-b-0 sm:border-r">
           <h2 className="shrink-0 text-xs font-bold uppercase tracking-widest text-[var(--geaux-red)]">
-            Why owners say yes
+            Why restaurants say yes
           </h2>
           <ul className="mt-5 flex min-h-0 flex-1 flex-col justify-evenly gap-3 text-[13px] leading-snug text-slate-800">
             <OneSheetBullet title="Recurring office volume">
