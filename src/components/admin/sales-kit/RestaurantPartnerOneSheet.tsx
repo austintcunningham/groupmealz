@@ -57,6 +57,9 @@ export function RestaurantPartnerOneSheet() {
             <OneSheetBullet title="Already paid">
               Customers checkout online. You deliver food, we handle the payments.
             </OneSheetBullet>
+            <OneSheetBullet title="You run delivery">
+              We bring you the orders, you execute the orders and handle timely delivery.
+            </OneSheetBullet>
             <OneSheetBullet title="Your brand on the order screen">
               Your logo, banner, and menu — you look like you, not a generic app.
             </OneSheetBullet>
@@ -99,8 +102,7 @@ export function RestaurantPartnerOneSheet() {
           to adjust items and pricing whenever you want.
         </Step>
         <Step n="2" title="Prepare orders from one email">
-          After cutoff, produce exactly what&apos;s on the order list — label each bag, deliver on
-          time.
+          After cutoff, you prepare the orders, label each bag, and deliver on time.
         </Step>
         <Step n="3" title="Grow with the offices">
           Great fulfillment → more participation → increased sales.
