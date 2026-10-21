@@ -16,16 +16,16 @@ export function RestaurantPartnerPayoutTerms() {
             <strong>Food subtotal</strong> — menu items only (your prices).
           </li>
           <li>
-            <strong>{BRAND.name} commission — 12% of pre-tax food subtotal</strong> — withheld before
-            payout (see line item on the sample stub below).
-          </li>
-          <li>
             <strong>Sales tax</strong> — collected at checkout and included in settlement; you remit
             to tax authorities.
           </li>
           <li>
+            <strong>{BRAND.name} commission — 12% of food subtotal + tax</strong> — withheld before
+            payout (see line item on the sample stub below).
+          </li>
+          <li>
             <strong>Check total</strong> — food subtotal + tax (+ tips if any) − commission. Customer
-            service fees paid to {BRAND.name} are separate from your food subtotal.
+            service fees paid to {BRAND.name} are separate from your food sales.
           </li>
         </ol>
       </div>
@@ -35,9 +35,9 @@ export function RestaurantPartnerPayoutTerms() {
           Commission base
         </h4>
         <p className="mt-2 text-sm leading-relaxed text-slate-700">
-          {BRAND.name} calculates the <strong>12% partner commission on the pre-tax food subtotal</strong>{" "}
-          for each order — not on sales tax, customer service fees, or tips. Your stub and Friday weekly
-          email show the same math as Admin → Payouts.
+          {BRAND.name} calculates the <strong>12% partner commission on food subtotal plus sales tax</strong>{" "}
+          for each order — not on customer service fees or tips. Your stub and Friday weekly email show
+          the same math as Admin → Payouts.
         </p>
       </div>
     </section>

@@ -55,12 +55,14 @@ export function calculateTaxCents(subtotalCents: number, salesTaxBps: number): n
   return Math.round((subtotalCents * salesTaxBps) / 10000);
 }
 
-/** Partner commission: 12% of pre-tax food subtotal (not assessed on tax, fees, or tips). */
+/** Partner commission: 12% of food subtotal + sales tax (not assessed on fees or tips). */
 export function calculateRestaurantCommissionCents(
   subtotalCents: number,
+  taxCents: number,
   restaurantCommissionBps: number
 ): number {
-  return Math.round((subtotalCents * restaurantCommissionBps) / 10000);
+  const base = subtotalCents + taxCents;
+  return Math.round((base * restaurantCommissionBps) / 10000);
 }
 
 export function estimateStripeProcessingFeeCents(
@@ -92,6 +94,7 @@ export function calculateOrderTotals(
   const totalCents = subtotalCents + taxCents + platformFeeCents + gratuity;
   const restaurantCommissionCents = calculateRestaurantCommissionCents(
     subtotalCents,
+    taxCents,
     settings.restaurant_commission_bps ?? 1200
   );
   const stripeProcessingFeeCents = estimateStripeProcessingFeeCents(

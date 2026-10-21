@@ -23,11 +23,11 @@ export function buildRestaurantWeeklyPayoutHtml(stub: RestaurantCheckStub): stri
       ${stubRow("Tax", formatCents(stub.taxCents))}
       ${stubRow("Gross sales", formatCents(stub.grossSalesCents), true)}
       <hr class="rule" />
-      ${stubRow(`${BRAND.name} commission (${commissionPct}% of food subtotal)`, `−${formatCents(stub.commissionCents)}`)}
+      ${stubRow(`${BRAND.name} commission (${commissionPct}% of food + tax)`, `−${formatCents(stub.commissionCents)}`)}
       ${stubRow("Check total", formatCents(stub.checkTotalCents), true)}
     </div>
     <p class="muted" style="margin-top:16px;">Work-week payout — paid orders with lunch dates Mon–Fri in this period (matches Admin → Payouts).</p>
-    <p class="muted" style="margin-top:8px;"><strong>Commission:</strong> ${escapeHtml(BRAND.name)} commission is ${commissionPct}% of pre-tax food subtotal (not assessed on sales tax, customer service fees, or tips).</p>
+    <p class="muted" style="margin-top:8px;"><strong>Commission:</strong> ${escapeHtml(BRAND.name)} commission is ${commissionPct}% of food subtotal plus sales tax (not assessed on customer service fees or tips).</p>
     <p class="muted" style="margin-top:8px;"><strong>Sales tax:</strong> Tax collected on customer orders is included in the amounts above and paid to you with settlement. Your restaurant is responsible for remitting sales tax to the appropriate tax authorities.</p>`;
 
   return wrapPrintableEmail(body);
@@ -38,7 +38,7 @@ export function sampleRestaurantWeeklyPayoutHtml(): string {
   const gratuityCents = 0;
   const taxCents = 28350;
   const commissionBps = 1200;
-  const commissionCents = calculateRestaurantCommissionCents(subtotalCents, commissionBps);
+  const commissionCents = calculateRestaurantCommissionCents(subtotalCents, taxCents, commissionBps);
   const grossSalesCents = subtotalCents + taxCents + gratuityCents;
   const checkTotalCents = subtotalCents + taxCents + gratuityCents - commissionCents;
 
