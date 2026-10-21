@@ -43,7 +43,7 @@ const navByRole: Record<UserRole, { href: string; label: string }[]> = {
   restaurant_manager: [
     { href: "/restaurant", label: "Dashboard" },
     { href: "/restaurant/reports", label: "Sales & payouts" },
-    { href: "/restaurant/production", label: "Prep list" },
+    { href: "/restaurant/production", label: "Order list" },
     { href: "/restaurant/orders", label: "Orders" },
     { href: "/restaurant/menu", label: "Menu" },
     { href: "/restaurant/branding", label: "Branding" },

@@ -37,7 +37,7 @@ export function OfficeSalesPacket({ appBase }: { appBase: string }) {
         <p className="mt-3 text-sm leading-relaxed text-slate-600">
           You are not asking someone to coordinate a 40-person DoorDash drop. You are giving
           employees a simple link, a weekly rotation of local favorites, and an ops partner who
-          sends confirmations, prep lists, and satisfaction surveys so nobody has to chase lunch in
+          sends confirmations, order lists, and satisfaction surveys so nobody has to chase lunch in
           Slack.
         </p>
         <div className="mt-6 grid gap-4 sm:grid-cols-2">

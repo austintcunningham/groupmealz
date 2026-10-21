@@ -108,7 +108,7 @@ export function RestaurantPartnerPlaybook() {
       >
         <Step n={1} title="Open the digest immediately">
           Subject line includes office name and lunch date. Print it or display on a kitchen tablet.
-          This is your authoritative prep list.
+          This is your authoritative order list.
         </Step>
         <Step n={2} title="Read the header block">
           Office name, street address, city/ZIP, <strong>office delivery notes</strong> (e.g. front
@@ -148,7 +148,7 @@ export function RestaurantPartnerPlaybook() {
         </Step>
         <Step n={3} title="Settlement, commission & sales tax">
           Use the weekly restaurant email for payout estimates. {BRAND.name} withholds{" "}
-          <strong>12% commission on pre-tax food subtotal</strong> before your check total; sales tax
+          <strong>12% commission on food subtotal + tax</strong> before your check total; sales tax
           collected on orders is paid to you with settlement for your remittance (see Payouts in this
           packet).
         </Step>

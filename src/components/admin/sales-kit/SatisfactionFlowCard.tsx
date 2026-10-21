@@ -3,7 +3,7 @@ import { BRAND } from "@/lib/brand";
 const steps = [
   {
     title: "Order & delivery",
-    body: "Employees order ahead; restaurants prep from the morning digest; lunch arrives on schedule.",
+    body: "Employees order ahead; restaurants prepare from the morning order list; lunch arrives on schedule.",
   },
   {
     title: "Review invitation",

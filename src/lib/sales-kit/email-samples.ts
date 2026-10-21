@@ -76,7 +76,7 @@ export const RESTAURANT_EMAIL_SAMPLES: {
 }[] = [
   {
     id: "daily-kitchen",
-    title: "Daily kitchen & prep email",
+    title: "Daily kitchen & order list email",
     when: "Every lunch morning (9:30 AM Central) after ordering closes",
     pitch:
       "One consolidated, printer-friendly run sheet: exact headcount, modifiers, delivery window, and office contact — so you batch production instead of guessing.",
@@ -86,7 +86,7 @@ export const RESTAURANT_EMAIL_SAMPLES: {
     title: "Weekly payout estimate",
     when: "Friday afternoon (Mon–Fri lunches)",
     pitch:
-      "Check stub with 150 sample orders: food subtotal, 12% commission line, tax, and check total — plus commission-base and sales tax footnotes for your accountant.",
+      "Check stub with 150 sample orders: food subtotal, tax, 12% commission line, and check total — plus commission-base and sales tax footnotes for your accountant.",
   },
 ];
 

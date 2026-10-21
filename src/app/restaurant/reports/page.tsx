@@ -81,7 +81,7 @@ export default async function RestaurantReportsPage({
         and review all-time totals. Need what to
         cook? Use{" "}
         <Link href="/restaurant/production" className="font-medium text-[var(--geaux-red)] hover:underline">
-          Prep list
+          Order list
         </Link>{" "}
         for item counts per office day.
       </p>

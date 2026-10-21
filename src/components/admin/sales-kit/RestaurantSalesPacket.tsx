@@ -33,7 +33,7 @@ export function RestaurantSalesPacket({
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-white/90">
             {BRAND.name} brings you recurring corporate volume: offices order days ahead, you get
-            one clean prep list every morning, and we handle payments, reminders, and satisfaction
+            one clean order list every morning, and we handle payments, reminders, and satisfaction
             tracking.
           </p>
         </div>
@@ -97,7 +97,7 @@ export function RestaurantSalesPacket({
           </Bullet>
           <Bullet>
             <strong>Transparent economics</strong> —{" "}
-            <strong>12% commission on food sales (pre-tax)</strong> before payout; sales tax collected
+            <strong>12% commission on food subtotal + tax</strong> before payout; sales tax collected
             and passed through on settlement for your remittance.
           </Bullet>
         </ul>
@@ -114,9 +114,9 @@ export function RestaurantSalesPacket({
         </h2>
         <div className="grid gap-3 sm:grid-cols-4">
           {[
-            ["1", "We schedule your day", "Offices pick you on their weekly rotation."],
+            ["1", "Get on the rotation", "Onboarding uploads your menu; you control items and pricing anytime."],
             ["2", "Employees order online", "Cutoff gives you a firm count."],
-            ["3", "You get the digest", "Print, prep, pack — deliver once."],
+            ["3", "You get the digest", "Print the order list, pack, deliver once."],
             ["4", "We settle & improve", "Payout summaries + verified reviews."],
           ].map(([n, t, d]) => (
             <div

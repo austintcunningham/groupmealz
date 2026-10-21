@@ -41,7 +41,7 @@ export default async function ProductionPage({
   const selected = schedules?.find((s) => s.id === selectedId);
 
   return (
-    <DashboardShell role={profile.role} title="Prep list">
+    <DashboardShell role={profile.role} title="Order list">
       <p className="mb-6 max-w-2xl text-sm text-slate-600 print:hidden">
         <strong>Kitchen prep</strong> for a specific office lunch day: how many of each menu item to
         make, who ordered what, and special instructions. This is <em>not</em> your payout — for
@@ -91,7 +91,7 @@ export default async function ProductionPage({
         <div id="production-print" className="space-y-6">
           {selected && items.length ? (
             <div className="hidden print:block">
-              <h1 className="text-xl font-bold text-black">Prep list</h1>
+              <h1 className="text-xl font-bold text-black">Order list</h1>
               <p className="text-sm text-black">
                 {selected.lunch_date} — {getRelationName(selected.offices)} ·{" "}
                 {getRelationName(selected.restaurants)}

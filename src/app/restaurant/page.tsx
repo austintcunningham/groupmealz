@@ -102,7 +102,7 @@ export default async function RestaurantDashboardPage() {
                     href={`/restaurant/production?schedule=${s.id}`}
                     className="text-[var(--geaux-red)] hover:underline"
                   >
-                    Prep list
+                    Order list
                   </Link>
                 </li>
               ))}

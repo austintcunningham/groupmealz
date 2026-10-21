@@ -7,7 +7,6 @@ import { BRAND } from "@/lib/brand";
 export function RestaurantPartnerOneSheet() {
   return (
     <article className="restaurant-one-sheet mx-auto max-w-[8.5in] bg-white text-[var(--geaux-charcoal)] shadow-lg print:max-w-none print:shadow-none">
-      {/* Hero — hook first */}
       <header className="relative overflow-hidden geaux-header-gradient px-8 py-7 text-white print:py-6">
         <div className="geaux-accent-bar print:hidden" />
         <div className="flex items-start justify-between gap-6">
@@ -20,7 +19,7 @@ export function RestaurantPartnerOneSheet() {
             </h1>
             <p className="mt-3 max-w-xl text-sm leading-snug text-white/90 print:text-[13px]">
               {BRAND.name} connects local offices to your kitchen: employees order ahead, pay online,
-              and you get <strong className="text-white">one final prep list</strong> every morning.
+              and you get <strong className="text-white">one final order list</strong> every morning.
               Same window, labeled bags, repeat business.
             </p>
           </div>
@@ -29,6 +28,16 @@ export function RestaurantPartnerOneSheet() {
           </div>
         </div>
       </header>
+
+      <div className="border-b border-[var(--geaux-yellow)] bg-[var(--geaux-cream)] px-6 py-4 print:px-5 print:py-3">
+        <p className="text-center text-[13px] font-semibold leading-snug text-slate-800 print:text-[12px]">
+          Think of a{" "}
+          <span className="text-[var(--geaux-red)]">big DoorDash or Uber Eats drop</span> — with a
+          real cutoff, a final headcount, and{" "}
+          <span className="text-[var(--geaux-red)]">time to prepare</span> before the lunch rush hits
+          your line.
+        </p>
+      </div>
 
       <div className="grid gap-0 border-b border-slate-200 sm:grid-cols-2">
         <section className="border-b border-slate-200 p-6 sm:border-b-0 sm:border-r print:p-5">
@@ -44,7 +53,7 @@ export function RestaurantPartnerOneSheet() {
               modifier, and delivery time.
             </OneSheetBullet>
             <OneSheetBullet title="Already paid">
-              Customers checkout online. You deliver food — not invoices.
+              Customers checkout online. You deliver food, we handle the payments.
             </OneSheetBullet>
             <OneSheetBullet title="Your brand on the order screen">
               Your logo, banner, and menu — you look like you, not a generic app.
@@ -60,26 +69,34 @@ export function RestaurantPartnerOneSheet() {
             What lands in your inbox
           </h2>
           <div className="mt-4 space-y-3 text-[13px] print:text-[12px]">
-            <InboxRow when="Morning of lunch" what="Printable kitchen run sheet — headcount, mods, address, delivery window." />
-            <InboxRow when="Friday" what="Weekly payout-style summary — meals sold, food sales, settlement estimate." />
+            <InboxRow
+              when="Morning of lunch"
+              what="Printable kitchen order list — headcount, mods, address, delivery window."
+            />
+            <InboxRow
+              when="Friday"
+              what="Weekly payout-style summary — meals sold, food sales, settlement estimate."
+            />
           </div>
-          <div className="mt-5 rounded-lg border border-[var(--geaux-yellow)] bg-white px-3 py-2.5 text-[11px] leading-snug text-slate-600">
-            <strong className="text-slate-800">Simple economics:</strong> 12% partner fee on food
-            subtotal (pre-tax). Sales tax collected at checkout and included in your settlement for
-            remittance.
+          <div className="mt-5 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[11px] leading-snug text-slate-700 shadow-sm">
+            <strong className="text-slate-900">Your menu, your timing.</strong> Update items and
+            pricing anytime in the platform — perfect for limited-time specials and seasonal pushes
+            without waiting on a third party to approve changes.
           </div>
         </section>
       </div>
 
       <section className="grid gap-4 px-6 py-5 sm:grid-cols-3 print:px-5 print:py-4">
-        <Step n="1" title="Get on the rotation">
-          Offices pick you for specific weekdays. We configure your menu with an onboarding specialist.
+        <Step n="1" title="Get on our office lunch rotation">
+          Our onboarding specialist uploads your menu, trains you on the portal, and shows you how
+          to adjust items and pricing whenever you want.
         </Step>
-        <Step n="2" title="Prep from one email">
-          After cutoff, produce exactly what&apos;s on the sheet — label each bag, deliver on time.
+        <Step n="2" title="Prepare orders from one email">
+          After cutoff, produce exactly what&apos;s on the order list — label each bag, deliver on
+          time.
         </Step>
         <Step n="3" title="Grow with the offices">
-          Great fulfillment → more participation → more weeks on the calendar.
+          Great fulfillment → more participation → increased sales.
         </Step>
       </section>
 

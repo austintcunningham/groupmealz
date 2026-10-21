@@ -35,7 +35,7 @@ export function buildRestaurantManagerInviteHtml(input: {
         date; clear the promo to revert to your regular price.
       </li>
       <li style="margin-bottom:12px;">
-        <strong>Day-of lunch</strong> — use <strong>Prep list</strong> for item counts and special
+        <strong>Day-of lunch</strong> — use <strong>Order list</strong> for item counts and special
         instructions when you&apos;re Restaurant of the Day. Toggle <strong>Available</strong> off on
         Menu if you sell out of an item.
       </li>
@@ -50,7 +50,7 @@ export function buildRestaurantManagerInviteHtml(input: {
     <ul style="margin:0;padding-left:20px;font-size:14px;line-height:1.6;color:#334155 !important;">
       <li>Menu — ${escapeHtml(`${base}/restaurant/menu`)}</li>
       <li>Branding — ${escapeHtml(`${base}/restaurant/branding`)}</li>
-      <li>Prep list — ${escapeHtml(`${base}/restaurant/production`)}</li>
+      <li>Order list — ${escapeHtml(`${base}/restaurant/production`)}</li>
       <li>Sales &amp; payouts — ${escapeHtml(`${base}/restaurant/reports`)}</li>
     </ul>`;
 
