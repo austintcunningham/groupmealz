@@ -254,10 +254,14 @@ body.geaux-body::before {
   }
 
   aside,
-  header,
   nav,
   .print\:hidden {
     display: none !important;
+  }
+
+  .sales-kit-document > header,
+  .restaurant-one-sheet > header {
+    display: block !important;
   }
 
   main {

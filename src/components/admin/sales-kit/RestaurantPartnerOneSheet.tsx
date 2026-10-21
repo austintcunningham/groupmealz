@@ -8,7 +8,7 @@ import { BRAND } from "@/lib/brand";
 export function RestaurantPartnerOneSheet() {
   return (
     <article className="restaurant-one-sheet mx-auto max-w-[8.5in] bg-white text-[var(--geaux-charcoal)] shadow-lg">
-      <header className="relative overflow-hidden geaux-header-gradient px-8 py-7 text-white">
+      <header className="one-sheet-hero relative overflow-hidden geaux-header-gradient px-8 py-7 text-white">
         <div className="geaux-accent-bar" />
         <div className="flex items-start justify-between gap-6">
           <div className="min-w-0 flex-1">

@@ -76,7 +76,7 @@ export function DashboardShell({
 
   return (
     <div className="min-h-screen">
-      <header className="geaux-header-gradient text-white">
+      <header className="dashboard-app-header geaux-header-gradient text-white print:hidden">
         <div className="geaux-accent-bar" />
         <div className="mx-auto max-w-6xl px-4 pt-3">
           <div className="flex items-start justify-between gap-3">
