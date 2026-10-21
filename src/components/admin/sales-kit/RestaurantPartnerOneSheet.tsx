@@ -107,10 +107,6 @@ export function RestaurantPartnerOneSheet() {
           {BRAND.supportEmail} · {BRAND.name} · groupmeals.net
         </p>
       </footer>
-
-      <p className="px-6 pb-4 text-center text-[10px] text-slate-400 print:pb-2">
-        Full partner playbook, email samples, and order-screen preview — {BRAND.name} admin sales kit.
-      </p>
     </article>
   );
 }
