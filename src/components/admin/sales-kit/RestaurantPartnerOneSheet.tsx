@@ -3,34 +3,35 @@ import { BRAND } from "@/lib/brand";
 
 /**
  * Single-page leave-behind for restaurant prospects. Tuned for Print / Save PDF (US Letter).
+ * Layout classes `one-sheet-grid-*` pair with globals.css so print matches desktop preview.
  */
 export function RestaurantPartnerOneSheet() {
   return (
-    <article className="restaurant-one-sheet mx-auto max-w-[8.5in] bg-white text-[var(--geaux-charcoal)] shadow-lg print:max-w-none print:shadow-none">
-      <header className="relative overflow-hidden geaux-header-gradient px-8 py-7 text-white print:py-6">
-        <div className="geaux-accent-bar print:hidden" />
+    <article className="restaurant-one-sheet mx-auto max-w-[8.5in] bg-white text-[var(--geaux-charcoal)] shadow-lg">
+      <header className="relative overflow-hidden geaux-header-gradient px-8 py-7 text-white">
+        <div className="geaux-accent-bar" />
         <div className="flex items-start justify-between gap-6">
           <div className="min-w-0 flex-1">
             <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-white/75">
               For restaurant partners
             </p>
-            <h1 className="mt-2 text-[1.65rem] font-bold leading-[1.15] tracking-tight sm:text-3xl print:text-[1.55rem]">
+            <h1 className="mt-2 text-3xl font-bold leading-[1.15] tracking-tight">
               Fill your lunch day with orders you can see coming — not last-minute chaos.
             </h1>
-            <p className="mt-3 max-w-xl text-sm leading-snug text-white/90 print:text-[13px]">
+            <p className="mt-3 max-w-xl text-sm leading-snug text-white/90">
               {BRAND.name} connects local offices to your kitchen: employees order ahead, pay online,
               and you get <strong className="text-white">one final order list</strong> every morning.
               Same window, labeled bags, repeat business.
             </p>
           </div>
-          <div className="hidden shrink-0 sm:block print:block">
+          <div className="shrink-0">
             <GroupMealsLogo size="sm" href={undefined} surface="light" />
           </div>
         </div>
       </header>
 
-      <div className="border-b border-[var(--geaux-yellow)] bg-[var(--geaux-cream)] px-6 py-4 print:px-5 print:py-3">
-        <p className="text-center text-[13px] font-semibold leading-snug text-slate-800 print:text-[12px]">
+      <div className="border-b border-[var(--geaux-yellow)] bg-[var(--geaux-cream)] px-6 py-4">
+        <p className="text-center text-[13px] font-semibold leading-snug text-slate-800">
           Think of a{" "}
           <span className="text-[var(--geaux-red)]">big DoorDash or Uber Eats drop</span> — with a
           real cutoff, a final headcount, and{" "}
@@ -39,12 +40,12 @@ export function RestaurantPartnerOneSheet() {
         </p>
       </div>
 
-      <div className="grid gap-0 border-b border-slate-200 sm:grid-cols-2">
-        <section className="border-b border-slate-200 p-6 sm:border-b-0 sm:border-r print:p-5">
+      <div className="one-sheet-grid-2 grid gap-0 border-b border-slate-200 sm:grid-cols-2">
+        <section className="border-b border-slate-200 p-6 sm:border-b-0 sm:border-r">
           <h2 className="text-xs font-bold uppercase tracking-widest text-[var(--geaux-red)]">
             Why owners say yes
           </h2>
-          <ul className="mt-4 space-y-3.5 text-[13px] leading-snug text-slate-800 print:text-[12px]">
+          <ul className="mt-4 space-y-3.5 text-[13px] leading-snug text-slate-800">
             <OneSheetBullet title="Recurring office volume">
               Companies order lunch Mon–Fri on rotation — predictable demand, not a one-time catering
               gig.
@@ -65,11 +66,11 @@ export function RestaurantPartnerOneSheet() {
           </ul>
         </section>
 
-        <section className="bg-[var(--geaux-cream)] p-6 print:p-5">
+        <section className="bg-[var(--geaux-cream)] p-6">
           <h2 className="text-xs font-bold uppercase tracking-widest text-[var(--geaux-red)]">
             What lands in your inbox
           </h2>
-          <div className="mt-4 space-y-3 text-[13px] print:text-[12px]">
+          <div className="mt-4 space-y-3 text-[13px]">
             <InboxRow
               when="Morning of lunch"
               what="Printable kitchen order list — headcount, mods, address, delivery window."
@@ -87,7 +88,7 @@ export function RestaurantPartnerOneSheet() {
         </section>
       </div>
 
-      <section className="grid gap-4 px-6 py-5 sm:grid-cols-3 print:px-5 print:py-4">
+      <section className="one-sheet-grid-3 grid gap-4 px-6 py-5 sm:grid-cols-3">
         <Step n="1" title="Get on our office lunch rotation">
           Our onboarding specialist uploads your menu, trains you on the portal, and shows you how
           to adjust items and pricing whenever you want.
@@ -101,7 +102,7 @@ export function RestaurantPartnerOneSheet() {
         </Step>
       </section>
 
-      <footer className="geaux-header-gradient px-6 py-5 text-center text-white sm:text-left print:py-4">
+      <footer className="geaux-header-gradient px-6 py-5 text-left text-white">
         <p className="text-sm font-bold">Let&apos;s put your restaurant on office lunch calendars.</p>
         <p className="mt-1 text-xs text-white/85">
           {BRAND.supportEmail} · {BRAND.name} · groupmeals.net
@@ -138,12 +139,12 @@ function InboxRow({ when, what }: { when: string; what: string }) {
 
 function Step({ n, title, children }: { n: string; title: string; children: React.ReactNode }) {
   return (
-    <div className="text-center sm:text-left">
+    <div className="text-left">
       <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[var(--geaux-red)] text-xs font-bold text-white">
         {n}
       </span>
       <p className="mt-2 text-sm font-bold text-slate-900">{title}</p>
-      <p className="mt-1 text-[12px] leading-snug text-slate-600 print:text-[11px]">{children}</p>
+      <p className="mt-1 text-[12px] leading-snug text-slate-600">{children}</p>
     </div>
   );
 }

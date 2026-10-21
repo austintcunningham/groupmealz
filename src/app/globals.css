@@ -278,15 +278,43 @@ body.geaux-body::before {
     page-break-inside: avoid;
   }
 
+  body.geaux-body:has(.restaurant-one-sheet) {
+    background: white !important;
+  }
+
   .restaurant-one-sheet {
-    max-width: none !important;
-    box-shadow: none !important;
+    width: 8.5in;
+    max-width: 8.5in !important;
+    margin-inline: auto !important;
+    box-shadow: var(--geaux-shadow-lg) !important;
     break-inside: avoid;
     page-break-inside: avoid;
+    page: one-sheet;
+  }
+
+  .restaurant-one-sheet,
+  .restaurant-one-sheet * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .restaurant-one-sheet .one-sheet-grid-2 {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .restaurant-one-sheet .one-sheet-grid-3 {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
   }
 }
 
 @page {
   size: letter;
   margin: 0.45in;
+}
+
+@page one-sheet {
+  size: letter portrait;
+  margin: 0.35in 0.2in;
 }
