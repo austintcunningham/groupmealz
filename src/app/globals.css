@@ -505,3 +505,9 @@ body.geaux-body::before {
   overflow: hidden !important;
   border-radius: 0 !important;
 }
+
+@media print {
+  html.print-onboarding-checklist-only .onboarding-partner-reference {
+    display: none !important;
+  }
+}

@@ -8,6 +8,7 @@ type SalesKitAudience =
   | "restaurants"
   | "offices"
   | "hub"
+  | "onboarding"
   | "restaurants-one-sheet"
   | "restaurants-chick-fil-a"
   | "restaurants-chick-fil-a-one-sheet";
@@ -95,6 +96,14 @@ export function SalesKitToolbar({
         >
           Live email previews
         </Link>
+        {audience !== "onboarding" ? (
+          <Link
+            href="/admin/sales-kit/onboarding"
+            className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"
+          >
+            Onboarding checklist
+          </Link>
+        ) : null}
       </div>
       <div className="flex flex-wrap items-center gap-2">
         {isOneSheet ? (

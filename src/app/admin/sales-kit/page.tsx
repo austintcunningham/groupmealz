@@ -59,6 +59,18 @@ export default async function AdminSalesKitPage() {
             </Link>
           </div>
         </Card>
+        <Card title="Onboarding specialists">
+          <p className="mb-4 text-sm text-slate-600">
+            Step-by-step checklist with admin deep links, plus printable partner operations guide,
+            payout walkthrough, and sales tax — kept out of prospect-facing PDFs.
+          </p>
+          <Link
+            href="/admin/sales-kit/onboarding"
+            className="inline-flex rounded-lg bg-[var(--geaux-red)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--geaux-red-dark)]"
+          >
+            Open onboarding checklist →
+          </Link>
+        </Card>
         <Card title="Office customer packet">
           <p className="mb-4 text-sm text-slate-600">
             Local-restaurant story, employee confirmations, admin fulfillment emails, post-lunch
