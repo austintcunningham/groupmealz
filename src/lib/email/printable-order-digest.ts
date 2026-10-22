@@ -190,17 +190,18 @@ function wrapPrintableEmail(bodyHtml: string): string {
 </html>`;
 }
 
-const SAMPLE_FULFILLMENT_MEALS = [
-  {
-    name: "Hook & Ladder — Medium",
-    lineCents: 1099,
-    specialInstructions: "no lettuce or tomato, please",
-  },
-  { name: "Italian — Medium", lineCents: 1099 },
-  { name: "Sub, Chips, & Drink — Combo", lineCents: 1369 },
-  { name: "Engineer — Large", lineCents: 1299, specialInstructions: "extra mayo" },
-  { name: "Meatball — Medium", lineCents: 1099 },
-] as const;
+const FALLBACK_FULFILLMENT_MEALS: { name: string; lineCents: number; specialInstructions?: string }[] =
+  [
+    {
+      name: "Hook & Ladder — Medium",
+      lineCents: 1099,
+      specialInstructions: "no lettuce or tomato, please",
+    },
+    { name: "Italian — Medium", lineCents: 1099 },
+    { name: "Sub, Chips, & Drink — Combo", lineCents: 1369 },
+    { name: "Engineer — Large", lineCents: 1299, specialInstructions: "extra mayo" },
+    { name: "Meatball — Medium", lineCents: 1099 },
+  ];
 
 const SAMPLE_FULFILLMENT_CUSTOMERS = [
   ["Paige", "Campbell"],
@@ -223,8 +224,19 @@ const SAMPLE_FULFILLMENT_CUSTOMERS = [
   ["Finley", "Miller"],
 ] as const;
 
-export function sampleRestaurantFulfillmentHtml(options?: { inflatedVolume?: boolean }): string {
+export function sampleRestaurantFulfillmentHtml(options?: {
+  inflatedVolume?: boolean;
+  meals?: { name: string; lineCents: number; specialInstructions?: string }[];
+  restaurantName?: string;
+}): string {
+  const meals =
+    options?.meals && options.meals.length > 0 ? options.meals : FALLBACK_FULFILLMENT_MEALS;
+  const restaurantName = options?.restaurantName ?? "Firehouse Subs Gonzales";
+  const firstMeal = meals[0]!;
+
   if (!options?.inflatedVolume) {
+    const subtotalCents = firstMeal.lineCents;
+    const taxCents = Math.round(subtotalCents * 0.105);
     return buildRestaurantFulfillmentHtml({
       officeName: "Iberville Building",
       streetAddress: "627 N. 4th St.",
@@ -232,7 +244,7 @@ export function sampleRestaurantFulfillmentHtml(options?: { inflatedVolume?: boo
       deliveryInstructions: "Leave at front desk; call contact on arrival.",
       contactName: "Paige Campbell",
       contactPhone: null,
-      restaurantName: "Firehouse Subs Gonzales",
+      restaurantName,
       lunchDate: "Monday, October 12, 2026",
       deliveryAt: "12:00 PM",
       orders: [
@@ -243,22 +255,24 @@ export function sampleRestaurantFulfillmentHtml(options?: { inflatedVolume?: boo
           customerEmail: "paige.campbell.dcfs@la.gov",
           lines: [
             {
-              name: "Hook & Ladder — Medium",
+              name: firstMeal.name,
               qty: 1,
-              lineCents: 1099,
-              specialInstructions: "no lettuce or tomato, please",
+              lineCents: firstMeal.lineCents,
+              ...(firstMeal.specialInstructions
+                ? { specialInstructions: firstMeal.specialInstructions }
+                : {}),
             },
           ],
-          subtotalCents: 1099,
-          taxCents: 115,
-          totalCents: 1214,
+          subtotalCents,
+          taxCents,
+          totalCents: subtotalCents + taxCents,
         },
       ],
     });
   }
 
   const orders: DigestOrder[] = SAMPLE_FULFILLMENT_CUSTOMERS.map(([first, last], i) => {
-    const meal = SAMPLE_FULFILLMENT_MEALS[i % SAMPLE_FULFILLMENT_MEALS.length]!;
+    const meal = meals[i % meals.length]!;
     const subtotalCents = meal.lineCents;
     const taxCents = Math.round(subtotalCents * 0.105);
     return {
@@ -271,9 +285,7 @@ export function sampleRestaurantFulfillmentHtml(options?: { inflatedVolume?: boo
           name: meal.name,
           qty: 1,
           lineCents: meal.lineCents,
-          ...("specialInstructions" in meal && meal.specialInstructions
-            ? { specialInstructions: meal.specialInstructions }
-            : {}),
+          ...(meal.specialInstructions ? { specialInstructions: meal.specialInstructions } : {}),
         },
       ],
       subtotalCents,
@@ -289,7 +301,7 @@ export function sampleRestaurantFulfillmentHtml(options?: { inflatedVolume?: boo
     deliveryInstructions: "Leave at front desk; call contact on arrival.",
     contactName: "Paige Campbell",
     contactPhone: null,
-    restaurantName: "Firehouse Subs Gonzales",
+    restaurantName,
     lunchDate: "Monday, October 12, 2026",
     deliveryAt: "12:00 PM",
     orders,

@@ -5,6 +5,7 @@ import { sampleReviewRequestHtml } from "@/lib/email/review-request";
 import { sampleRestaurantWeeklyPayoutHtml } from "@/lib/email/weekly-restaurant-html";
 import { sampleOfficeWeeklySummaryHtml } from "@/lib/email/weekly-office-html";
 import { buildOfficeFulfillmentHtml, type DigestOfficeBlock } from "@/lib/email/printable-order-digest";
+import { loadFirehouseMenuDigestMeals } from "@/lib/sales-kit/order-preview-sample";
 import type { RestaurantProspectId } from "@/lib/sales-kit/restaurant-prospect-variants";
 
 export type RestaurantEmailSampleId = "daily-kitchen" | "weekly-payout";
@@ -47,14 +48,20 @@ export function sampleOfficeDeliveryBlock(): DigestOfficeBlock {
   };
 }
 
-export function getRestaurantSalesKitEmailHtml(
+export async function getRestaurantSalesKitEmailHtml(
   id: RestaurantEmailSampleId,
   prospectId: RestaurantProspectId = "default"
-): string {
+): Promise<string> {
   const inflatedVolume = prospectId === "chick-fil-a";
   switch (id) {
-    case "daily-kitchen":
-      return sampleRestaurantFulfillmentHtml({ inflatedVolume });
+    case "daily-kitchen": {
+      const meals = await loadFirehouseMenuDigestMeals();
+      return sampleRestaurantFulfillmentHtml({
+        inflatedVolume,
+        meals: meals.length ? meals : undefined,
+        restaurantName: "Firehouse Subs Gonzales",
+      });
+    }
     case "weekly-payout":
       return sampleRestaurantWeeklyPayoutHtml({ salesKitPreview: true, inflatedVolume });
   }

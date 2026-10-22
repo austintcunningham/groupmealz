@@ -15,7 +15,7 @@ import { RestaurantSalesKitOrderPreview } from "./RestaurantSalesKitOrderPreview
 import { ReviewScreenMock, SatisfactionFlowCard } from "./SatisfactionFlowCard";
 import type { SalesKitOrderPreviewSample } from "@/lib/sales-kit/order-preview-sample";
 
-export function RestaurantSalesPacket({
+export async function RestaurantSalesPacket({
   orderPreview,
   prospectId = "default",
 }: {
@@ -25,6 +25,14 @@ export function RestaurantSalesPacket({
   const prospect = getRestaurantProspectContent(prospectId);
   const emailSamples = prospect.emailSamples ?? RESTAURANT_EMAIL_SAMPLES;
   const atAGlance = atAGlanceSteps();
+  const emailHtmlById = Object.fromEntries(
+    await Promise.all(
+      emailSamples.map(async (sample) => [
+        sample.id,
+        await getRestaurantSalesKitEmailHtml(sample.id, prospectId),
+      ])
+    )
+  ) as Record<string, string>;
 
   return (
     <article className="sales-kit-document mx-auto max-w-3xl space-y-8 pb-12 print:space-y-0 print:pb-0">
@@ -112,7 +120,7 @@ export function RestaurantSalesPacket({
             title={sample.title}
             when={sample.when}
             pitch={sample.pitch}
-            html={getRestaurantSalesKitEmailHtml(sample.id, prospectId)}
+            html={emailHtmlById[sample.id] ?? ""}
             compact
           />
         ))}
