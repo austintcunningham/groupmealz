@@ -99,7 +99,7 @@ export function RestaurantSalesPacket({
         </div>
         <div className="sales-kit-print-unit mt-4 text-sm text-slate-600">
           {prospectId === "chick-fil-a"
-            ? "The playbook below includes catering handoff, tray labeling, and delivery — the same standards we use for individual meals."
+            ? "The playbook below covers office lunch and catering as separate fulfillment paths — including advance catering prep and rotation-day labeling."
             : "The detailed partner playbook below covers onboarding through delivery — including labeling, sealing, and handoff standards."}
         </div>
       </section>
@@ -167,10 +167,10 @@ export function RestaurantSalesPacket({
 function atAGlanceSteps(prospectId: RestaurantProspectId): [string, string, string][] {
   if (prospectId === "chick-fil-a") {
     return [
-      ["1", "Configure catering + meals", "Upload trays, platters, and individual menu in the portal."],
-      ["2", "Offices order ahead", "Cutoff locks tray totals and headcount before prep."],
-      ["3", "One manifest", "Print kitchen & catering sheet; pack trays and labeled bags."],
-      ["4", "Scale rotation", "Weekly settlement + reviews → more corporate accounts."],
+      ["1", "Catering flow", "Corporate trays ordered days ahead — own cutoff and production email."],
+      ["2", "Office lunch", "Rotation-day meals — morning cutoff and kitchen list separate from catering."],
+      ["3", "Fulfill & deliver", "Catering events on scheduled prep; labeled bags on rotation days."],
+      ["4", "Scale", "Weekly settlement + reviews → more catering and office accounts."],
     ];
   }
   return [
@@ -189,10 +189,10 @@ const gettingStartedDefault = [
 ];
 
 const gettingStartedChickFilA = [
-  "Kickoff with your onboarding specialist — map catering packages, individual meals, and delivery capacity for your trade area.",
-  "Load Chick-fil-A catering SKUs and meal bundles; confirm cutoff time and kitchen email for the daily manifest.",
-  "Pilot one corporate account — catering-heavy lunch with a published delivery window.",
-  "Expand to additional offices on rotation once tray + bag fulfillment is dialed in.",
+  "Kickoff with your onboarding specialist — define catering lead times, cutoffs, and delivery capacity separately from office lunch rotation.",
+  "Launch catering first: load tray/platter SKUs, catering production email, and pilot one advance-order corporate event.",
+  "When ready, enable office lunch rotation — individual meal menu, morning cutoff, and kitchen list (not mixed with catering).",
+  "Expand catering accounts and office rotations independently as fulfillment stays smooth on each path.",
 ];
 
 function RevenueStat({

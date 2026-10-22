@@ -138,12 +138,14 @@ function renderOfficeHeader(block: DigestOfficeBlock, intro: string): string {
 }
 
 /** Restaurant kitchen — full detail, printable, minimal color. */
-export function buildRestaurantFulfillmentHtml(block: DigestOfficeBlock): string {
+export function buildRestaurantFulfillmentHtml(
+  block: DigestOfficeBlock,
+  options?: { sheetTitle?: string }
+): string {
   const orders = block.orders.map((o) => renderOrder(o, true)).join("");
-  const body = renderOfficeHeader(
-    block,
-    `Kitchen order sheet — ${block.restaurantName}`
-  );
+  const title =
+    options?.sheetTitle ?? `Kitchen order sheet — ${block.restaurantName}`;
+  const body = renderOfficeHeader(block, title);
   return wrapPrintableEmail(`${body}${orders}`);
 }
 

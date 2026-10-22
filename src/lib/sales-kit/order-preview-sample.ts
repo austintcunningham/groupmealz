@@ -28,7 +28,7 @@ export const CHICK_FIL_A_ORDER_PREVIEW: SalesKitOrderPreviewSample = {
   bannerUrl: null,
   simulatePath: "/admin/simulate-order",
   orderBlurb:
-    "Employees pick meals; office admins can add catering trays on the same checkout — same layout as live ordering.",
+    "This is the office lunch rotation order screen — individual meals only. Corporate catering is booked separately in the portal with its own lead times and cutoff rules.",
   menuItems: [
     {
       name: "Chick-fil-A® Chicken Sandwich Meal",
@@ -36,14 +36,14 @@ export const CHICK_FIL_A_ORDER_PREVIEW: SalesKitOrderPreviewSample = {
       note: "Individual meals with modifiers",
     },
     {
-      name: "Chick-fil-A® Nuggets Tray",
-      price: "From $42",
-      note: "Catering — office admin selects count & sauces",
+      name: "Spicy Chicken Sandwich Meal",
+      price: "$12.49",
+      note: "Rotation-day menu — configured per store",
     },
     {
-      name: "Spicy Cool Wrap® Catering Pack",
-      price: "From $58",
-      note: "Meeting & training-day option alongside trays",
+      name: "Cobb Salad",
+      price: "$10.99",
+      note: "Example entrée; catering trays are not shown here",
     },
   ],
 };

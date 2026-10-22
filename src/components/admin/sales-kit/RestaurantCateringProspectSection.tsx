@@ -5,45 +5,45 @@ export function RestaurantCateringProspectSection() {
   return (
     <section className="sales-kit-print-unit rounded-2xl border-2 border-[var(--geaux-red)]/30 bg-white p-6 shadow-sm">
       <p className="text-xs font-bold uppercase tracking-[0.15em] text-[var(--geaux-red)]">
-        {BRAND.name} catering for offices
+        {BRAND.name} catering — separate from office lunch
       </p>
       <h2 className="mt-2 text-xl font-bold text-[var(--geaux-charcoal)]">
-        The foot in the door: corporate catering, already wired into the same flow
+        Corporate catering as its own channel (your foot in the door)
       </h2>
       <p className="mt-3 text-sm leading-relaxed text-slate-600">
-        Offices do not only order one sandwich at a time — they need{" "}
-        <strong>trays for all-hands meetings</strong>, <strong>boxed lunches for training days</strong>,
-        and <strong>labeled individual meals</strong> for the rest of the building on the same lunch
-        rotation. {BRAND.name} treats catering as a first-class part of the product: office admins add
-        catering SKUs at checkout, employees still order their own meals, and your store receives{" "}
-        <strong>one prepaid manifest</strong> after cutoff.
+        Catering is <strong>not</strong> added to rotation-day lunch checkout. Offices use a{" "}
+        <strong>dedicated catering order flow</strong> with <strong>different cutoffs and lead
+        times</strong> — built so stores receive tray totals and setup notes{" "}
+        <strong>days before</strong> the event. That is the wedge for operators who already know
+        catering: prepaid corporate demand, without surprise tray counts landing the morning of office
+        lunch.
       </p>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <CateringCard
-          title="What offices can order today"
+          title="Office lunch rotation"
           items={[
-            "Nuggets, strips, and mini trays with sauces",
-            "Sandwich platters and boxed meal packages",
-            "Sides, salads, and beverages at tray scale",
-            "Individual meals with modifiers — on the same lunch day",
+            "Employees order individual meals on a short window",
+            "Morning cutoff → kitchen order list same day",
+            "120–200+ labeled bags on big rotation days",
+            "Separate email, separate rules from catering",
           ]}
         />
         <CateringCard
-          title="Why operators like it"
+          title="Corporate catering"
           items={[
-            "Cutoff locks tray counts before prep — no day-of phone tag",
-            "Catering lines sit on the same kitchen email as labeled bags",
-            "Prepaid — no invoicing chase or card-at-the-door",
-            "Delivery window published up front for driver planning",
+            "Office admin orders trays, platters, boxed meals only on catering flow",
+            "Longer lead time — order locks days before delivery",
+            "Catering production sheet when the order confirms",
+            "Own delivery date/time — prep scheduled in advance",
           ]}
         />
       </div>
 
       <p className="mt-5 rounded-lg bg-[var(--geaux-cream)] px-4 py-3 text-sm text-slate-700">
-        <strong>Pilot-friendly:</strong> Start with one corporate account and catering-heavy days.
-        When fulfillment is smooth, expand rotation to additional offices — volume scales without
-        adding register complexity.
+        <strong>Pilot path:</strong> Lead with one corporate catering account to prove prep and
+        delivery. Add office lunch rotation when the store is ready for recurring labeled-meal volume
+        — still on its own schedule and cutoff, never mixed with catering cart logic.
       </p>
     </section>
   );

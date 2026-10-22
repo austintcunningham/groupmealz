@@ -8,7 +8,10 @@ import { buildOfficeFulfillmentHtml, type DigestOfficeBlock } from "@/lib/email/
 import { getChickFilASalesKitEmailHtml } from "@/lib/sales-kit/chick-fil-a-email-samples";
 import type { RestaurantProspectId } from "@/lib/sales-kit/restaurant-prospect-variants";
 
-export type RestaurantEmailSampleId = "daily-kitchen" | "weekly-payout";
+export type RestaurantEmailSampleId =
+  | "daily-kitchen"
+  | "weekly-payout"
+  | "catering-production";
 export type OfficeEmailSampleId =
   | "customer-confirmation"
   | "office-delivery"
@@ -53,13 +56,18 @@ export function getRestaurantSalesKitEmailHtml(
   prospectId: RestaurantProspectId = "default"
 ): string {
   if (prospectId === "chick-fil-a") {
-    return getChickFilASalesKitEmailHtml(id);
+    if (id === "catering-production") {
+      return getChickFilASalesKitEmailHtml("catering-production");
+    }
+    return getChickFilASalesKitEmailHtml(id === "weekly-payout" ? "weekly-payout" : "daily-kitchen");
   }
   switch (id) {
     case "daily-kitchen":
       return sampleRestaurantFulfillmentHtml();
     case "weekly-payout":
       return sampleRestaurantWeeklyPayoutHtml();
+    case "catering-production":
+      throw new Error("catering-production sample is only available for chick-fil-a prospect");
   }
 }
 

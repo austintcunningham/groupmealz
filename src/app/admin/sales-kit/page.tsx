@@ -42,7 +42,8 @@ export default async function AdminSalesKitPage() {
         <Card title="Chick-fil-A (target account)">
           <p className="mb-4 text-sm text-slate-600">
             Higher volume illustrations, <strong>catering-first</strong> story, and sample emails
-            using Chick-fil-A–style menu items — positioned as corporate catering + office rotation.
+            using Chick-fil-A–style samples — catering on its own advance order path, office lunch
+            separate.
           </p>
           <div className="flex flex-wrap gap-2">
             <Link
