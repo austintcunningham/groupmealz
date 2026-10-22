@@ -1,8 +1,4 @@
 import { BRAND } from "@/lib/brand";
-import {
-  RESTAURANT_PARTNER_FEE_BULLET,
-  RESTAURANT_PARTNER_SERVICE_FEE_LINE,
-} from "@/lib/partner/partner-fee-copy";
 import type { RestaurantEmailSampleId } from "@/lib/sales-kit/email-samples";
 
 export type RestaurantProspectId = "default" | "chick-fil-a";
@@ -40,112 +36,92 @@ export const CHICK_FIL_A_PROSPECT: RestaurantProspectContent = {
   oneSheetPdfName: "groupmeals-chick-fil-a-one-sheet.pdf",
   coverEyebrow: "",
   coverHeadline: CHICK_FIL_A_MAIN_HEADLINE,
-  coverSubhead: `${BRAND.name} brings you corporate volume you can staff: office lunch on rotation with a morning cutoff, and catering on its own order with more notice, its own rules, and a production sheet before the event. The two are not mixed into one checkout or one kitchen email.`,
+  coverSubhead: `${BRAND.name} helps busy stores add corporate lunch and catering revenue without treating both the same way. Offices order ahead, pay online, and you get clear production sheets—not last-minute phone chaos.`,
   revenueLead:
-    "Busy stores do not need another surprise at noon. We offer two kinds of corporate business: office lunch on rotation (often 120–200+ labeled meals on a big day, with orders closing the morning of delivery) and catering (trays and platters ordered days ahead on a separate flow). Both are prepaid. Each has its own cutoff and its own email to the kitchen.",
+    "Think campus-scale office lunch when you are on rotation, plus corporate catering booked in advance. Both are prepaid B2B volume you can plan around instead of hiding inside the noon dining room rush.",
   revenueStats: [
     {
       label: "Example office lunch day",
       value: "120–200+ meals",
-      detail: "Restaurant of the Day on rotation—individual orders, morning cutoff",
+      detail: "One large office on rotation",
     },
     {
       label: "Example catering job",
       value: "$800–$2,500+",
-      detail: "One corporate event, ordered ahead on the catering flow",
+      detail: "One corporate event",
     },
     {
       label: "Illustrative rotation week",
       value: "$9,500–$22,000",
-      detail: "Office lunch food only; catering is booked and paid on its own schedule",
+      detail: "Office lunch illustration; catering adds on separately",
     },
   ],
-  revenueFootnote:
-    "Numbers are illustrative for the Gonzales / Ascension market. Catering and office lunch follow different rules and timelines so tray prep does not land on the same clock as rotation-day lunch counts.",
+  revenueFootnote: "Illustrative Gonzales / Ascension market—your onboarding specialist will size this for your trade area.",
   showCateringSection: true,
   emailSamples: [
     {
       id: "daily-kitchen",
-      title: "Office lunch — daily kitchen order list",
-      when: "Morning of lunch (9:30 AM Central), after that day’s ordering closes",
-      pitch:
-        "Run sheet for rotation day: each meal, modifiers, delivery window, and office contact. Catering orders are not on this email.",
+      title: "Office lunch — kitchen order list",
+      when: "Morning of a rotation lunch day",
+      pitch: "Who ordered what, delivery window, and office contact—built for batching labeled meals.",
     },
     {
       id: "catering-production",
       title: "Catering — production sheet",
-      when: "After catering closes (usually several days before delivery)",
-      pitch:
-        "Sent when the catering order is final: tray counts, setup notes, date, time, and contact—early enough to plan prep and delivery.",
+      when: "When a catering order is confirmed",
+      pitch: "Tray counts and setup notes while there is still time to prep.",
     },
     {
       id: "weekly-payout",
-      title: "Weekly payout estimate",
-      when: "Friday afternoon (Mon–Fri settlement period)",
-      pitch:
-        "Check stub for the week’s food sales from office lunch and catering, with tax and service fee broken out (sample uses high office-lunch participation).",
+      title: "Weekly sales summary",
+      when: "Friday afternoon",
+      pitch: "Snapshot of the week’s sales—the same kind of summary partners receive after go-live.",
     },
   ],
   whyWinBullets: [
     {
-      title: "Catering stays separate",
-      body: "Trays and platters use the catering order, cutoff, and kitchen email—not the rotation-day lunch checkout.",
+      title: "Catering as the opener",
+      body: "Lead with trays and platters on a path built for advance corporate orders.",
     },
     {
-      title: "Notice for catering",
-      body: "Catering closes before the event so you can batch trays without waiting on the office-lunch timeline.",
+      title: "Rotation-day scale",
+      body: "Large offices on the calendar when you are Restaurant of the Day.",
     },
     {
-      title: "Office lunch at scale",
-      body: "Large rotation days with a firm morning headcount, so you can plan production around the dining room rush, not inside it.",
+      title: "Off the noon rush",
+      body: "Demand shows up on a schedule, not as surprise walk-in pressure.",
     },
     {
-      title: "Orders placed ahead",
-      body: "Offices order before the delivery window; you are not chasing last-minute phone requests.",
+      title: "Prepaid",
+      body: "Offices pay online; you focus on food and delivery.",
     },
     {
-      title: "Menus in the portal",
-      body: "Set rotation-day meals and catering packages separately, with pricing you control.",
-    },
-    {
-      title: "Weekly settlement",
-      body: "One summary for accounting with food from both programs and sales tax pass-through.",
-    },
-    {
-      title: RESTAURANT_PARTNER_FEE_BULLET.title,
-      body: RESTAURANT_PARTNER_FEE_BULLET.body,
+      title: "Your menu, your look",
+      body: "Branded order experience and items you control in the portal.",
     },
   ],
 };
 
 const DEFAULT_WHY_WIN: ProspectBullet[] = [
   {
-    title: "Predictable batches",
-    body: "Final headcount lands at cutoff; you produce from the order list instead of guessing.",
+    title: "Repeat office demand",
+    body: "Companies on rotation week after week—not one-off catering luck.",
+  },
+  {
+    title: "Headcount before prep",
+    body: "One order list after ordering closes so the kitchen knows what to make.",
   },
   {
     title: "You deliver",
-    body: "We email the final order list; you prepare, label bags, and handle timely delivery to the office.",
+    body: "We handle ordering and payment; you prepare, label, and deliver on time.",
   },
   {
-    title: "Corporate discovery",
-    body: "New offices meet you on our lunch rotation, not a one-off Groupon rush.",
+    title: "Your brand",
+    body: "Logo and menu on the employee order screen.",
   },
   {
-    title: "Your brand on the order screen",
-    body: "Logo and menu presentation that feels like your restaurant, not a generic marketplace.",
-  },
-  {
-    title: "Operations that respect the kitchen",
-    body: "Printable digests, modifiers spelled out, one contact email for fulfillment.",
-  },
-  {
-    title: "Settlement visibility",
-    body: "Weekly payout-style summaries so accounting knows what is coming.",
-  },
-  {
-    title: RESTAURANT_PARTNER_FEE_BULLET.title,
-    body: `${RESTAURANT_PARTNER_SERVICE_FEE_LINE} Sales tax is set aside in settlement for you to remit.`,
+    title: "Weekly visibility",
+    body: "Friday summary of what sold—details covered in onboarding.",
   },
 ];
 
@@ -163,28 +139,27 @@ export function getRestaurantProspectContent(
     oneSheetPdfName: "groupmeals-restaurant-one-sheet.pdf",
     coverEyebrow: "Partner overview",
     coverHeadline: "Grow weekday lunch revenue — without adding delivery-app chaos",
-    coverSubhead: `${BRAND.name} puts recurring corporate lunch on your calendar: employees order days ahead, you get one clean order list email every morning, you prepare and deliver — we handle payments, reminders, and satisfaction tracking.`,
+    coverSubhead: `${BRAND.name} puts recurring corporate lunch on your calendar: employees order ahead, you get one clean order list, you prepare and deliver—we handle payments and reminders.`,
     revenueLead:
-      "Office lunch is not one big catering tray — it is dozens of individual meals, ordered on a deadline, delivered at the same window, week after week. That is high-margin repeat business if you can see it coming. GroupMeals puts that demand on your calendar instead of your phone ringing at 10:45 AM.",
+      "Office lunch is dozens of individual meals on a deadline, same delivery window, week after week. That is repeat business when you can see it coming—not a phone call at 10:45 AM.",
     revenueStats: [
       {
         label: "Example order",
         value: "20–45 people",
-        detail: "One office lunch day when you're on rotation",
+        detail: "One office lunch day on rotation",
       },
       {
         label: "Avg entrée",
         value: "$13–$16",
-        detail: "Your menu, your pricing — update anytime in the portal",
+        detail: "Your menu, your pricing",
       },
       {
         label: "Illustrative week",
         value: "$1,300–$3,600",
-        detail: "20–45 people × 5 days × entrée (food only)",
+        detail: "Example week on rotation (food only)",
       },
     ],
-    revenueFootnote:
-      "Illustration only — actual volume depends on office size, schedule, and participation. Multiple offices on rotation multiply this effect.",
+    revenueFootnote: "Illustration only—volume depends on office size and participation.",
     showCateringSection: false,
     emailSamples: null,
     whyWinBullets: DEFAULT_WHY_WIN,

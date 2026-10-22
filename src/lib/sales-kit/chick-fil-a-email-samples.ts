@@ -119,25 +119,28 @@ export function chickFilASampleWeeklyPayoutHtml(): string {
   const grossSalesCents = subtotalCents + taxCents + gratuityCents;
   const checkTotalCents = subtotalCents + taxCents + gratuityCents - commissionCents;
 
-  return buildRestaurantWeeklyPayoutHtml({
-    restaurantName,
-    restaurantAddress,
-    period: {
-      weekStart: "2026-10-06",
-      weekEnd: "2026-10-10",
-      label: "10/06/2026 – 10/10/2026 (Mon–Fri)",
+  return buildRestaurantWeeklyPayoutHtml(
+    {
+      restaurantName,
+      restaurantAddress,
+      period: {
+        weekStart: "2026-10-06",
+        weekEnd: "2026-10-10",
+        label: "10/06/2026 – 10/10/2026 (Mon–Fri)",
+      },
+      orderCount: 600,
+      subtotalCents,
+      gratuityCents,
+      taxCents,
+      deliveryCents: 0,
+      grossSalesCents,
+      commissionBps,
+      commissionCents,
+      stripeFeeCents: 0,
+      checkTotalCents,
     },
-    orderCount: 600,
-    subtotalCents,
-    gratuityCents,
-    taxCents,
-    deliveryCents: 0,
-    grossSalesCents,
-    commissionBps,
-    commissionCents,
-    stripeFeeCents: 0,
-    checkTotalCents,
-  });
+    { salesKitPreview: true }
+  );
 }
 
 export type ChickFilAEmailSampleId = "daily-kitchen" | "catering-production" | "weekly-payout";

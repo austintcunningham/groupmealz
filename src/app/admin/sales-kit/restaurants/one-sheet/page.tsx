@@ -18,7 +18,7 @@ export default async function AdminRestaurantOneSheetPage() {
       <p className="mb-6 max-w-2xl text-sm text-slate-600 print:hidden">
         Leave-behind for owners and GMs — designed to fit <strong>one page</strong>. Use{" "}
         <strong>Download PDF</strong> for a clean file (no browser date, URL, or page numbers). For
-        depth (playbook, email samples), use the{" "}
+        depth (email samples, order preview), use the{" "}
         <a href="/admin/sales-kit/restaurants" className="text-[var(--geaux-red)] hover:underline">
           full restaurant packet
         </a>

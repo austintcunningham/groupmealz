@@ -9,8 +9,20 @@ import {
 import { stubRow, wrapPrintableEmail } from "@/lib/email/weekly-printable";
 import { calculateRestaurantCommissionCents } from "@/lib/fees/calculate";
 
-export function buildRestaurantWeeklyPayoutHtml(stub: RestaurantCheckStub): string {
+export function buildRestaurantWeeklyPayoutHtml(
+  stub: RestaurantCheckStub,
+  options?: { salesKitPreview?: boolean }
+): string {
   const serviceFeeLabel = restaurantStubServiceFeeLabel();
+  const footnotes = options?.salesKitPreview
+    ? `<div class="weekly-payout-footnotes">
+      <p class="muted" style="margin-top:12px;">Sample weekly summary—line items and settlement walkthrough happen during onboarding.</p>
+    </div>`
+    : `<div class="weekly-payout-footnotes">
+      <p class="muted" style="margin-top:12px;">Work-week payout — paid orders with lunch dates Mon–Fri in this period (matches Admin → Payouts).</p>
+      <p class="muted" style="margin-top:6px;"><strong>Partner note:</strong> ${escapeHtml(RESTAURANT_PARTNER_SERVICE_FEE_LINE)} Sales tax is set aside for pass-through.</p>
+      <p class="muted" style="margin-top:6px;"><strong>Check total:</strong> Food subtotal − service fee + tax (tax included in settlement for your remittance to tax authorities).</p>
+    </div>`;
 
   const body = `
     <div class="weekly-payout-stub">
@@ -32,16 +44,12 @@ export function buildRestaurantWeeklyPayoutHtml(stub: RestaurantCheckStub): stri
         ${stubRow("Check total", formatCents(stub.checkTotalCents), true)}
       </div>
     </div>
-    <div class="weekly-payout-footnotes">
-      <p class="muted" style="margin-top:12px;">Work-week payout — paid orders with lunch dates Mon–Fri in this period (matches Admin → Payouts).</p>
-      <p class="muted" style="margin-top:6px;"><strong>Partner note:</strong> ${escapeHtml(RESTAURANT_PARTNER_SERVICE_FEE_LINE)} Sales tax is set aside for pass-through.</p>
-      <p class="muted" style="margin-top:6px;"><strong>Check total:</strong> Food subtotal − service fee + tax (tax included in settlement for your remittance to tax authorities).</p>
-    </div>`;
+    ${footnotes}`;
 
   return wrapPrintableEmail(body);
 }
 
-export function sampleRestaurantWeeklyPayoutHtml(): string {
+export function sampleRestaurantWeeklyPayoutHtml(options?: { salesKitPreview?: boolean }): string {
   const subtotalCents = 270000;
   const gratuityCents = 0;
   const taxCents = 28350;
@@ -50,7 +58,8 @@ export function sampleRestaurantWeeklyPayoutHtml(): string {
   const grossSalesCents = subtotalCents + taxCents + gratuityCents;
   const checkTotalCents = subtotalCents + taxCents + gratuityCents - commissionCents;
 
-  return buildRestaurantWeeklyPayoutHtml({
+  return buildRestaurantWeeklyPayoutHtml(
+    {
     restaurantName: "Firehouse Subs Gonzales",
     restaurantAddress: "1234 W Main St, Gonzales, LA",
     period: {
@@ -68,5 +77,7 @@ export function sampleRestaurantWeeklyPayoutHtml(): string {
     commissionCents,
     stripeFeeCents: 0,
     checkTotalCents,
-  });
+  },
+    options
+  );
 }

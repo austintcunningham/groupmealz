@@ -65,7 +65,7 @@ export function getRestaurantSalesKitEmailHtml(
     case "daily-kitchen":
       return sampleRestaurantFulfillmentHtml();
     case "weekly-payout":
-      return sampleRestaurantWeeklyPayoutHtml();
+      return sampleRestaurantWeeklyPayoutHtml({ salesKitPreview: true });
     case "catering-production":
       throw new Error("catering-production sample is only available for chick-fil-a prospect");
   }
@@ -95,14 +95,13 @@ export const RESTAURANT_EMAIL_SAMPLES: {
     title: "Daily kitchen & order list email",
     when: "Every lunch morning (9:30 AM Central) after ordering closes",
     pitch:
-      "One consolidated, printer-friendly run sheet: exact headcount, modifiers, delivery window, and office contact — so you batch production instead of guessing.",
+      "Printer-friendly run sheet with headcount, modifiers, and delivery details for that lunch day.",
   },
   {
     id: "weekly-payout",
-    title: "Weekly payout estimate",
-    when: "Friday afternoon (Mon–Fri lunches)",
-    pitch:
-      "Check stub with 150 sample orders: food subtotal, tax, service fee line, and check total — plus partner fee and sales tax footnotes for your accountant.",
+    title: "Weekly sales summary",
+    when: "Friday afternoon",
+    pitch: "Snapshot of the week’s sales—the kind of summary partners receive after go-live.",
   },
 ];
 

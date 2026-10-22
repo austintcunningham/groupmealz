@@ -1,68 +1,63 @@
 import { BRAND } from "@/lib/brand";
-import { RESTAURANT_PARTNER_FEE_BULLET } from "@/lib/partner/partner-fee-copy";
 import { CHICK_FIL_A_MAIN_HEADLINE } from "@/lib/sales-kit/restaurant-prospect-variants";
 
 export const CHICK_FIL_A_ONE_SHEET = {
   heroTitle: CHICK_FIL_A_MAIN_HEADLINE,
-  heroSub: `${BRAND.name} helps you take corporate orders you can plan for: a recurring office lunch with a morning cutoff, and catering on a separate order with more lead time and its own kitchen email.`,
+  heroSub: `${BRAND.name} puts corporate lunch and catering on your calendar—prepaid, scheduled, and sized for stores that are already busy at noon.`,
   banner:
-    "Catering closes days before the event. Office lunch closes the morning of delivery. You use one partner portal, but each has its own checkout and its own email to the kitchen.",
+    "Two ways offices buy from you: rotation-day lunch for the building, and advance catering for meetings—both through GroupMeals.",
   bullets: [
     {
-      title: "Catering is separate",
-      body: "Trays and platters go through the catering order only—not mixed with employee lunch orders.",
+      title: "Catering first",
+      body: "Corporate trays and platters on their own order path—good way to open the door with a store that already knows catering.",
     },
     {
       title: "Big rotation days",
-      body: "When you are Restaurant of the Day, expect 120–200+ labeled meals from one office, with a firm count before prep starts.",
+      body: "When you are Restaurant of the Day, think 120–200+ labeled meals from one office—not a handful of walk-ins.",
     },
     {
-      title: "Time to prep catering",
-      body: "After catering closes, you get a production sheet with tray counts while there is still time to schedule staff and drivers.",
+      title: "Planned ahead",
+      body: "Offices order on a schedule so your team can staff prep and delivery before the rush.",
     },
     {
-      title: "Paid online",
-      body: "Customers pay at checkout. You deliver the food; we include both channels on your weekly settlement summary.",
+      title: "Paid upfront",
+      body: "No payment at the door. You cook, deliver, and get a weekly summary of what sold.",
     },
     {
-      title: "Your menus",
-      body: "Set catering packages and rotation-day meals separately, and update pricing when you need to.",
-    },
-    {
-      title: RESTAURANT_PARTNER_FEE_BULLET.title,
-      body: RESTAURANT_PARTNER_FEE_BULLET.body,
+      title: "Your brand",
+      body: "Your menu and look on the order screen—not a generic marketplace.",
     },
   ] as const,
   inbox: [
     {
-      when: "Morning of office lunch",
-      what: "Kitchen order list for labeled meals only, sent after that day’s cutoff.",
+      when: "Office lunch days",
+      what: "Kitchen order list with names, items, and delivery details.",
     },
     {
-      when: "When catering closes",
-      what: "Catering production sheet with tray counts, setup notes, and delivery time.",
+      when: "Catering jobs",
+      what: "Production sheet with tray counts and setup notes.",
     },
     {
-      when: "Friday",
-      what: "Weekly payout summary with office lunch and catering food sales together for accounting.",
+      when: "Each week",
+      what: "Summary of sales for your records.",
     },
   ] as const,
   steps: [
     {
       n: "1",
-      title: "Start with catering",
-      body: "Load your catering menu and run one corporate event with enough lead time to prep.",
+      title: "Conversation",
+      body: "We align on catering, timing, and what a good first office looks like.",
     },
     {
       n: "2",
-      title: "Add office lunch",
-      body: "When you are ready, turn on rotation-day lunch with its own cutoff and kitchen email.",
+      title: "Pilot",
+      body: "One corporate event or rotation day with onboarding support.",
     },
     {
       n: "3",
-      title: "Grow both",
-      body: "Add offices on rotation and catering accounts as fulfillment stays consistent.",
+      title: "Grow",
+      body: "More offices and catering accounts as fulfillment stays smooth.",
     },
   ] as const,
-  footerTitle: "Want to talk catering—or office lunch when the timing is right?",
+  footerTitle: "Let's talk about catering—or office lunch when you're ready.",
 };

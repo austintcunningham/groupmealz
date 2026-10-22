@@ -61,8 +61,8 @@ export function RestaurantPartnerOneSheet({
           ) : (
             <>
               Think of a{" "}
-              <span className="text-[var(--geaux-red)]">big DoorDash or Uber Eats drop</span> — with a
-              real cutoff, a final headcount, and{" "}
+              <span className="text-[var(--geaux-red)]">big DoorDash or Uber Eats drop</span> — with
+              advance notice, a final headcount, and{" "}
               <span className="text-[var(--geaux-red)]">time to prepare</span> before the lunch rush hits
               your line.
             </>
@@ -123,8 +123,8 @@ function defaultBullets() {
       body: "Companies order lunch Mon–Fri on rotation — predictable demand, not a one-time catering gig.",
     },
     {
-      title: "Final headcount at cutoff",
-      body: "No partial counts while people order. One kitchen email after cutoff with every name, modifier, and delivery time.",
+      title: "Headcount before prep",
+      body: "Employees order ahead; you get one kitchen email with every name, modifier, and delivery window.",
     },
     {
       title: "Already paid",
@@ -153,7 +153,7 @@ function defaultInbox() {
     },
     {
       when: "Friday",
-      what: "Weekly payout-style summary — meals sold, food sales, settlement estimate.",
+      what: "Weekly sales summary — what sold that week for your records.",
     },
     {
       when: "Anytime in the portal",
@@ -172,7 +172,7 @@ function defaultSteps() {
     {
       n: "2",
       title: "Prepare orders from one email",
-      body: "After cutoff, you prepare the orders, label each bag, and deliver on time.",
+      body: "When ordering closes, you prepare, label each bag, and deliver on time.",
     },
     {
       n: "3",

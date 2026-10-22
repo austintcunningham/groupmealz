@@ -22,7 +22,7 @@ export default async function AdminSalesKitPage() {
         <Card title="Restaurant partner materials">
           <p className="mb-4 text-sm text-slate-600">
             <strong>One-sheet</strong> — quick leave-behind for owners and GMs.{" "}
-            <strong>Full packet</strong> — playbook, email samples, order-screen preview.
+            <strong>Full packet</strong> — email samples, order-screen preview, onboarding overview.
           </p>
           <div className="flex flex-wrap gap-2">
             <Link
