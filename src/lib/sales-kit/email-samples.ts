@@ -49,13 +49,14 @@ export function sampleOfficeDeliveryBlock(): DigestOfficeBlock {
 
 export function getRestaurantSalesKitEmailHtml(
   id: RestaurantEmailSampleId,
-  _prospectId: RestaurantProspectId = "default"
+  prospectId: RestaurantProspectId = "default"
 ): string {
+  const inflatedVolume = prospectId === "chick-fil-a";
   switch (id) {
     case "daily-kitchen":
-      return sampleRestaurantFulfillmentHtml();
+      return sampleRestaurantFulfillmentHtml({ inflatedVolume });
     case "weekly-payout":
-      return sampleRestaurantWeeklyPayoutHtml({ salesKitPreview: true });
+      return sampleRestaurantWeeklyPayoutHtml({ salesKitPreview: true, inflatedVolume });
   }
 }
 

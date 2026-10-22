@@ -4,7 +4,13 @@ import Link from "next/link";
 import { useState } from "react";
 import { downloadRestaurantOneSheetPdf } from "@/components/admin/sales-kit/download-one-sheet-pdf";
 
-type SalesKitAudience = "restaurants" | "offices" | "hub" | "onboarding" | "restaurants-one-sheet";
+type SalesKitAudience =
+  | "restaurants"
+  | "offices"
+  | "hub"
+  | "onboarding"
+  | "restaurants-one-sheet"
+  | "restaurants-chick-fil-a";
 
 export function SalesKitToolbar({
   audience,
@@ -39,7 +45,7 @@ export function SalesKitToolbar({
         >
           Sales kit home
         </Link>
-        {audience !== "restaurants" ? (
+        {audience !== "restaurants" && audience !== "restaurants-chick-fil-a" ? (
           <Link
             href="/admin/sales-kit/restaurants"
             className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"
@@ -47,6 +53,21 @@ export function SalesKitToolbar({
             Restaurant packet
           </Link>
         ) : null}
+        {audience !== "restaurants-chick-fil-a" ? (
+          <Link
+            href="/admin/sales-kit/restaurants/chick-fil-a"
+            className="rounded-lg px-3 py-1.5 text-sm font-medium text-amber-900 ring-1 ring-amber-200 hover:bg-amber-50"
+          >
+            Higher-volume packet
+          </Link>
+        ) : (
+          <Link
+            href="/admin/sales-kit/restaurants"
+            className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"
+          >
+            Standard packet
+          </Link>
+        )}
         {!isOneSheet ? (
           <Link
             href="/admin/sales-kit/restaurants/one-sheet"

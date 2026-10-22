@@ -49,10 +49,13 @@ export function buildRestaurantWeeklyPayoutHtml(
   return wrapPrintableEmail(body);
 }
 
-export function sampleRestaurantWeeklyPayoutHtml(options?: { salesKitPreview?: boolean }): string {
-  const subtotalCents = 270000;
+export function sampleRestaurantWeeklyPayoutHtml(
+  options?: { salesKitPreview?: boolean; inflatedVolume?: boolean }
+): string {
+  const inflated = options?.inflatedVolume === true;
+  const subtotalCents = inflated ? 1_080_000 : 270_000;
   const gratuityCents = 0;
-  const taxCents = 28350;
+  const taxCents = inflated ? 113_400 : 28_350;
   const commissionBps = 1200;
   const commissionCents = calculateRestaurantCommissionCents(subtotalCents, commissionBps);
   const grossSalesCents = subtotalCents + taxCents + gratuityCents;
@@ -60,24 +63,24 @@ export function sampleRestaurantWeeklyPayoutHtml(options?: { salesKitPreview?: b
 
   return buildRestaurantWeeklyPayoutHtml(
     {
-    restaurantName: "Firehouse Subs Gonzales",
-    restaurantAddress: "1234 W Main St, Gonzales, LA",
-    period: {
-      weekStart: "2026-10-06",
-      weekEnd: "2026-10-10",
-      label: "10/06/2026 – 10/10/2026 (Mon–Fri)",
+      restaurantName: "Firehouse Subs Gonzales",
+      restaurantAddress: "1234 W Main St, Gonzales, LA",
+      period: {
+        weekStart: "2026-10-06",
+        weekEnd: "2026-10-10",
+        label: "10/06/2026 – 10/10/2026 (Mon–Fri)",
+      },
+      orderCount: inflated ? 600 : 150,
+      subtotalCents,
+      gratuityCents,
+      taxCents,
+      deliveryCents: 0,
+      grossSalesCents,
+      commissionBps,
+      commissionCents,
+      stripeFeeCents: 0,
+      checkTotalCents,
     },
-    orderCount: 150,
-    subtotalCents,
-    gratuityCents,
-    taxCents,
-    deliveryCents: 0,
-    grossSalesCents,
-    commissionBps,
-    commissionCents,
-    stripeFeeCents: 0,
-    checkTotalCents,
-  },
     options
   );
 }

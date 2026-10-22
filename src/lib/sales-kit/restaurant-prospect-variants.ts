@@ -1,7 +1,7 @@
 import { BRAND } from "@/lib/brand";
 import type { RestaurantEmailSampleId } from "@/lib/sales-kit/email-samples";
 
-export type RestaurantProspectId = "default";
+export type RestaurantProspectId = "default" | "chick-fil-a";
 
 export type ProspectBullet = { title: string; body: string };
 
@@ -49,39 +49,79 @@ const DEFAULT_WHY_WIN: ProspectBullet[] = [
   },
 ];
 
-export function getRestaurantProspectContent(
-  _prospectId: RestaurantProspectId = "default"
+const DEFAULT_REVENUE_STATS: RestaurantProspectContent["revenueStats"] = [
+  {
+    label: "Example order",
+    value: "20–45 people",
+    detail: "One office lunch day on rotation",
+  },
+  {
+    label: "Avg entrée",
+    value: "$13–$16",
+    detail: "Your menu, your pricing",
+  },
+  {
+    label: "Illustrative week",
+    value: "$1,300–$3,600",
+    detail: "Example week on rotation (food only)",
+  },
+];
+
+/** Same packet as default — only volume figures are higher. */
+const CHICK_FIL_A_REVENUE_STATS: RestaurantProspectContent["revenueStats"] = [
+  {
+    label: "Example order",
+    value: "120–200+ people",
+    detail: "One office lunch day on rotation",
+  },
+  {
+    label: "Avg entrée",
+    value: "$13–$16",
+    detail: "Your menu, your pricing",
+  },
+  {
+    label: "Illustrative week",
+    value: "$9,500–$22,000",
+    detail: "Example week on rotation (food only)",
+  },
+];
+
+function buildRestaurantProspect(
+  overrides: Partial<RestaurantProspectContent> &
+    Pick<RestaurantProspectContent, "id" | "label" | "packetTitle" | "oneSheetPdfName">
 ): RestaurantProspectContent {
   return {
-    id: "default",
-    label: "General restaurant",
-    packetTitle: "Restaurant partner packet",
-    oneSheetPdfName: "groupmeals-restaurant-one-sheet.pdf",
     coverEyebrow: "Partner overview",
     coverHeadline: "Grow weekday lunch revenue — without adding delivery-app chaos",
     coverSubhead: `${BRAND.name} puts recurring corporate lunch on your calendar: customers order ahead, you get one clean order list, you prepare and deliver—we handle payments and reminders.`,
     revenueLead:
       "Office lunch is dozens of individual meals on a deadline, same delivery window, week after week. That is repeat business when you can see it coming—not a phone call at 10:45 AM.",
-    revenueStats: [
-      {
-        label: "Example order",
-        value: "20–45 people",
-        detail: "One office lunch day on rotation",
-      },
-      {
-        label: "Avg entrée",
-        value: "$13–$16",
-        detail: "Your menu, your pricing",
-      },
-      {
-        label: "Illustrative week",
-        value: "$1,300–$3,600",
-        detail: "Example week on rotation (food only)",
-      },
-    ],
+    revenueStats: DEFAULT_REVENUE_STATS,
     revenueFootnote: "Illustration only—volume depends on office size and participation.",
     whyWinBullets: DEFAULT_WHY_WIN,
     showCateringSection: false,
     emailSamples: null,
+    ...overrides,
   };
+}
+
+export function getRestaurantProspectContent(
+  prospectId: RestaurantProspectId = "default"
+): RestaurantProspectContent {
+  if (prospectId === "chick-fil-a") {
+    return buildRestaurantProspect({
+      id: "chick-fil-a",
+      label: "Chick-fil-A",
+      packetTitle: "Chick-fil-A partner packet",
+      oneSheetPdfName: "groupmeals-restaurant-one-sheet.pdf",
+      revenueStats: CHICK_FIL_A_REVENUE_STATS,
+    });
+  }
+
+  return buildRestaurantProspect({
+    id: "default",
+    label: "General restaurant",
+    packetTitle: "Restaurant partner packet",
+    oneSheetPdfName: "groupmeals-restaurant-one-sheet.pdf",
+  });
 }

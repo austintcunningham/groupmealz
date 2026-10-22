@@ -190,8 +190,99 @@ function wrapPrintableEmail(bodyHtml: string): string {
 </html>`;
 }
 
-export function sampleRestaurantFulfillmentHtml(): string {
-  const block: DigestOfficeBlock = {
+const SAMPLE_FULFILLMENT_MEALS = [
+  {
+    name: "Hook & Ladder — Medium",
+    lineCents: 1099,
+    specialInstructions: "no lettuce or tomato, please",
+  },
+  { name: "Italian — Medium", lineCents: 1099 },
+  { name: "Sub, Chips, & Drink — Combo", lineCents: 1369 },
+  { name: "Engineer — Large", lineCents: 1299, specialInstructions: "extra mayo" },
+  { name: "Meatball — Medium", lineCents: 1099 },
+] as const;
+
+const SAMPLE_FULFILLMENT_CUSTOMERS = [
+  ["Paige", "Campbell"],
+  ["Marcus", "Chen"],
+  ["Jordan", "Ellis"],
+  ["Sam", "Nguyen"],
+  ["Taylor", "Brooks"],
+  ["Riley", "Martinez"],
+  ["Casey", "Dupont"],
+  ["Morgan", "Lee"],
+  ["Avery", "Johnson"],
+  ["Quinn", "Washington"],
+  ["Jamie", "Patel"],
+  ["Drew", "Garcia"],
+  ["Alex", "Thompson"],
+  ["Blake", "Robinson"],
+  ["Cameron", "Wilson"],
+  ["Dakota", "Brown"],
+  ["Emery", "Davis"],
+  ["Finley", "Miller"],
+] as const;
+
+export function sampleRestaurantFulfillmentHtml(options?: { inflatedVolume?: boolean }): string {
+  if (!options?.inflatedVolume) {
+    return buildRestaurantFulfillmentHtml({
+      officeName: "Iberville Building",
+      streetAddress: "627 N. 4th St.",
+      cityStateZip: "Baton Rouge, LA 70802",
+      deliveryInstructions: "Leave at front desk; call contact on arrival.",
+      contactName: "Paige Campbell",
+      contactPhone: null,
+      restaurantName: "Firehouse Subs Gonzales",
+      lunchDate: "Monday, October 12, 2026",
+      deliveryAt: "12:00 PM",
+      orders: [
+        {
+          orderId: "2879739a-0000-4000-8000-000000000001",
+          placedAt: "10/12/2026 7:16:07 AM",
+          customerName: "Paige Campbell",
+          customerEmail: "paige.campbell.dcfs@la.gov",
+          lines: [
+            {
+              name: "Hook & Ladder — Medium",
+              qty: 1,
+              lineCents: 1099,
+              specialInstructions: "no lettuce or tomato, please",
+            },
+          ],
+          subtotalCents: 1099,
+          taxCents: 115,
+          totalCents: 1214,
+        },
+      ],
+    });
+  }
+
+  const orders: DigestOrder[] = SAMPLE_FULFILLMENT_CUSTOMERS.map(([first, last], i) => {
+    const meal = SAMPLE_FULFILLMENT_MEALS[i % SAMPLE_FULFILLMENT_MEALS.length]!;
+    const subtotalCents = meal.lineCents;
+    const taxCents = Math.round(subtotalCents * 0.105);
+    return {
+      orderId: `2879739a-0000-4000-8000-${String(i + 1).padStart(12, "0")}`,
+      placedAt: `10/12/2026 ${7 + (i % 3)}:${String(10 + (i % 50)).padStart(2, "0")}:00 AM`,
+      customerName: `${first} ${last}`,
+      customerEmail: `${first.toLowerCase()}.${last.toLowerCase()}@example.com`,
+      lines: [
+        {
+          name: meal.name,
+          qty: 1,
+          lineCents: meal.lineCents,
+          ...("specialInstructions" in meal && meal.specialInstructions
+            ? { specialInstructions: meal.specialInstructions }
+            : {}),
+        },
+      ],
+      subtotalCents,
+      taxCents,
+      totalCents: subtotalCents + taxCents,
+    };
+  });
+
+  return buildRestaurantFulfillmentHtml({
     officeName: "Iberville Building",
     streetAddress: "627 N. 4th St.",
     cityStateZip: "Baton Rouge, LA 70802",
@@ -201,25 +292,6 @@ export function sampleRestaurantFulfillmentHtml(): string {
     restaurantName: "Firehouse Subs Gonzales",
     lunchDate: "Monday, October 12, 2026",
     deliveryAt: "12:00 PM",
-    orders: [
-      {
-        orderId: "2879739a-0000-4000-8000-000000000001",
-        placedAt: "10/12/2026 7:16:07 AM",
-        customerName: "Paige Campbell",
-        customerEmail: "paige.campbell.dcfs@la.gov",
-        lines: [
-          {
-            name: "Hook & Ladder — Medium",
-            qty: 1,
-            lineCents: 1099,
-            specialInstructions: "no lettuce or tomato, please",
-          },
-        ],
-        subtotalCents: 1099,
-        taxCents: 115,
-        totalCents: 1214,
-      },
-    ],
-  };
-  return buildRestaurantFulfillmentHtml(block);
+    orders,
+  });
 }
