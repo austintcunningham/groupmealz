@@ -102,7 +102,7 @@ export const RESTAURANT_EMAIL_SAMPLES: {
     title: "Weekly payout estimate",
     when: "Friday afternoon (Mon–Fri lunches)",
     pitch:
-      "Check stub with 150 sample orders: food subtotal, tax, 12% commission line, and check total — plus commission-base and sales tax footnotes for your accountant.",
+      "Check stub with 150 sample orders: food subtotal, tax, service fee line, and check total — plus partner fee and sales tax footnotes for your accountant.",
   },
 ];
 

@@ -1,10 +1,12 @@
 import { formatCents } from "@/lib/money/format";
 import type { RestaurantCheckStub } from "@/lib/accounting/restaurant-settlement";
+import {
+  RESTAURANT_PARTNER_SERVICE_FEE_LINE,
+  restaurantStubServiceFeeLabel,
+} from "@/lib/partner/partner-fee-copy";
 import { BRAND } from "@/lib/brand";
 
 export function RestaurantCheckStubView({ stub }: { stub: RestaurantCheckStub }) {
-  const commissionPct = (stub.commissionBps / 100).toFixed(stub.commissionBps % 100 === 0 ? 0 : 2);
-
   return (
     <div className="mx-auto max-w-md rounded-xl border-2 border-slate-900 bg-white font-mono text-sm shadow-md">
       <div className="border-b-2 border-slate-900 px-4 py-3 text-center">
@@ -26,7 +28,7 @@ export function RestaurantCheckStubView({ stub }: { stub: RestaurantCheckStub })
         <StubRow label="Gross sales" value={formatCents(stub.grossSalesCents)} bold />
         <div className="my-2 border-t border-slate-300" />
         <StubRow
-          label={`${BRAND.name} commission (${commissionPct}% of food subtotal)`}
+          label={restaurantStubServiceFeeLabel()}
           value={`−${formatCents(stub.commissionCents)}`}
         />
         <StubRow label="Check total" value={formatCents(stub.checkTotalCents)} bold />
@@ -35,8 +37,8 @@ export function RestaurantCheckStubView({ stub }: { stub: RestaurantCheckStub })
         Work-week payout (Mon–Fri lunch dates) — matches the Friday weekly email.
       </p>
       <p className="border-t border-slate-100 px-4 py-2 text-[10px] leading-snug text-slate-600">
-        Payout: sales tax set aside for pass-through, then 12% commission on food subtotal. Check
-        total = food subtotal − commission + tax.
+        {RESTAURANT_PARTNER_SERVICE_FEE_LINE} Sales tax is set aside for pass-through. Check total =
+        food subtotal − service fee + tax.
       </p>
     </div>
   );

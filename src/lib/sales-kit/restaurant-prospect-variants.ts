@@ -1,4 +1,8 @@
 import { BRAND } from "@/lib/brand";
+import {
+  RESTAURANT_PARTNER_FEE_BULLET,
+  RESTAURANT_PARTNER_SERVICE_FEE_LINE,
+} from "@/lib/partner/partner-fee-copy";
 import type { RestaurantEmailSampleId } from "@/lib/sales-kit/email-samples";
 
 export type RestaurantProspectId = "default" | "chick-fil-a";
@@ -79,7 +83,7 @@ export const CHICK_FIL_A_PROSPECT: RestaurantProspectContent = {
       title: "Weekly payout estimate",
       when: "Friday afternoon (Mon–Fri settlement period)",
       pitch:
-        "Check stub for the week’s food sales from office lunch and catering, with tax and commission broken out (sample uses high office-lunch participation).",
+        "Check stub for the week’s food sales from office lunch and catering, with tax and service fee broken out (sample uses high office-lunch participation).",
     },
   ],
   whyWinBullets: [
@@ -93,7 +97,7 @@ export const CHICK_FIL_A_PROSPECT: RestaurantProspectContent = {
     },
     {
       title: "Office lunch at scale",
-      body: "Large rotation days with a firm morning headcount, so you can plan production around—not inside—the dining room rush.",
+      body: "Large rotation days with a firm morning headcount, so you can plan production around the dining room rush, not inside it.",
     },
     {
       title: "Orders placed ahead",
@@ -105,11 +109,11 @@ export const CHICK_FIL_A_PROSPECT: RestaurantProspectContent = {
     },
     {
       title: "Weekly settlement",
-      body: "One summary for accounting: food from both programs, sales tax pass-through, and commission on food subtotal only.",
+      body: "One summary for accounting with food from both programs and sales tax pass-through.",
     },
     {
-      title: "Straightforward fees",
-      body: "12% on food subtotal only. No commission on tax, tips, or service fees.",
+      title: RESTAURANT_PARTNER_FEE_BULLET.title,
+      body: RESTAURANT_PARTNER_FEE_BULLET.body,
     },
   ],
 };
@@ -140,8 +144,8 @@ const DEFAULT_WHY_WIN: ProspectBullet[] = [
     body: "Weekly payout-style summaries so accounting knows what is coming.",
   },
   {
-    title: "Transparent economics",
-    body: "12% commission on food subtotal only — tax is set aside first, then commission; tax is settled to you for remittance.",
+    title: RESTAURANT_PARTNER_FEE_BULLET.title,
+    body: `${RESTAURANT_PARTNER_SERVICE_FEE_LINE} Sales tax is set aside in settlement for you to remit.`,
   },
 ];
 

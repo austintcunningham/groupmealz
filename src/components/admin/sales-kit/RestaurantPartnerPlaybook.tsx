@@ -1,4 +1,5 @@
 import { BRAND } from "@/lib/brand";
+import { RESTAURANT_PARTNER_SERVICE_FEE_LINE } from "@/lib/partner/partner-fee-copy";
 import type { RestaurantProspectId } from "@/lib/sales-kit/restaurant-prospect-variants";
 
 /**
@@ -165,11 +166,10 @@ export function RestaurantPartnerPlaybook({
           Repeated labeling or modifier misses show up in reviews. {BRAND.name} shares trends with
           partners so you can correct before the next rotation day.
         </Step>
-        <Step n={3} title="Settlement, commission & sales tax">
-          Use the weekly restaurant email for payout estimates. {BRAND.name} withholds{" "}
-          Sales tax is set aside for pass-through; <strong>12% commission on food subtotal</strong> is
-          withheld before payout. Check total = subtotal − commission + tax (see Payouts in this
-          packet).
+        <Step n={3} title="Settlement, service fee & sales tax">
+          Use the weekly restaurant email for payout estimates. Sales tax is set aside for
+          pass-through. {RESTAURANT_PARTNER_SERVICE_FEE_LINE} The stub shows the service fee line;
+          check total = food subtotal − service fee + tax (see Payouts in this packet).
         </Step>
       </Phase>
 

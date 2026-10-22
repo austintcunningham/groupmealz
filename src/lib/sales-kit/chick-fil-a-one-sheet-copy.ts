@@ -1,4 +1,5 @@
 import { BRAND } from "@/lib/brand";
+import { RESTAURANT_PARTNER_FEE_BULLET } from "@/lib/partner/partner-fee-copy";
 import { CHICK_FIL_A_MAIN_HEADLINE } from "@/lib/sales-kit/restaurant-prospect-variants";
 
 export const CHICK_FIL_A_ONE_SHEET = {
@@ -28,8 +29,8 @@ export const CHICK_FIL_A_ONE_SHEET = {
       body: "Set catering packages and rotation-day meals separately, and update pricing when you need to.",
     },
     {
-      title: "Clear fees",
-      body: "12% commission on food subtotal only. Sales tax passes through on the stub for your records.",
+      title: RESTAURANT_PARTNER_FEE_BULLET.title,
+      body: RESTAURANT_PARTNER_FEE_BULLET.body,
     },
   ] as const,
   inbox: [
