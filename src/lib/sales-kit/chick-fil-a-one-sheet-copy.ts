@@ -22,7 +22,7 @@ export const CHICK_FIL_A_ONE_SHEET = {
     },
     {
       title: "Your store",
-      body: "Your menu and branding on the employee order screen.",
+      body: "Your menu and branding on the customer order screen.",
     },
   ] as const,
   inbox: [
