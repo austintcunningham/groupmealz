@@ -30,25 +30,23 @@ export const CHICK_FIL_A_ORDER_PREVIEW: SalesKitOrderPreviewSample = {
   logoUrl: null,
   bannerUrl: null,
   simulatePath: "/admin/simulate-order",
-  orderBlurb:
-    "Sample office lunch order screen. Catering is a separate flow—configured in onboarding.",
   menuItems: [
     {
       name: "Chick-fil-A® Chicken Sandwich Meal",
       price: "$12.49",
-      note: "Individual meals with modifiers",
+      note: "Sizes & combos configured per partner",
       imageUrl: "/sales-kit/menu/cfa-chicken-sandwich.jpg",
     },
     {
       name: "Spicy Chicken Sandwich Meal",
       price: "$12.49",
-      note: "Rotation-day menu — configured per store",
+      note: "Sides and drinks as you define them",
       imageUrl: "/sales-kit/menu/cfa-spicy-sandwich.jpg",
     },
     {
       name: "Cobb Salad",
       price: "$10.99",
-      note: "Example entrée; catering trays are not shown here",
+      note: "Sizes & combos configured per partner",
       imageUrl: "/sales-kit/menu/cfa-cobb-salad.jpg",
     },
   ],

@@ -24,7 +24,7 @@ export function RestaurantSalesPacket({
 }) {
   const prospect = getRestaurantProspectContent(prospectId);
   const emailSamples = prospect.emailSamples ?? RESTAURANT_EMAIL_SAMPLES;
-  const atAGlance = atAGlanceSteps(prospectId);
+  const atAGlance = atAGlanceSteps();
 
   return (
     <article className="sales-kit-document mx-auto max-w-3xl space-y-8 pb-12 print:space-y-0 print:pb-0">
@@ -51,9 +51,7 @@ export function RestaurantSalesPacket({
       </header>
 
       <section className="sales-kit-print-unit rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-xl font-bold text-[var(--geaux-charcoal)]">
-          {prospectId === "chick-fil-a" ? "Two ways offices buy from you" : "The revenue opportunity"}
-        </h2>
+        <h2 className="text-xl font-bold text-[var(--geaux-charcoal)]">The revenue opportunity</h2>
         <p className="mt-3 text-sm leading-relaxed text-slate-600">{prospect.revenueLead}</p>
         <div className="mt-6 grid gap-4 sm:grid-cols-3">
           {prospect.revenueStats.map((stat) => (
@@ -68,9 +66,7 @@ export function RestaurantSalesPacket({
       {prospect.showCateringSection ? <RestaurantCateringProspectSection /> : null}
 
       <section className="sales-kit-print-unit rounded-2xl bg-[var(--geaux-cream)] p-6 ring-1 ring-slate-200">
-        <h2 className="text-xl font-bold text-[var(--geaux-charcoal)]">
-          {prospectId === "chick-fil-a" ? "Why operators choose to partner" : "Why restaurants win"}
-        </h2>
+        <h2 className="text-xl font-bold text-[var(--geaux-charcoal)]">Why restaurants win</h2>
         <ul className="mt-4 space-y-3 text-sm text-slate-700">
           {prospect.whyWinBullets.map((b) => (
             <Bullet key={b.title}>
@@ -107,8 +103,7 @@ export function RestaurantSalesPacket({
           </h2>
           <p className="mt-2 text-sm text-slate-600">
             Samples of the operational emails partners get—wording and timing are configured in
-            onboarding
-            {prospectId === "chick-fil-a" ? " (shown here for this store)." : "."}
+            onboarding.
           </p>
         </div>
         {emailSamples.map((sample) => (
@@ -139,14 +134,13 @@ export function RestaurantSalesPacket({
         </div>
       </section>
 
-      <RestaurantSalesKitOnboardingTeaser prospectId={prospectId} />
+      <RestaurantSalesKitOnboardingTeaser />
 
       <section className="sales-kit-print-unit rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <h2 className="text-xl font-bold text-[var(--geaux-charcoal)]">Next step</h2>
         <p className="mt-3 text-sm text-slate-700">
-          {prospectId === "chick-fil-a"
-            ? "If catering or office lunch fits your market, we will schedule a short call and map a pilot—no commitment from this deck."
-            : "If office lunch rotation fits your kitchen, we will schedule a kickoff and map your first rotation day."}
+          If office lunch rotation fits your kitchen, we will schedule a kickoff and map your first
+          rotation day.
         </p>
         <p className="mt-6 rounded-lg bg-[var(--geaux-red)] px-4 py-3 text-center text-sm font-semibold text-white">
           {BRAND.supportEmail} · {BRAND.name}
@@ -156,15 +150,7 @@ export function RestaurantSalesPacket({
   );
 }
 
-function atAGlanceSteps(prospectId: RestaurantProspectId): [string, string, string][] {
-  if (prospectId === "chick-fil-a") {
-    return [
-      ["1", "Talk", "Align on catering, timing, and a pilot office."],
-      ["2", "Pilot", "First catering event or rotation day with support."],
-      ["3", "Deliver", "Great food, on time, labeled correctly."],
-      ["4", "Grow", "More accounts as the store wants volume."],
-    ];
-  }
+function atAGlanceSteps(): [string, string, string][] {
   return [
     ["1", "Kickoff", "Menu and rotation planning with your specialist."],
     ["2", "Order", "Employees order online before lunch day."],

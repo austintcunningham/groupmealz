@@ -57,7 +57,7 @@ export function getRestaurantSalesKitEmailHtml(
 ): string {
   if (prospectId === "chick-fil-a") {
     if (id === "catering-production") {
-      return getChickFilASalesKitEmailHtml("catering-production");
+      throw new Error("catering-production is not used in the restaurant sales packet");
     }
     return getChickFilASalesKitEmailHtml(id === "weekly-payout" ? "weekly-payout" : "daily-kitchen");
   }

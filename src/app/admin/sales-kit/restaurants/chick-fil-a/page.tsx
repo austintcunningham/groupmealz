@@ -13,13 +13,12 @@ export default async function AdminChickFilARestaurantSalesKitPage() {
     <DashboardShell role={profile.role} title="Chick-fil-A Gonzales — partner packet">
       <SalesKitToolbar audience="restaurants-chick-fil-a" />
       <p className="-mt-4 mb-6 max-w-2xl text-sm text-slate-600 print:hidden">
-        Target-account materials — elevated volume assumptions and{" "}
-        separate catering and office lunch wording. Not for general
-        prospecting; use the{" "}
+        Same layout and copy as the{" "}
         <a href="/admin/sales-kit/restaurants" className="text-[var(--geaux-red)] hover:underline">
-          standard restaurant packet
-        </a>{" "}
-        for other brands.
+          restaurant partner packet
+        </a>
+        , with Chick-fil-A Gonzales branding and higher example order volumes in the email
+        samples.
       </p>
       <RestaurantSalesPacket orderPreview={CHICK_FIL_A_ORDER_PREVIEW} prospectId="chick-fil-a" />
     </DashboardShell>

@@ -5,6 +5,7 @@ export type RestaurantProspectId = "default" | "chick-fil-a";
 
 export type ProspectBullet = { title: string; body: string };
 
+/** Used on Chick-fil-A one-sheet only — not the partner packet. */
 export const CHICK_FIL_A_MAIN_HEADLINE =
   "One office lunch rotation + advanced catering — two different revenue channels to increase sales.";
 
@@ -27,75 +28,6 @@ export type RestaurantProspectContent = {
     when: string;
     pitch: string;
   }[] | null;
-};
-
-export const CHICK_FIL_A_PROSPECT: RestaurantProspectContent = {
-  id: "chick-fil-a",
-  label: "Chick-fil-A",
-  packetTitle: "Chick-fil-A partner packet",
-  oneSheetPdfName: "groupmeals-chick-fil-a-one-sheet.pdf",
-  coverEyebrow: "",
-  coverHeadline: CHICK_FIL_A_MAIN_HEADLINE,
-  coverSubhead: `${BRAND.name} adds corporate catering and office lunch rotation—prepaid, scheduled, and kept separate in your kitchen workflow.`,
-  revenueLead:
-    "Offices order catering and rotation-day lunch through GroupMeals. You get clear production sheets and order lists instead of day-of phone chaos.",
-  revenueStats: [
-    {
-      label: "Catering",
-      value: "Corporate events",
-      detail: "Advance orders with a production sheet",
-    },
-    {
-      label: "Office lunch",
-      value: "Rotation days",
-      detail: "One kitchen list per lunch day",
-    },
-    {
-      label: "Checkout",
-      value: "Prepaid online",
-      detail: "No payment at the door",
-    },
-  ],
-  revenueFootnote: "",
-  showCateringSection: true,
-  emailSamples: [
-    {
-      id: "daily-kitchen",
-      title: "Office lunch — kitchen order list",
-      when: "Morning of a rotation lunch day",
-      pitch: "Kitchen order list for that rotation day.",
-    },
-    {
-      id: "catering-production",
-      title: "Catering — production sheet",
-      when: "When a catering order is confirmed",
-      pitch: "Production sheet when catering is confirmed.",
-    },
-    {
-      id: "weekly-payout",
-      title: "Weekly payout summary",
-      when: "Friday afternoon",
-      pitch: "Weekly payout summary.",
-    },
-  ],
-  whyWinBullets: [
-    {
-      title: "Two channels",
-      body: "Catering and office lunch—separate paths and kitchen emails.",
-    },
-    {
-      title: "Advance notice",
-      body: "Lists and sheets when ordering closes, not guesswork during the rush.",
-    },
-    {
-      title: "Prepaid",
-      body: "Offices pay online; you focus on food and delivery.",
-    },
-    {
-      title: "Your store",
-      body: "Your menu and branding on the order screen.",
-    },
-  ],
 };
 
 const DEFAULT_WHY_WIN: ProspectBullet[] = [
@@ -121,6 +53,69 @@ const DEFAULT_WHY_WIN: ProspectBullet[] = [
   },
 ];
 
+const DEFAULT_REVENUE_STATS: RestaurantProspectContent["revenueStats"] = [
+  {
+    label: "Example order",
+    value: "20–45 people",
+    detail: "One office lunch day on rotation",
+  },
+  {
+    label: "Avg entrée",
+    value: "$13–$16",
+    detail: "Your menu, your pricing",
+  },
+  {
+    label: "Illustrative week",
+    value: "$1,300–$3,600",
+    detail: "Example week on rotation (food only)",
+  },
+];
+
+/** Same copy as the general restaurant packet — higher volume numbers only. */
+const CHICK_FIL_A_PACKET_REVENUE_STATS: RestaurantProspectContent["revenueStats"] = [
+  {
+    label: "Example order",
+    value: "120–200+ people",
+    detail: "One office lunch day on rotation",
+  },
+  {
+    label: "Avg entrée",
+    value: "$13–$16",
+    detail: "Your menu, your pricing",
+  },
+  {
+    label: "Illustrative week",
+    value: "$9,500–$22,000",
+    detail: "Example week on rotation (food only)",
+  },
+];
+
+function buildDefaultRestaurantProspect(
+  overrides: Partial<RestaurantProspectContent> & Pick<RestaurantProspectContent, "id" | "label" | "packetTitle" | "oneSheetPdfName">
+): RestaurantProspectContent {
+  return {
+    coverEyebrow: "Partner overview",
+    coverHeadline: "Grow weekday lunch revenue — without adding delivery-app chaos",
+    coverSubhead: `${BRAND.name} puts recurring corporate lunch on your calendar: employees order ahead, you get one clean order list, you prepare and deliver—we handle payments and reminders.`,
+    revenueLead:
+      "Office lunch is dozens of individual meals on a deadline, same delivery window, week after week. That is repeat business when you can see it coming—not a phone call at 10:45 AM.",
+    revenueStats: DEFAULT_REVENUE_STATS,
+    revenueFootnote: "Illustration only—volume depends on office size and participation.",
+    whyWinBullets: DEFAULT_WHY_WIN,
+    showCateringSection: false,
+    emailSamples: null,
+    ...overrides,
+  };
+}
+
+export const CHICK_FIL_A_PROSPECT: RestaurantProspectContent = buildDefaultRestaurantProspect({
+  id: "chick-fil-a",
+  label: "Chick-fil-A",
+  packetTitle: "Chick-fil-A partner packet",
+  oneSheetPdfName: "groupmeals-chick-fil-a-one-sheet.pdf",
+  revenueStats: CHICK_FIL_A_PACKET_REVENUE_STATS,
+});
+
 export function getRestaurantProspectContent(
   prospectId: RestaurantProspectId = "default"
 ): RestaurantProspectContent {
@@ -128,36 +123,10 @@ export function getRestaurantProspectContent(
     return CHICK_FIL_A_PROSPECT;
   }
 
-  return {
+  return buildDefaultRestaurantProspect({
     id: "default",
     label: "General restaurant",
     packetTitle: "Restaurant partner packet",
     oneSheetPdfName: "groupmeals-restaurant-one-sheet.pdf",
-    coverEyebrow: "Partner overview",
-    coverHeadline: "Grow weekday lunch revenue — without adding delivery-app chaos",
-    coverSubhead: `${BRAND.name} puts recurring corporate lunch on your calendar: employees order ahead, you get one clean order list, you prepare and deliver—we handle payments and reminders.`,
-    revenueLead:
-      "Office lunch is dozens of individual meals on a deadline, same delivery window, week after week. That is repeat business when you can see it coming—not a phone call at 10:45 AM.",
-    revenueStats: [
-      {
-        label: "Example order",
-        value: "20–45 people",
-        detail: "One office lunch day on rotation",
-      },
-      {
-        label: "Avg entrée",
-        value: "$13–$16",
-        detail: "Your menu, your pricing",
-      },
-      {
-        label: "Illustrative week",
-        value: "$1,300–$3,600",
-        detail: "Example week on rotation (food only)",
-      },
-    ],
-    revenueFootnote: "Illustration only—volume depends on office size and participation.",
-    showCateringSection: false,
-    emailSamples: null,
-    whyWinBullets: DEFAULT_WHY_WIN,
-  };
+  });
 }
