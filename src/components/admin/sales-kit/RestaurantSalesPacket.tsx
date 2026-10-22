@@ -36,10 +36,16 @@ export function RestaurantSalesPacket({
           <div className="flex justify-center">
             <GroupMealsLogo size="md" href={undefined} surface="light" />
           </div>
-          <p className="mt-6 text-xs font-semibold uppercase tracking-[0.2em] text-white/80">
-            {prospect.coverEyebrow}
-          </p>
-          <h1 className="mt-2 text-3xl font-bold leading-tight sm:text-4xl">{prospect.coverHeadline}</h1>
+          {prospect.coverEyebrow ? (
+            <p className="mt-6 text-xs font-semibold uppercase tracking-[0.2em] text-white/80">
+              {prospect.coverEyebrow}
+            </p>
+          ) : null}
+          <h1
+            className={`${prospect.coverEyebrow ? "mt-2" : "mt-6"} text-3xl font-bold leading-tight sm:text-4xl`}
+          >
+            {prospect.coverHeadline}
+          </h1>
           <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-white/90">
             {prospect.coverSubhead}
           </p>

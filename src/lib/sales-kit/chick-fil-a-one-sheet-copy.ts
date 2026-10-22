@@ -1,8 +1,8 @@
 import { BRAND } from "@/lib/brand";
+import { CHICK_FIL_A_MAIN_HEADLINE } from "@/lib/sales-kit/restaurant-prospect-variants";
 
 export const CHICK_FIL_A_ONE_SHEET = {
-  heroTitle:
-    "Office lunch and corporate catering—scheduled ahead, prepaid, and kept off your noon rush.",
+  heroTitle: CHICK_FIL_A_MAIN_HEADLINE,
   heroSub: `${BRAND.name} helps you take corporate orders you can plan for: a recurring office lunch with a morning cutoff, and catering on a separate order with more lead time and its own kitchen email.`,
   banner:
     "Catering closes days before the event. Office lunch closes the morning of delivery. You use one partner portal, but each has its own checkout and its own email to the kitchen.",

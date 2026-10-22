@@ -5,6 +5,9 @@ export type RestaurantProspectId = "default" | "chick-fil-a";
 
 export type ProspectBullet = { title: string; body: string };
 
+export const CHICK_FIL_A_MAIN_HEADLINE =
+  "One office lunch rotation + advanced catering — two different revenue channels to increase sales.";
+
 export type RestaurantProspectContent = {
   id: RestaurantProspectId;
   label: string;
@@ -31,8 +34,8 @@ export const CHICK_FIL_A_PROSPECT: RestaurantProspectContent = {
   label: "Chick-fil-A",
   packetTitle: "Chick-fil-A partner packet",
   oneSheetPdfName: "groupmeals-chick-fil-a-one-sheet.pdf",
-  coverEyebrow: "Prepared for Chick-fil-A — Gonzales (Hwy 30)",
-  coverHeadline: "Office lunch rotation and corporate catering—both prepaid, both scheduled ahead",
+  coverEyebrow: "",
+  coverHeadline: CHICK_FIL_A_MAIN_HEADLINE,
   coverSubhead: `${BRAND.name} brings you corporate volume you can staff: office lunch on rotation with a morning cutoff, and catering on its own order with more notice, its own rules, and a production sheet before the event. The two are not mixed into one checkout or one kitchen email.`,
   revenueLead:
     "Busy stores do not need another surprise at noon. We offer two kinds of corporate business: office lunch on rotation (often 120–200+ labeled meals on a big day, with orders closing the morning of delivery) and catering (trays and platters ordered days ahead on a separate flow). Both are prepaid. Each has its own cutoff and its own email to the kitchen.",
