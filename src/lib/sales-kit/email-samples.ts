@@ -5,6 +5,8 @@ import { sampleReviewRequestHtml } from "@/lib/email/review-request";
 import { sampleRestaurantWeeklyPayoutHtml } from "@/lib/email/weekly-restaurant-html";
 import { sampleOfficeWeeklySummaryHtml } from "@/lib/email/weekly-office-html";
 import { buildOfficeFulfillmentHtml, type DigestOfficeBlock } from "@/lib/email/printable-order-digest";
+import { getChickFilASalesKitEmailHtml } from "@/lib/sales-kit/chick-fil-a-email-samples";
+import type { RestaurantProspectId } from "@/lib/sales-kit/restaurant-prospect-variants";
 
 export type RestaurantEmailSampleId = "daily-kitchen" | "weekly-payout";
 export type OfficeEmailSampleId =
@@ -46,7 +48,13 @@ export function sampleOfficeDeliveryBlock(): DigestOfficeBlock {
   };
 }
 
-export function getRestaurantSalesKitEmailHtml(id: RestaurantEmailSampleId): string {
+export function getRestaurantSalesKitEmailHtml(
+  id: RestaurantEmailSampleId,
+  prospectId: RestaurantProspectId = "default"
+): string {
+  if (prospectId === "chick-fil-a") {
+    return getChickFilASalesKitEmailHtml(id);
+  }
   switch (id) {
     case "daily-kitchen":
       return sampleRestaurantFulfillmentHtml();

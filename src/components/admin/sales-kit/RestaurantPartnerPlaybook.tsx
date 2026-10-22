@@ -1,10 +1,17 @@
 import { BRAND } from "@/lib/brand";
+import type { RestaurantProspectId } from "@/lib/sales-kit/restaurant-prospect-variants";
 
 /**
  * Start-to-finish fulfillment guide for restaurant partners (sales packet + print PDF).
  * Timings reflect platform defaults (Central time, 48h ordering window, 9:30 AM cutoff & digest).
  */
-export function RestaurantPartnerPlaybook() {
+export function RestaurantPartnerPlaybook({
+  prospectId = "default",
+}: {
+  prospectId?: RestaurantProspectId;
+}) {
+  const isChickFilA = prospectId === "chick-fil-a";
+
   return (
     <section className="sales-kit-print-flow space-y-8 print:space-y-0">
       <div className="sales-kit-print-unit rounded-2xl border-2 border-[var(--geaux-red)] bg-white p-6 shadow-sm">
@@ -12,13 +19,24 @@ export function RestaurantPartnerPlaybook() {
           Operations guide
         </p>
         <h2 className="mt-2 text-2xl font-bold text-[var(--geaux-charcoal)]">
-          The full process — start to finish
+          {isChickFilA ? "Catering + office lunch — start to finish" : "The full process — start to finish"}
         </h2>
         <p className="mt-3 text-sm leading-relaxed text-slate-600">
-          This is the playbook we expect every {BRAND.name} partner to follow. Offices reorder when
-          lunch is on time, labeled correctly, and matches what each person ordered. The steps below
-          mirror what the platform does automatically — your job is great food, accurate packing, and
-          reliable delivery to the published window.
+          {isChickFilA ? (
+            <>
+              This playbook covers <strong>corporate catering trays and individually labeled meals</strong>{" "}
+              on the same lunch rotation. Offices reorder when food arrives on time, catering is set up
+              correctly, and every bag matches the manifest. {BRAND.name} handles ordering, payment, and
+              reminders — your team executes production, sealing, and delivery to the published window.
+            </>
+          ) : (
+            <>
+              This is the playbook we expect every {BRAND.name} partner to follow. Offices reorder when
+              lunch is on time, labeled correctly, and matches what each person ordered. The steps below
+              mirror what the platform does automatically — your job is great food, accurate packing, and
+              reliable delivery to the published window.
+            </>
+          )}
         </p>
         <p className="mt-3 rounded-lg bg-[var(--geaux-cream)] px-3 py-2 text-xs text-slate-600">
           <strong>Time zone:</strong> All cutoffs and digest send times are{" "}
@@ -45,9 +63,10 @@ export function RestaurantPartnerPlaybook() {
           Align on goals, volume expectations, and who on your team opens the morning digest, labels
           bags, and delivers.
         </Step>
-        <Step n={2} title="Kitchen & finance contacts">
-          Provide one email for daily kitchen digests (printed or forwarded to the line). Confirm
-          payout contact info for weekly settlement summaries.
+        <Step n={2} title={isChickFilA ? "Catering menu & kitchen contacts" : "Kitchen & finance contacts"}>
+          {isChickFilA
+            ? "Configure catering trays, platters, and individual meals in the portal. Provide one email for the daily kitchen + catering manifest; confirm payout contact for weekly summaries."
+            : "Provide one email for daily kitchen digests (printed or forwarded to the line). Confirm payout contact info for weekly settlement summaries."}
         </Step>
         <Step n={3} title="Menu in the platform">
           We enter entrées, sizes, combos, and modifiers (e.g. “no tomato”) so customer choices match
@@ -129,7 +148,7 @@ export function RestaurantPartnerPlaybook() {
         </Step>
       </Phase>
 
-      <LabelingAndSealingSection />
+      <LabelingAndSealingSection includeCateringNotes={isChickFilA} />
 
       <DeliveryExpectationsSection />
 
@@ -174,13 +193,20 @@ export function RestaurantPartnerPlaybook() {
   );
 }
 
-function LabelingAndSealingSection() {
+function LabelingAndSealingSection({ includeCateringNotes }: { includeCateringNotes?: boolean }) {
   return (
     <div className="sales-kit-print-flow space-y-8 print:space-y-0">
       <div className="sales-kit-print-unit rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <h3 className="text-xl font-bold text-[var(--geaux-charcoal)]">
         Labeling every bag correctly
       </h3>
+      {includeCateringNotes ? (
+        <p className="mt-2 text-sm text-slate-600">
+          <strong>Catering trays:</strong> Label each sealed tray with office name, item (“Nuggets Tray
+          64 ct”), and delivery room/suite from the manifest. Keep trays separate from individually
+          labeled meal bags in the vehicle.
+        </p>
+      ) : null}
       <p className="mt-2 text-sm text-slate-600">
         Corporate lunch is individual meals. The office admin and each employee must be able to grab
         the right bag in seconds — no opening every container in the lobby.

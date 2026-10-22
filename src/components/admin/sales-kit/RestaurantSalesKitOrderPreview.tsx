@@ -4,12 +4,13 @@ import { CustomerOrderRestaurantHero } from "@/components/order/CustomerOrderRes
 import { BRAND } from "@/lib/brand";
 import type { SalesKitOrderPreviewSample } from "@/lib/sales-kit/order-preview-sample";
 
-const SAMPLE_MENU = [
+const DEFAULT_MENU = [
   { name: "Hook & Ladder — Medium", price: "$10.99", note: "Sizes & combos configured per partner" },
   { name: "Sub, Chips, & Drink — Combo", price: "$13.99", note: "Sides and drinks as you define them" },
 ];
 
 export function RestaurantSalesKitOrderPreview({ sample }: { sample: SalesKitOrderPreviewSample }) {
+  const menu = sample.menuItems ?? DEFAULT_MENU;
   return (
     <section className="sales-kit-order-preview sales-kit-print-flow overflow-hidden rounded-2xl border-2 border-slate-200 bg-white shadow-lg print:overflow-visible">
       <div className="sales-kit-print-unit border-b border-slate-200 bg-[var(--geaux-cream)] px-5 py-4">
@@ -17,17 +18,23 @@ export function RestaurantSalesKitOrderPreview({ sample }: { sample: SalesKitOrd
           Customer order screen — your branding
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-slate-600">
-          Employees see {BRAND.name} at the top, then <strong>your logo, banner, and menu</strong> on
-          the page where they build lunch. This is the same layout as live ordering
-          {sample.logoUrl || sample.bannerUrl ? (
+          {sample.orderBlurb ?? (
             <>
-              {" "}
-              (sample: <strong>{sample.restaurantName}</strong>)
+              Employees see {BRAND.name} at the top, then <strong>your logo, banner, and menu</strong> on
+              the page where they build lunch. This is the same layout as live ordering
             </>
-          ) : (
-            <> — upload logo &amp; banner during onboarding to replace placeholders</>
           )}
-          .
+          {!sample.orderBlurb ? (
+            sample.logoUrl || sample.bannerUrl ? (
+              <>
+                {" "}
+                (sample: <strong>{sample.restaurantName}</strong>)
+              </>
+            ) : (
+              <> — upload logo &amp; banner during onboarding to replace placeholders</>
+            )
+          ) : null}
+          {!sample.orderBlurb ? "." : null}
         </p>
         <Link
           href={sample.simulatePath}
@@ -63,7 +70,7 @@ export function RestaurantSalesKitOrderPreview({ sample }: { sample: SalesKitOrd
               Menu (sample)
             </p>
             <ul className="mt-3 divide-y divide-slate-100">
-              {SAMPLE_MENU.map((item) => (
+              {menu.map((item) => (
                 <li key={item.name} className="flex items-start justify-between gap-3 py-3 first:pt-0">
                   <div>
                     <p className="text-sm font-semibold text-slate-900">{item.name}</p>

@@ -59,7 +59,9 @@ function lockElementForLetterCapture(el: HTMLElement, widthPx: number, heightPx:
 }
 
 /** Rasterize the one-sheet at exact letter size and save a PDF (no browser print chrome). */
-export async function downloadRestaurantOneSheetPdf(): Promise<void> {
+export async function downloadRestaurantOneSheetPdf(
+  fileName = "groupmeals-restaurant-one-sheet.pdf"
+): Promise<void> {
   const el = document.querySelector(".restaurant-one-sheet");
   if (!(el instanceof HTMLElement)) {
     throw new Error("One-sheet not found on page.");
@@ -98,7 +100,7 @@ export async function downloadRestaurantOneSheetPdf(): Promise<void> {
 
     const imgData = canvas.toDataURL("image/png", 1);
     pdf.addImage(imgData, "PNG", 0, 0, LETTER_W_IN, LETTER_H_IN);
-    pdf.save("groupmeals-restaurant-one-sheet.pdf");
+    pdf.save(fileName);
   } finally {
     unlock();
   }

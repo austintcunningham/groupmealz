@@ -18,7 +18,7 @@ export default async function AdminSalesKitPage() {
         tracking, and {BRAND.name} positioning — use <strong>Print / Save PDF</strong> in the browser
         to hand off or email as an attachment.
       </p>
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card title="Restaurant partner materials">
           <p className="mb-4 text-sm text-slate-600">
             <strong>One-sheet</strong> — quick leave-behind for owners and GMs.{" "}
@@ -33,6 +33,26 @@ export default async function AdminSalesKitPage() {
             </Link>
             <Link
               href="/admin/sales-kit/restaurants"
+              className="inline-flex rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+            >
+              Full packet →
+            </Link>
+          </div>
+        </Card>
+        <Card title="Chick-fil-A (target account)">
+          <p className="mb-4 text-sm text-slate-600">
+            Higher volume illustrations, <strong>catering-first</strong> story, and sample emails
+            using Chick-fil-A–style menu items — positioned as corporate catering + office rotation.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/admin/sales-kit/restaurants/chick-fil-a/one-sheet"
+              className="inline-flex rounded-lg bg-[var(--geaux-red)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--geaux-red-dark)]"
+            >
+              Chick-fil-A one-sheet →
+            </Link>
+            <Link
+              href="/admin/sales-kit/restaurants/chick-fil-a"
               className="inline-flex rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50"
             >
               Full packet →
