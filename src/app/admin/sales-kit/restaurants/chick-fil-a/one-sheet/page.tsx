@@ -10,7 +10,7 @@ export default async function AdminChickFilAOneSheetPage() {
   const profile = await requireAdmin();
 
   return (
-    <DashboardShell role={profile.role} title="Chick-fil-A one-sheet">
+    <DashboardShell role={profile.role} title="Chick-fil-A Gonzales — one-sheet">
       <SalesKitToolbar
         audience="restaurants-chick-fil-a-one-sheet"
         oneSheetPdfName={CHICK_FIL_A_PROSPECT.oneSheetPdfName}

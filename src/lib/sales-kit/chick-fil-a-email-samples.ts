@@ -1,18 +1,21 @@
 import { calculateRestaurantCommissionCents } from "@/lib/fees/calculate";
 import { buildRestaurantFulfillmentHtml } from "@/lib/email/printable-order-digest";
 import { buildRestaurantWeeklyPayoutHtml } from "@/lib/email/weekly-restaurant-html";
+import { CHICK_FIL_A_GONZALES } from "@/lib/sales-kit/chick-fil-a-gonzales";
+
+const { restaurantName, restaurantAddress, sampleOffice: office } = CHICK_FIL_A_GONZALES;
 
 /** Office lunch rotation — individual meals only (separate from catering). */
 export function chickFilASampleFulfillmentHtml(): string {
   return buildRestaurantFulfillmentHtml(
     {
-      officeName: "State Office Campus — Capitol Park",
-      streetAddress: "627 N. 4th St.",
-      cityStateZip: "Baton Rouge, LA 70802",
-      deliveryInstructions: "Individually labeled bags to lobby desk. Call contact on arrival.",
-      contactName: "Jordan Ellis",
-      contactPhone: "(225) 555-0142",
-      restaurantName: "Chick-fil-A — Siegen Lane",
+      officeName: office.name,
+      streetAddress: office.streetAddress,
+      cityStateZip: office.cityStateZip,
+      deliveryInstructions: "Individually labeled bags to break room. Call contact on arrival.",
+      contactName: office.contactName,
+      contactPhone: office.contactPhone,
+      restaurantName,
       lunchDate: "Tuesday, October 13, 2026",
       deliveryAt: "11:45 AM",
       orders: [
@@ -51,7 +54,7 @@ export function chickFilASampleFulfillmentHtml(): string {
         },
       ],
     },
-    { sheetTitle: "Kitchen order sheet — Chick-fil-A — Siegen Lane" }
+    { sheetTitle: `Kitchen order sheet — ${restaurantName}` }
   );
 }
 
@@ -59,14 +62,14 @@ export function chickFilASampleFulfillmentHtml(): string {
 export function chickFilASampleCateringProductionHtml(): string {
   return buildRestaurantFulfillmentHtml(
     {
-      officeName: "State Office Campus — Capitol Park",
-      streetAddress: "627 N. 4th St.",
-      cityStateZip: "Baton Rouge, LA 70802",
+      officeName: office.name,
+      streetAddress: office.streetAddress,
+      cityStateZip: office.cityStateZip,
       deliveryInstructions:
-        "Deliver to 3rd-floor conference center 3-A by 11:30 AM; office admin meets at loading dock.",
-      contactName: "Jordan Ellis",
-      contactPhone: "(225) 555-0142",
-      restaurantName: "Chick-fil-A — Siegen Lane",
+        "Deliver catering to conference wing; office admin meets at main reception.",
+      contactName: office.contactName,
+      contactPhone: office.contactPhone,
+      restaurantName,
       lunchDate: "Thursday, October 15, 2026",
       deliveryAt: "11:30 AM",
       orders: [
@@ -75,7 +78,7 @@ export function chickFilASampleCateringProductionHtml(): string {
           placedAt: "10/10/2026 9:15:00 AM (ordered 5 days ahead)",
           customerName: "Jordan Ellis — office catering",
           customerEmail: "jordan.ellis@example.gov",
-          customerNote: "All-hands — set up on side tables; include extra sauces.",
+          customerNote: "Department all-hands — set up in Conference Room B.",
           lines: [
             {
               name: "Chick-n-Minis™ Tray",
@@ -102,7 +105,7 @@ export function chickFilASampleCateringProductionHtml(): string {
         },
       ],
     },
-    { sheetTitle: "Catering production sheet — Chick-fil-A — Siegen Lane" }
+    { sheetTitle: `Catering production sheet — ${restaurantName}` }
   );
 }
 
@@ -117,8 +120,8 @@ export function chickFilASampleWeeklyPayoutHtml(): string {
   const checkTotalCents = subtotalCents + taxCents + gratuityCents - commissionCents;
 
   return buildRestaurantWeeklyPayoutHtml({
-    restaurantName: "Chick-fil-A — Siegen Lane",
-    restaurantAddress: "6550 Siegen Ln, Baton Rouge, LA",
+    restaurantName,
+    restaurantAddress,
     period: {
       weekStart: "2026-10-06",
       weekEnd: "2026-10-10",

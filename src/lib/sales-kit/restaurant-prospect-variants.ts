@@ -31,7 +31,7 @@ export const CHICK_FIL_A_PROSPECT: RestaurantProspectContent = {
   label: "Chick-fil-A",
   packetTitle: "Chick-fil-A partner packet",
   oneSheetPdfName: "groupmeals-chick-fil-a-one-sheet.pdf",
-  coverEyebrow: "Prepared for Chick-fil-A operators",
+  coverEyebrow: "Prepared for Chick-fil-A — Gonzales (Hwy 30)",
   coverHeadline:
     "Two B2B channels — office lunch rotation and advance catering — both scheduled, both prepaid",
   coverSubhead: `${BRAND.name} brings corporate demand on calendars you can staff: recurring office lunch with next-day cutoff, and a separate catering path with longer lead times, its own rules, and production sheets sent well before the event — not mixed into the daily lunch rush.`,
@@ -55,7 +55,7 @@ export const CHICK_FIL_A_PROSPECT: RestaurantProspectContent = {
     },
   ],
   revenueFootnote:
-    "Illustration only. Office lunch and catering use different ordering rules and time windows — designed so catering prep does not land on the same timeline as rotation-day lunch counts.",
+    "Illustration only — Gonzales / Ascension market. Office lunch and catering use different ordering rules and time windows — designed so catering prep does not land on the same timeline as rotation-day lunch counts.",
   showCateringSection: true,
   emailSamples: [
     {

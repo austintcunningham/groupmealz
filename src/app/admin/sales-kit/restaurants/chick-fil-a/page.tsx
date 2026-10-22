@@ -10,7 +10,7 @@ export default async function AdminChickFilARestaurantSalesKitPage() {
   const profile = await requireAdmin();
 
   return (
-    <DashboardShell role={profile.role} title="Chick-fil-A partner packet">
+    <DashboardShell role={profile.role} title="Chick-fil-A Gonzales — partner packet">
       <SalesKitToolbar audience="restaurants-chick-fil-a" />
       <p className="-mt-4 mb-6 max-w-2xl text-sm text-slate-600 print:hidden">
         Target-account materials — elevated volume assumptions and{" "}

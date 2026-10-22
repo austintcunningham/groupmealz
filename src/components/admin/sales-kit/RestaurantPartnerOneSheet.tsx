@@ -25,7 +25,7 @@ export function RestaurantPartnerOneSheet({
         <div className="flex items-start justify-between gap-5">
           <div className="min-w-0 flex-1 pt-0.5">
             <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-white/75">
-              {isChickFilA ? "Prepared for Chick-fil-A operators" : "For restaurant partners"}
+              {isChickFilA ? "Prepared for Chick-fil-A — Gonzales (Hwy 30)" : "For restaurant partners"}
             </p>
             <h1 className="mt-2.5 text-[1.75rem] font-bold leading-[1.12] tracking-tight">
               {isChickFilA

@@ -1,4 +1,5 @@
 import { brandingPreviewAssets, liveCustomerBranding } from "@/lib/restaurant/branding-display";
+import { CHICK_FIL_A_GONZALES } from "@/lib/sales-kit/chick-fil-a-gonzales";
 import { createClient } from "@/lib/supabase/server";
 
 export type SalesKitMenuPreviewItem = {
@@ -20,9 +21,9 @@ export type SalesKitOrderPreviewSample = {
 };
 
 export const CHICK_FIL_A_ORDER_PREVIEW: SalesKitOrderPreviewSample = {
-  restaurantName: "Chick-fil-A — Siegen Lane",
-  restaurantSlug: "cfa-siegen-sample",
-  officeName: "State Office Campus — Capitol Park",
+  restaurantName: CHICK_FIL_A_GONZALES.restaurantName,
+  restaurantSlug: CHICK_FIL_A_GONZALES.restaurantSlug,
+  officeName: CHICK_FIL_A_GONZALES.sampleOffice.name,
   lunchDateLabel: "Tuesday, October 13, 2026",
   logoUrl: null,
   bannerUrl: null,
