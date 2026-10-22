@@ -31,7 +31,7 @@ export function RestaurantSalesKitOrderPreview({ sample }: { sample: SalesKitOrd
         <p className="mt-2 text-sm leading-relaxed text-slate-600">
           {sample.orderBlurb ?? (
             <>
-              Employees see {BRAND.name} at the top, then <strong>your logo, banner, and menu</strong> on
+              Customers see {BRAND.name} at the top, then <strong>your logo, banner, and menu</strong> on
               the page where they build lunch. This is the same layout as live ordering
             </>
           )}

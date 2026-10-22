@@ -37,7 +37,7 @@ const DEFAULT_WHY_WIN: ProspectBullet[] = [
   },
   {
     title: "Headcount before prep",
-    body: "One order list after ordering closes so the kitchen knows what to make.",
+    body: "Customers order ahead; one order list after ordering closes so the kitchen knows what to make.",
   },
   {
     title: "You deliver",
@@ -45,7 +45,7 @@ const DEFAULT_WHY_WIN: ProspectBullet[] = [
   },
   {
     title: "Your brand",
-    body: "Logo and menu on the employee order screen.",
+    body: "Logo and menu on the customer order screen.",
   },
   {
     title: "Weekly visibility",
@@ -71,24 +71,7 @@ const DEFAULT_REVENUE_STATS: RestaurantProspectContent["revenueStats"] = [
   },
 ];
 
-/** Same copy as the general restaurant packet — higher volume numbers only. */
-const CHICK_FIL_A_PACKET_REVENUE_STATS: RestaurantProspectContent["revenueStats"] = [
-  {
-    label: "Example order",
-    value: "120–200+ people",
-    detail: "One office lunch day on rotation",
-  },
-  {
-    label: "Avg entrée",
-    value: "$13–$16",
-    detail: "Your menu, your pricing",
-  },
-  {
-    label: "Illustrative week",
-    value: "$9,500–$22,000",
-    detail: "Example week on rotation (food only)",
-  },
-];
+export const CHICK_FIL_A_ONE_SHEET_PDF_NAME = "groupmeals-chick-fil-a-one-sheet.pdf";
 
 function buildDefaultRestaurantProspect(
   overrides: Partial<RestaurantProspectContent> & Pick<RestaurantProspectContent, "id" | "label" | "packetTitle" | "oneSheetPdfName">
@@ -96,7 +79,7 @@ function buildDefaultRestaurantProspect(
   return {
     coverEyebrow: "Partner overview",
     coverHeadline: "Grow weekday lunch revenue — without adding delivery-app chaos",
-    coverSubhead: `${BRAND.name} puts recurring corporate lunch on your calendar: employees order ahead, you get one clean order list, you prepare and deliver—we handle payments and reminders.`,
+    coverSubhead: `${BRAND.name} puts recurring corporate lunch on your calendar: customers order ahead, you get one clean order list, you prepare and deliver—we handle payments and reminders.`,
     revenueLead:
       "Office lunch is dozens of individual meals on a deadline, same delivery window, week after week. That is repeat business when you can see it coming—not a phone call at 10:45 AM.",
     revenueStats: DEFAULT_REVENUE_STATS,
@@ -108,19 +91,16 @@ function buildDefaultRestaurantProspect(
   };
 }
 
-export const CHICK_FIL_A_PROSPECT: RestaurantProspectContent = buildDefaultRestaurantProspect({
-  id: "chick-fil-a",
-  label: "Chick-fil-A",
-  packetTitle: "Chick-fil-A partner packet",
-  oneSheetPdfName: "groupmeals-chick-fil-a-one-sheet.pdf",
-  revenueStats: CHICK_FIL_A_PACKET_REVENUE_STATS,
-});
-
 export function getRestaurantProspectContent(
   prospectId: RestaurantProspectId = "default"
 ): RestaurantProspectContent {
   if (prospectId === "chick-fil-a") {
-    return CHICK_FIL_A_PROSPECT;
+    return buildDefaultRestaurantProspect({
+      id: "chick-fil-a",
+      label: "Chick-fil-A",
+      packetTitle: "Chick-fil-A partner packet",
+      oneSheetPdfName: CHICK_FIL_A_ONE_SHEET_PDF_NAME,
+    });
   }
 
   return buildDefaultRestaurantProspect({

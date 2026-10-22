@@ -5,7 +5,6 @@ import { sampleReviewRequestHtml } from "@/lib/email/review-request";
 import { sampleRestaurantWeeklyPayoutHtml } from "@/lib/email/weekly-restaurant-html";
 import { sampleOfficeWeeklySummaryHtml } from "@/lib/email/weekly-office-html";
 import { buildOfficeFulfillmentHtml, type DigestOfficeBlock } from "@/lib/email/printable-order-digest";
-import { getChickFilASalesKitEmailHtml } from "@/lib/sales-kit/chick-fil-a-email-samples";
 import type { RestaurantProspectId } from "@/lib/sales-kit/restaurant-prospect-variants";
 
 export type RestaurantEmailSampleId =
@@ -53,14 +52,8 @@ export function sampleOfficeDeliveryBlock(): DigestOfficeBlock {
 
 export function getRestaurantSalesKitEmailHtml(
   id: RestaurantEmailSampleId,
-  prospectId: RestaurantProspectId = "default"
+  _prospectId: RestaurantProspectId = "default"
 ): string {
-  if (prospectId === "chick-fil-a") {
-    if (id === "catering-production") {
-      throw new Error("catering-production is not used in the restaurant sales packet");
-    }
-    return getChickFilASalesKitEmailHtml(id === "weekly-payout" ? "weekly-payout" : "daily-kitchen");
-  }
   switch (id) {
     case "daily-kitchen":
       return sampleRestaurantFulfillmentHtml();

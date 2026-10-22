@@ -156,7 +156,7 @@ export function buildOfficeFulfillmentHtml(block: DigestOfficeBlock): string {
     block,
     `Today's lunch delivery — ${block.officeName}`
   );
-  const summary = `<p class="muted">${block.orders.length} employee order${block.orders.length === 1 ? "" : "s"} from <strong>${escapeHtml(block.restaurantName)}</strong> expected around ${escapeHtml(block.deliveryAt)}.</p>`;
+  const summary = `<p class="muted">${block.orders.length} customer order${block.orders.length === 1 ? "" : "s"} from <strong>${escapeHtml(block.restaurantName)}</strong> expected around ${escapeHtml(block.deliveryAt)}.</p>`;
   return wrapPrintableEmail(`${body}${summary}${orders}`);
 }
 

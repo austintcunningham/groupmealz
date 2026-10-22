@@ -2,7 +2,7 @@ import { DashboardShell } from "@/components/DashboardShell";
 import { RestaurantPartnerOneSheet } from "@/components/admin/sales-kit/RestaurantPartnerOneSheet";
 import { SalesKitToolbar } from "@/components/admin/sales-kit/SalesKitToolbar";
 import { requireAdmin } from "@/lib/auth/guards";
-import { CHICK_FIL_A_PROSPECT } from "@/lib/sales-kit/restaurant-prospect-variants";
+import { CHICK_FIL_A_ONE_SHEET_PDF_NAME } from "@/lib/sales-kit/restaurant-prospect-variants";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +13,7 @@ export default async function AdminChickFilAOneSheetPage() {
     <DashboardShell role={profile.role} title="Chick-fil-A Gonzales — one-sheet">
       <SalesKitToolbar
         audience="restaurants-chick-fil-a-one-sheet"
-        oneSheetPdfName={CHICK_FIL_A_PROSPECT.oneSheetPdfName}
+        oneSheetPdfName={CHICK_FIL_A_ONE_SHEET_PDF_NAME}
       />
       <p className="-mt-4 mb-6 text-xs text-slate-500 print:hidden">
         Using <strong>Print…</strong>? In Chrome, open More settings and turn off{" "}

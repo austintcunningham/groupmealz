@@ -153,7 +153,7 @@ export function RestaurantSalesPacket({
 function atAGlanceSteps(): [string, string, string][] {
   return [
     ["1", "Kickoff", "Menu and rotation planning with your specialist."],
-    ["2", "Order", "Employees order online before lunch day."],
+    ["2", "Order", "Customers order online before lunch day."],
     ["3", "Fulfill", "Print the list, pack, deliver once."],
     ["4", "Repeat", "Offices reorder when lunch lands well."],
   ];
