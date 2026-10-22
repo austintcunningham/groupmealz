@@ -153,7 +153,7 @@ function defaultInbox() {
     },
     {
       when: "Friday",
-      what: "Weekly sales summary — what sold that week for your records.",
+      what: "Weekly payout summary.",
     },
     {
       when: "Anytime in the portal",

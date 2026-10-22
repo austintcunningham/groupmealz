@@ -21,7 +21,7 @@ export const CHICK_FIL_A_ONE_SHEET = {
     },
     {
       title: "Paid upfront",
-      body: "No payment at the door. You cook, deliver, and get a weekly summary of what sold.",
+      body: "No payment at the door. You cook, deliver, and get a weekly payout summary.",
     },
     {
       title: "Your brand",
@@ -39,7 +39,7 @@ export const CHICK_FIL_A_ONE_SHEET = {
     },
     {
       when: "Each week",
-      what: "Summary of sales for your records.",
+      what: "Weekly payout summary.",
     },
   ] as const,
   steps: [

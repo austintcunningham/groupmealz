@@ -99,9 +99,9 @@ export const RESTAURANT_EMAIL_SAMPLES: {
   },
   {
     id: "weekly-payout",
-    title: "Weekly sales summary",
+    title: "Weekly payout summary",
     when: "Friday afternoon",
-    pitch: "Snapshot of the week’s sales—the kind of summary partners receive after go-live.",
+    pitch: "Weekly payout summary.",
   },
 ];
 

@@ -73,9 +73,9 @@ export const CHICK_FIL_A_PROSPECT: RestaurantProspectContent = {
     },
     {
       id: "weekly-payout",
-      title: "Weekly sales summary",
+      title: "Weekly payout summary",
       when: "Friday afternoon",
-      pitch: "Snapshot of the week’s sales—the same kind of summary partners receive after go-live.",
+      pitch: "Weekly payout summary.",
     },
   ],
   whyWinBullets: [
@@ -121,7 +121,7 @@ const DEFAULT_WHY_WIN: ProspectBullet[] = [
   },
   {
     title: "Weekly visibility",
-    body: "Friday summary of what sold—details covered in onboarding.",
+    body: "Weekly payout summary—details covered in onboarding.",
   },
 ];
 
