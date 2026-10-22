@@ -17,26 +17,28 @@ export function RestaurantPartnerOneSheet({
 
   return (
     <article
-      className="restaurant-one-sheet mx-auto flex min-h-[11in] w-full max-w-[8.5in] flex-col bg-white text-[var(--geaux-charcoal)] shadow-lg"
+      className={`restaurant-one-sheet mx-auto flex min-h-[11in] w-full max-w-[8.5in] flex-col bg-white text-[var(--geaux-charcoal)] shadow-lg${
+        isChickFilA ? " restaurant-one-sheet--cfa" : ""
+      }`}
       data-prospect={prospectId}
     >
-      <header className="one-sheet-hero relative overflow-hidden geaux-header-gradient px-8 py-6 text-white">
+      <header className="one-sheet-hero relative shrink-0 overflow-hidden geaux-header-gradient px-8 py-7 text-white">
         <div className="geaux-accent-bar" />
         <div className="flex items-start justify-between gap-5">
           <div className="min-w-0 flex-1 pt-0.5">
             {!isChickFilA ? (
-              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-white/75">
+              <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-white/75">
                 For restaurant partners
               </p>
             ) : null}
             <h1
-              className={`${isChickFilA ? "mt-0" : "mt-2.5"} text-[1.75rem] font-bold leading-[1.12] tracking-tight`}
+              className={`${isChickFilA ? "mt-0 text-[1.55rem]" : "mt-2.5 text-[1.75rem]"} font-bold leading-[1.15] tracking-tight`}
             >
               {isChickFilA
                 ? cfa.heroTitle
                 : "Fill your lunch day with orders you can see coming — not last-minute chaos."}
             </h1>
-            <p className="mt-3 max-w-[30rem] text-[13px] leading-relaxed text-white/90">
+            <p className="mt-3 max-w-[34rem] text-[15px] leading-relaxed text-white/92">
               {isChickFilA ? (
                 cfa.heroSub
               ) : (
@@ -54,8 +56,8 @@ export function RestaurantPartnerOneSheet({
         </div>
       </header>
 
-      <div className="border-y border-[var(--geaux-yellow)]/80 bg-[var(--geaux-cream)] px-8 py-3.5">
-        <p className="text-center text-[13px] font-semibold leading-snug text-slate-800">
+      <div className="shrink-0 border-y border-[var(--geaux-yellow)]/80 bg-[var(--geaux-cream)] px-8 py-4">
+        <p className="text-center text-[15px] font-semibold leading-snug text-slate-800">
           {isChickFilA ? (
             cfa.banner
           ) : (
@@ -70,49 +72,73 @@ export function RestaurantPartnerOneSheet({
         </p>
       </div>
 
-      <div className="one-sheet-main one-sheet-grid-2 grid min-h-0 flex-1 grid-cols-1 items-stretch bg-[var(--geaux-cream)] sm:grid-cols-2">
-        <section className="flex min-h-0 flex-col border-b border-slate-200/90 px-8 py-6 sm:border-b-0 sm:border-r">
-          <h2 className="shrink-0 text-xs font-bold uppercase tracking-widest text-[var(--geaux-red)]">
-            {isChickFilA ? cfa.whyPartnerHeading : "Why restaurants say yes"}
-          </h2>
-          <ul className="mt-5 flex min-h-0 flex-1 flex-col justify-evenly gap-3 text-[13px] leading-snug text-slate-800">
-            {(isChickFilA ? cfa.bullets : defaultBullets()).map((b) => (
-              <OneSheetBullet key={b.title} title={b.title}>
-                {b.body}
-              </OneSheetBullet>
-            ))}
-          </ul>
-        </section>
+      {isChickFilA ? (
+        <div className="one-sheet-main one-sheet-cfa-body shrink-0 flex-1 bg-[var(--geaux-cream)] px-8 py-6">
+          <section>
+            <SectionHeading>{cfa.whyPartnerHeading}</SectionHeading>
+            <ul className="mt-4 grid gap-3.5 sm:grid-cols-2">
+              {cfa.bullets.map((b) => (
+                <OneSheetBullet key={b.title} title={b.title} size="lg">
+                  {b.body}
+                </OneSheetBullet>
+              ))}
+            </ul>
+          </section>
+          <section className="mt-7">
+            <SectionHeading>What lands in your inbox</SectionHeading>
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              {cfa.inbox.map((row) => (
+                <InboxRow key={row.when} when={row.when} what={row.what} size="lg" />
+              ))}
+            </div>
+          </section>
+        </div>
+      ) : (
+        <div className="one-sheet-main one-sheet-grid-2 grid shrink-0 grid-cols-1 items-start bg-[var(--geaux-cream)] sm:grid-cols-2">
+          <section className="border-b border-slate-200/90 px-8 py-6 sm:border-b-0 sm:border-r">
+            <SectionHeading>Why restaurants say yes</SectionHeading>
+            <ul className="mt-4 space-y-3.5 text-[14px] leading-snug text-slate-800">
+              {defaultBullets().map((b) => (
+                <OneSheetBullet key={b.title} title={b.title}>
+                  {b.body}
+                </OneSheetBullet>
+              ))}
+            </ul>
+          </section>
+          <section className="px-8 py-6">
+            <SectionHeading>What lands in your inbox</SectionHeading>
+            <div className="mt-4 space-y-3">
+              {defaultInbox().map((row) => (
+                <InboxRow key={row.when} when={row.when} what={row.what} />
+              ))}
+            </div>
+          </section>
+        </div>
+      )}
 
-        <section className="flex min-h-0 flex-col px-8 py-6">
-          <h2 className="shrink-0 text-xs font-bold uppercase tracking-widest text-[var(--geaux-red)]">
-            What lands in your inbox
-          </h2>
-          <div className="mt-5 flex min-h-0 flex-1 flex-col justify-evenly gap-3.5">
-            {(isChickFilA ? cfa.inbox : defaultInbox()).map((row) => (
-              <InboxRow key={row.when} when={row.when} what={row.what} />
-            ))}
-          </div>
-        </section>
-      </div>
-
-      <section className="one-sheet-grid-3 grid shrink-0 grid-cols-1 gap-6 border-t border-slate-200 bg-white px-8 py-6 sm:grid-cols-3">
+      <section className="one-sheet-grid-3 one-sheet-steps grid shrink-0 grid-cols-1 gap-5 border-t border-slate-200 bg-white px-8 py-6 sm:grid-cols-3 sm:gap-6">
         {(isChickFilA ? cfa.steps : defaultSteps()).map((s) => (
-          <Step key={s.n} n={s.n} title={s.title}>
+          <Step key={s.n} n={s.n} title={s.title} large={isChickFilA}>
             {s.body}
           </Step>
         ))}
       </section>
 
-      <footer className="one-sheet-footer geaux-header-gradient shrink-0 px-8 py-5 text-center text-white">
-        <p className="text-[15px] font-bold leading-snug">
+      <footer className="one-sheet-footer geaux-header-gradient mt-auto shrink-0 px-8 py-5 text-center text-white">
+        <p className="text-base font-bold leading-snug sm:text-[17px]">
           {isChickFilA ? cfa.footerTitle : "Let's put your restaurant on office lunch calendars."}
         </p>
-        <p className="mt-1.5 text-xs text-white/85">
+        <p className="mt-2 text-[13px] text-white/88">
           {BRAND.supportEmail} · {BRAND.name} · groupmeals.net
         </p>
       </footer>
     </article>
+  );
+}
+
+function SectionHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <h2 className="text-sm font-bold uppercase tracking-[0.12em] text-[var(--geaux-red)]">{children}</h2>
   );
 }
 
@@ -182,11 +208,28 @@ function defaultSteps() {
   ];
 }
 
-function OneSheetBullet({ title, children }: { title: string; children: React.ReactNode }) {
+function OneSheetBullet({
+  title,
+  children,
+  size = "md",
+}: {
+  title: string;
+  children: React.ReactNode;
+  size?: "md" | "lg";
+}) {
+  const lg = size === "lg";
   return (
-    <li className="flex gap-2.5">
+    <li
+      className={
+        lg
+          ? "flex gap-3 rounded-xl border border-slate-200/80 bg-white px-4 py-3.5 text-[15px] leading-snug shadow-sm"
+          : "flex gap-2.5 text-[14px] leading-snug"
+      }
+    >
       <span
-        className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[var(--geaux-red)] text-[10px] font-bold text-white"
+        className={`mt-0.5 flex shrink-0 items-center justify-center rounded-full bg-[var(--geaux-red)] font-bold text-white ${
+          lg ? "h-6 w-6 text-[11px]" : "h-4 w-4 text-[10px]"
+        }`}
         aria-hidden
       >
         ✓
@@ -201,26 +244,59 @@ function OneSheetBullet({ title, children }: { title: string; children: React.Re
 function InboxRow({
   when,
   what,
+  size = "md",
 }: {
   when: string;
   what: React.ReactNode;
+  size?: "md" | "lg";
 }) {
+  const lg = size === "lg";
   return (
-    <div className="rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 shadow-sm">
-      <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--geaux-red)]">{when}</p>
-      <p className="mt-1 text-[12px] leading-snug text-slate-700">{what}</p>
+    <div
+      className={`rounded-xl border border-slate-200 bg-white shadow-sm ${
+        lg ? "px-4 py-4" : "px-3.5 py-2.5"
+      }`}
+    >
+      <p
+        className={`font-bold uppercase tracking-wide text-[var(--geaux-red)] ${
+          lg ? "text-[11px]" : "text-[10px]"
+        }`}
+      >
+        {when}
+      </p>
+      <p className={`mt-1.5 leading-snug text-slate-800 ${lg ? "text-[15px]" : "text-[13px]"}`}>
+        {what}
+      </p>
     </div>
   );
 }
 
-function Step({ n, title, children }: { n: string; title: string; children: React.ReactNode }) {
+function Step({
+  n,
+  title,
+  children,
+  large,
+}: {
+  n: string;
+  title: string;
+  children: React.ReactNode;
+  large?: boolean;
+}) {
   return (
-    <div className="text-left">
-      <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[var(--geaux-red)] text-sm font-bold text-white">
+    <div className="rounded-xl border border-slate-100 bg-[var(--geaux-cream)]/60 px-4 py-4 text-left">
+      <span
+        className={`inline-flex items-center justify-center rounded-full bg-[var(--geaux-red)] font-bold text-white ${
+          large ? "h-9 w-9 text-base" : "h-8 w-8 text-sm"
+        }`}
+      >
         {n}
       </span>
-      <p className="mt-2.5 text-sm font-bold leading-snug text-slate-900">{title}</p>
-      <p className="mt-1.5 text-[12px] leading-relaxed text-slate-600">{children}</p>
+      <p className={`mt-3 font-bold leading-snug text-slate-900 ${large ? "text-[15px]" : "text-sm"}`}>
+        {title}
+      </p>
+      <p className={`mt-2 leading-relaxed text-slate-600 ${large ? "text-[14px]" : "text-[13px]"}`}>
+        {children}
+      </p>
     </div>
   );
 }
