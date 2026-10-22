@@ -14,8 +14,7 @@ export default async function AdminChickFilARestaurantSalesKitPage() {
       <SalesKitToolbar audience="restaurants-chick-fil-a" />
       <p className="-mt-4 mb-6 max-w-2xl text-sm text-slate-600 print:hidden">
         Target-account materials — elevated volume assumptions and{" "}
-        <strong>catering-first positioning</strong> (separate order flow and lead times from office
-        lunch). Not for general
+        separate catering and office lunch wording. Not for general
         prospecting; use the{" "}
         <a href="/admin/sales-kit/restaurants" className="text-[var(--geaux-red)] hover:underline">
           standard restaurant packet

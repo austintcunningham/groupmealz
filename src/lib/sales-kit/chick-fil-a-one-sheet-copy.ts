@@ -2,66 +2,66 @@ import { BRAND } from "@/lib/brand";
 
 export const CHICK_FIL_A_ONE_SHEET = {
   heroTitle:
-    "Office lunch rotation + advance catering — two prepaid channels, two sets of rules.",
-  heroSub: `${BRAND.name} schedules B2B volume without blending it into your dining room rush: rotation-day lunches with a morning cutoff, and corporate catering on a separate order path with longer lead times and its own production sheet.`,
+    "Office lunch and corporate catering—scheduled ahead, prepaid, and kept off your noon rush.",
+  heroSub: `${BRAND.name} helps you take corporate orders you can plan for: a recurring office lunch with a morning cutoff, and catering on a separate order with more lead time and its own kitchen email.`,
   banner:
-    "Catering orders lock days ahead. Office lunch locks the morning of. Same partner portal — never the same checkout or kitchen email.",
+    "Catering closes days before the event. Office lunch closes the morning of delivery. You use one partner portal, but each has its own checkout and its own email to the kitchen.",
   bullets: [
     {
-      title: "Catering on its own flow",
-      body: "Trays and platters only on the catering order process — not combined with employee lunch orders.",
+      title: "Catering is separate",
+      body: "Trays and platters go through the catering order only—not mixed with employee lunch orders.",
     },
     {
-      title: "120–200+ rotation-day meals",
-      body: "Campus-scale office lunch when you are Restaurant of the Day — individual bags, short ordering window.",
+      title: "Big rotation days",
+      body: "When you are Restaurant of the Day, expect 120–200+ labeled meals from one office, with a firm count before prep starts.",
     },
     {
       title: "Time to prep catering",
-      body: "Production sheet after catering cutoff, typically days before delivery — staff before the event, not at noon.",
+      body: "After catering closes, you get a production sheet with tray counts while there is still time to schedule staff and drivers.",
     },
     {
-      title: "Already paid",
-      body: "Both channels settle on your weekly summary — no card at the door.",
+      title: "Paid online",
+      body: "Customers pay at checkout. You deliver the food; we include both channels on your weekly settlement summary.",
     },
     {
-      title: "Menus you control",
-      body: "Configure catering packages and rotation-day meals separately in the portal.",
+      title: "Your menus",
+      body: "Set catering packages and rotation-day meals separately, and update pricing when you need to.",
     },
     {
-      title: "Franchise-friendly economics",
-      body: "12% commission on food subtotal only; sales tax pass-through on the stub.",
+      title: "Clear fees",
+      body: "12% commission on food subtotal only. Sales tax passes through on the stub for your records.",
     },
   ] as const,
   inbox: [
     {
-      when: "Office lunch morning",
-      what: "Kitchen order list — labeled meals only, after that day’s cutoff.",
+      when: "Morning of office lunch",
+      what: "Kitchen order list for labeled meals only, sent after that day’s cutoff.",
     },
     {
-      when: "After catering cutoff",
-      what: "Catering production sheet — tray counts and setup, sent with advance notice.",
+      when: "When catering closes",
+      what: "Catering production sheet with tray counts, setup notes, and delivery time.",
     },
     {
       when: "Friday",
-      what: "Weekly payout-style summary — office lunch + catering food sales combined for accounting.",
+      what: "Weekly payout summary with office lunch and catering food sales together for accounting.",
     },
   ] as const,
   steps: [
     {
       n: "1",
-      title: "Pilot catering first",
-      body: "Load catering SKUs; one corporate event with multi-day lead time.",
+      title: "Start with catering",
+      body: "Load your catering menu and run one corporate event with enough lead time to prep.",
     },
     {
       n: "2",
-      title: "Add office rotation",
-      body: "When ready, turn on rotation-day lunch — separate cutoff and kitchen email.",
+      title: "Add office lunch",
+      body: "When you are ready, turn on rotation-day lunch with its own cutoff and kitchen email.",
     },
     {
       n: "3",
-      title: "Scale both",
-      body: "More offices on lunch rotation; more catering accounts on the advance path.",
+      title: "Grow both",
+      body: "Add offices on rotation and catering accounts as fulfillment stays consistent.",
     },
   ] as const,
-  footerTitle: "Let's talk corporate catering — and office rotation when you're ready.",
+  footerTitle: "Want to talk catering—or office lunch when the timing is right?",
 };

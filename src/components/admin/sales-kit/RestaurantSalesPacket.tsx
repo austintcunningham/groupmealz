@@ -48,7 +48,7 @@ export function RestaurantSalesPacket({
 
       <section className="sales-kit-print-unit rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <h2 className="text-xl font-bold text-[var(--geaux-charcoal)]">
-          {prospectId === "chick-fil-a" ? "The corporate volume opportunity" : "The revenue opportunity"}
+          {prospectId === "chick-fil-a" ? "What the volume looks like" : "The revenue opportunity"}
         </h2>
         <p className="mt-3 text-sm leading-relaxed text-slate-600">{prospect.revenueLead}</p>
         <div className="mt-6 grid gap-4 sm:grid-cols-3">
@@ -63,7 +63,7 @@ export function RestaurantSalesPacket({
 
       <section className="sales-kit-print-unit rounded-2xl bg-[var(--geaux-cream)] p-6 ring-1 ring-slate-200">
         <h2 className="text-xl font-bold text-[var(--geaux-charcoal)]">
-          {prospectId === "chick-fil-a" ? "Why this model fits your store" : "Why restaurants win"}
+          {prospectId === "chick-fil-a" ? "Why it works for a busy store" : "Why restaurants win"}
         </h2>
         <ul className="mt-4 space-y-3 text-sm text-slate-700">
           {prospect.whyWinBullets.map((b) => (
@@ -99,7 +99,7 @@ export function RestaurantSalesPacket({
         </div>
         <div className="sales-kit-print-unit mt-4 text-sm text-slate-600">
           {prospectId === "chick-fil-a"
-            ? "The playbook below covers office lunch and catering as separate fulfillment paths — including advance catering prep and rotation-day labeling."
+            ? "The playbook below walks through office lunch and catering separately—from catering prep with lead time to labeling rotation-day bags."
             : "The detailed partner playbook below covers onboarding through delivery — including labeling, sealing, and handoff standards."}
         </div>
       </section>
@@ -113,7 +113,7 @@ export function RestaurantSalesPacket({
           </h2>
           <p className="mt-2 text-sm text-slate-600">
             Real templates from production — samples below match what partners get today
-            {prospectId === "chick-fil-a" ? " (Chick-fil-A–style menu and volume)." : "."}
+            {prospectId === "chick-fil-a" ? ", using this store and menu as the example." : "."}
           </p>
         </div>
         {emailSamples.map((sample) => (
@@ -147,7 +147,7 @@ export function RestaurantSalesPacket({
 
       <section className="sales-kit-print-unit rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <h2 className="text-xl font-bold text-[var(--geaux-charcoal)]">
-          {prospectId === "chick-fil-a" ? "Getting started — catering pilot" : "Getting on the rotation"}
+          {prospectId === "chick-fil-a" ? "Getting started" : "Getting on the rotation"}
         </h2>
         <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm text-slate-700">
           {(prospectId === "chick-fil-a" ? gettingStartedChickFilA : gettingStartedDefault).map(
@@ -167,10 +167,10 @@ export function RestaurantSalesPacket({
 function atAGlanceSteps(prospectId: RestaurantProspectId): [string, string, string][] {
   if (prospectId === "chick-fil-a") {
     return [
-      ["1", "Catering flow", "Corporate trays ordered days ahead — own cutoff and production email."],
-      ["2", "Office lunch", "Rotation-day meals — morning cutoff and kitchen list separate from catering."],
-      ["3", "Fulfill & deliver", "Catering events on scheduled prep; labeled bags on rotation days."],
-      ["4", "Scale", "Weekly settlement + reviews → more catering and office accounts."],
+      ["1", "Catering", "Trays ordered days ahead; production email when the order closes."],
+      ["2", "Office lunch", "Rotation-day meals; morning cutoff and a separate kitchen list."],
+      ["3", "Deliver", "Run catering on the booked date; labeled bags on rotation days."],
+      ["4", "Grow", "Weekly settlement and reviews; add offices and catering accounts over time."],
     ];
   }
   return [
@@ -189,10 +189,10 @@ const gettingStartedDefault = [
 ];
 
 const gettingStartedChickFilA = [
-  "Kickoff with your onboarding specialist — define catering lead times, cutoffs, and delivery capacity separately from office lunch rotation.",
-  "Launch catering first: load tray/platter SKUs, catering production email, and pilot one advance-order corporate event.",
-  "When ready, enable office lunch rotation — individual meal menu, morning cutoff, and kitchen list (not mixed with catering).",
-  "Expand catering accounts and office rotations independently as fulfillment stays smooth on each path.",
+  "Meet with onboarding to set catering lead times and cutoffs, and to confirm how much delivery you can take on—separate from office lunch.",
+  "Turn on catering first: load tray and platter items, set the production email, and run one corporate event with enough notice to prep.",
+  "When you are ready, add office lunch rotation: meal menu, morning cutoff, and the daily kitchen email (still separate from catering).",
+  "Add more catering accounts or office rotations as both run smoothly.",
 ];
 
 function RevenueStat({

@@ -19,16 +19,15 @@ export function RestaurantPartnerPlaybook({
           Operations guide
         </p>
         <h2 className="mt-2 text-2xl font-bold text-[var(--geaux-charcoal)]">
-          {isChickFilA ? "Office lunch & catering — two paths" : "The full process — start to finish"}
+          {isChickFilA ? "Office lunch and catering" : "The full process — start to finish"}
         </h2>
         <p className="mt-3 text-sm leading-relaxed text-slate-600">
           {isChickFilA ? (
             <>
-              <strong>Office lunch rotation</strong> and <strong>corporate catering</strong> use different
-              ordering rules, cutoffs, and kitchen emails — they are not combined at checkout. This playbook
-              covers both: advance catering prep and tray delivery, plus rotation-day labeled meals.{" "}
-              {BRAND.name} handles ordering, payment, and reminders — your team executes production and
-              delivery to each published window.
+              Office lunch and catering do not share a checkout or a kitchen email. This guide covers
+              both: catering with enough lead time to prep trays, and rotation-day lunches with labeled
+              bags. {BRAND.name} handles ordering and payment; your team cooks, packs, and delivers on
+              the scheduled time.
             </>
           ) : (
             <>
@@ -64,9 +63,9 @@ export function RestaurantPartnerPlaybook({
           Align on goals, volume expectations, and who on your team opens the morning digest, labels
           bags, and delivers.
         </Step>
-        <Step n={2} title={isChickFilA ? "Two menus, two notification paths" : "Kitchen & finance contacts"}>
+        <Step n={2} title={isChickFilA ? "Kitchen contacts and menus" : "Kitchen & finance contacts"}>
           {isChickFilA
-            ? "Configure catering packages (advance lead time) and rotation-day meal menu separately. Provide kitchen email for office lunch lists and a catering ops email for production sheets when catering orders lock — plus payout contact for weekly summaries."
+            ? "Set up catering items and rotation-day meals separately. Give us an email for the daily office lunch list and another for catering production sheets when those orders close, plus a contact for weekly payout summaries."
             : "Provide one email for daily kitchen digests (printed or forwarded to the line). Confirm payout contact info for weekly settlement summaries."}
         </Step>
         <Step n={3} title="Menu in the platform">
@@ -203,10 +202,10 @@ function LabelingAndSealingSection({ includeCateringNotes }: { includeCateringNo
       </h3>
       {includeCateringNotes ? (
         <p className="mt-2 text-sm text-slate-600">
-          <strong>Catering (separate deliveries):</strong> Label each sealed tray with office name,
-          item (“Nuggets Tray 64 ct”), and room/suite from the catering production sheet. Catering runs
-          are scheduled from advance orders — not packed with rotation-day labeled meal bags unless ops
-          chooses to combine routes.
+          <strong>Catering:</strong> Label each sealed tray with the office name, item (for example
+          “Nuggets Tray 64 ct”), and room or suite from the catering sheet. Catering is scheduled from
+          advance orders; keep trays separate from rotation-day meal bags unless you deliberately combine
+          routes.
         </p>
       ) : null}
       <p className="mt-2 text-sm text-slate-600">

@@ -32,82 +32,81 @@ export const CHICK_FIL_A_PROSPECT: RestaurantProspectContent = {
   packetTitle: "Chick-fil-A partner packet",
   oneSheetPdfName: "groupmeals-chick-fil-a-one-sheet.pdf",
   coverEyebrow: "Prepared for Chick-fil-A — Gonzales (Hwy 30)",
-  coverHeadline:
-    "Two B2B channels — office lunch rotation and advance catering — both scheduled, both prepaid",
-  coverSubhead: `${BRAND.name} brings corporate demand on calendars you can staff: recurring office lunch with next-day cutoff, and a separate catering path with longer lead times, its own rules, and production sheets sent well before the event — not mixed into the daily lunch rush.`,
+  coverHeadline: "Office lunch rotation and corporate catering—both prepaid, both scheduled ahead",
+  coverSubhead: `${BRAND.name} brings you corporate volume you can staff: office lunch on rotation with a morning cutoff, and catering on its own order with more notice, its own rules, and a production sheet before the event. The two are not mixed into one checkout or one kitchen email.`,
   revenueLead:
-    "High-volume stores need volume that does not collide with the noon dining room. We split the problem: office lunch rotation (120–200+ labeled meals on rotation days, short ordering window) and corporate catering (trays and platters on a separate order flow with advance notice). Both are prepaid B2B; they do not share cutoffs or the same kitchen email.",
+    "Busy stores do not need another surprise at noon. We offer two kinds of corporate business: office lunch on rotation (often 120–200+ labeled meals on a big day, with orders closing the morning of delivery) and catering (trays and platters ordered days ahead on a separate flow). Both are prepaid. Each has its own cutoff and its own email to the kitchen.",
   revenueStats: [
     {
       label: "Example office lunch day",
       value: "120–200+ meals",
-      detail: "Restaurant of the Day on rotation — individual orders, morning cutoff",
+      detail: "Restaurant of the Day on rotation—individual orders, morning cutoff",
     },
     {
-      label: "Example catering drop",
+      label: "Example catering job",
       value: "$800–$2,500+",
-      detail: "Single corporate event — ordered days ahead on the catering flow",
+      detail: "One corporate event, ordered ahead on the catering flow",
     },
     {
       label: "Illustrative rotation week",
       value: "$9,500–$22,000",
-      detail: "Office lunch food only; catering booked on its own schedule adds on top",
+      detail: "Office lunch food only; catering is booked and paid on its own schedule",
     },
   ],
   revenueFootnote:
-    "Illustration only — Gonzales / Ascension market. Office lunch and catering use different ordering rules and time windows — designed so catering prep does not land on the same timeline as rotation-day lunch counts.",
+    "Numbers are illustrative for the Gonzales / Ascension market. Catering and office lunch follow different rules and timelines so tray prep does not land on the same clock as rotation-day lunch counts.",
   showCateringSection: true,
   emailSamples: [
     {
       id: "daily-kitchen",
       title: "Office lunch — daily kitchen order list",
-      when: "Morning of lunch (9:30 AM Central) after that day’s ordering closes",
+      when: "Morning of lunch (9:30 AM Central), after that day’s ordering closes",
       pitch:
-        "Rotation-day run sheet: individual meals, modifiers, delivery window, and office contact — not combined with catering orders.",
+        "Run sheet for rotation day: each meal, modifiers, delivery window, and office contact. Catering orders are not on this email.",
     },
     {
       id: "catering-production",
       title: "Catering — production sheet",
-      when: "After catering cutoff (typically several days before delivery)",
+      when: "After catering closes (usually several days before delivery)",
       pitch:
-        "Separate email when an office’s catering order locks: tray counts, setup notes, delivery date/time, and contact — sent with enough lead time to schedule prep and drivers.",
+        "Sent when the catering order is final: tray counts, setup notes, date, time, and contact—early enough to plan prep and delivery.",
     },
     {
       id: "weekly-payout",
       title: "Weekly payout estimate",
       when: "Friday afternoon (Mon–Fri settlement period)",
       pitch:
-        "Check stub combining office lunch and catering food sales for the week — 600 sample meal-equivalent volume on the office side, plus catering in settlement.",
+        "Check stub for the week’s food sales from office lunch and catering, with tax and commission broken out (sample uses high office-lunch participation).",
     },
   ],
   whyWinBullets: [
     {
-      title: "Catering on its own rails",
-      body: "Corporate trays and platters use a separate order process, cutoff, and kitchen email — not checkout with rotation-day lunch.",
+      title: "Catering stays separate",
+      body: "Trays and platters use the catering order, cutoff, and kitchen email—not the rotation-day lunch checkout.",
     },
     {
-      title: "Advance time for catering prep",
-      body: "Catering orders lock days before delivery so your team can batch trays without touching the office-lunch timeline.",
+      title: "Notice for catering",
+      body: "Catering closes before the event so you can batch trays without waiting on the office-lunch timeline.",
     },
     {
       title: "Office lunch at scale",
-      body: "120–200+ meals on rotation days with a firm morning headcount — production you can plan beside (not inside) walk-in peak.",
+      body: "Large rotation days with a firm morning headcount, so you can plan production around—not inside—the dining room rush.",
     },
     {
-      title: "Off the in-store rush",
-      body: "Both channels are placed ahead of service; delivery windows are published up front.",
+      title: "Orders placed ahead",
+      body: "Offices order before the delivery window; you are not chasing last-minute phone requests.",
     },
     {
-      title: "Your menus in the portal",
-      body: "Configure rotation-day meals and catering packages independently — pricing and availability on your terms.",
+      title: "Menus in the portal",
+      body: "Set rotation-day meals and catering packages separately, with pricing you control.",
     },
     {
       title: "Weekly settlement",
-      body: "One payout summary for accounting — office lunch and catering food sales, tax pass-through, and commission on food subtotal only.",
+      body: "One summary for accounting: food from both programs, sales tax pass-through, and commission on food subtotal only.",
     },
     {
-      title: "Transparent economics",
-      body: "12% commission on food subtotal only — tax set aside for pass-through; no commission on tax, tips, or service fees.",
+      title: "Straightforward fees",
+      body: "12% on food subtotal only. No commission on tax, tips, or service fees.",
     },
   ],
 };
