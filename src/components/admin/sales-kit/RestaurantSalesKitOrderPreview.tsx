@@ -1,12 +1,23 @@
 import Link from "next/link";
 import { GroupMealsLogo } from "@/components/brand/GroupMealsLogo";
 import { CustomerOrderRestaurantHero } from "@/components/order/CustomerOrderRestaurantHero";
+import { MenuItemPhoto } from "@/components/order/MenuItemPhoto";
 import { BRAND } from "@/lib/brand";
 import type { SalesKitOrderPreviewSample } from "@/lib/sales-kit/order-preview-sample";
 
 const DEFAULT_MENU = [
-  { name: "Hook & Ladder — Medium", price: "$10.99", note: "Sizes & combos configured per partner" },
-  { name: "Sub, Chips, & Drink — Combo", price: "$13.99", note: "Sides and drinks as you define them" },
+  {
+    name: "Hook & Ladder — Medium",
+    price: "$10.99",
+    note: "Sizes & combos configured per partner",
+    imageUrl: "/sales-kit/menu/sub-sandwich.jpg",
+  },
+  {
+    name: "Sub, Chips, & Drink — Combo",
+    price: "$13.99",
+    note: "Sides and drinks as you define them",
+    imageUrl: "/sales-kit/menu/sub-combo.jpg",
+  },
 ];
 
 export function RestaurantSalesKitOrderPreview({ sample }: { sample: SalesKitOrderPreviewSample }) {
@@ -71,12 +82,22 @@ export function RestaurantSalesKitOrderPreview({ sample }: { sample: SalesKitOrd
             </p>
             <ul className="mt-3 divide-y divide-slate-100">
               {menu.map((item) => (
-                <li key={item.name} className="flex items-start justify-between gap-3 py-3 first:pt-0">
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900">{item.name}</p>
-                    <p className="text-xs text-slate-500">{item.note}</p>
+                <li key={item.name} className="py-4 first:pt-0">
+                  <div className="flex items-start gap-3 sm:gap-4">
+                    <MenuItemPhoto
+                      imageUrl={item.imageUrl}
+                      itemName={item.name}
+                      size="lg"
+                      showPlaceholder
+                    />
+                    <div className="flex min-w-0 flex-1 flex-col gap-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-sm font-semibold leading-snug text-slate-900">{item.name}</p>
+                        <span className="shrink-0 text-sm font-medium text-slate-800">{item.price}</span>
+                      </div>
+                      <p className="text-xs text-slate-500">{item.note}</p>
+                    </div>
                   </div>
-                  <span className="shrink-0 text-sm font-medium text-slate-800">{item.price}</span>
                 </li>
               ))}
             </ul>

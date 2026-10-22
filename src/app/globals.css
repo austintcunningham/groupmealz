@@ -426,6 +426,11 @@ body.geaux-body::before {
     max-height: none !important;
   }
 
+  .sales-kit-document .sales-kit-order-preview img {
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+
   .sales-kit-document .sales-kit-order-preview {
     break-inside: auto !important;
     page-break-inside: auto !important;

@@ -6,6 +6,8 @@ export type SalesKitMenuPreviewItem = {
   name: string;
   price: string;
   note: string;
+  /** Path under /public for order-screen preview (matches live menu row photos). */
+  imageUrl?: string;
 };
 
 export type SalesKitOrderPreviewSample = {
@@ -35,16 +37,19 @@ export const CHICK_FIL_A_ORDER_PREVIEW: SalesKitOrderPreviewSample = {
       name: "Chick-fil-A® Chicken Sandwich Meal",
       price: "$12.49",
       note: "Individual meals with modifiers",
+      imageUrl: "/sales-kit/menu/cfa-chicken-sandwich.jpg",
     },
     {
       name: "Spicy Chicken Sandwich Meal",
       price: "$12.49",
       note: "Rotation-day menu — configured per store",
+      imageUrl: "/sales-kit/menu/cfa-spicy-sandwich.jpg",
     },
     {
       name: "Cobb Salad",
       price: "$10.99",
       note: "Example entrée; catering trays are not shown here",
+      imageUrl: "/sales-kit/menu/cfa-cobb-salad.jpg",
     },
   ],
 };
