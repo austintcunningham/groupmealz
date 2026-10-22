@@ -457,12 +457,6 @@ body.geaux-body::before {
     align-items: start !important;
   }
 
-  .restaurant-one-sheet--cfa .one-sheet-cfa-body {
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-  }
-
   .restaurant-one-sheet,
   .restaurant-one-sheet * {
     -webkit-print-color-adjust: exact !important;

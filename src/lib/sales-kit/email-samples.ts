@@ -7,10 +7,7 @@ import { sampleOfficeWeeklySummaryHtml } from "@/lib/email/weekly-office-html";
 import { buildOfficeFulfillmentHtml, type DigestOfficeBlock } from "@/lib/email/printable-order-digest";
 import type { RestaurantProspectId } from "@/lib/sales-kit/restaurant-prospect-variants";
 
-export type RestaurantEmailSampleId =
-  | "daily-kitchen"
-  | "weekly-payout"
-  | "catering-production";
+export type RestaurantEmailSampleId = "daily-kitchen" | "weekly-payout";
 export type OfficeEmailSampleId =
   | "customer-confirmation"
   | "office-delivery"
@@ -59,8 +56,6 @@ export function getRestaurantSalesKitEmailHtml(
       return sampleRestaurantFulfillmentHtml();
     case "weekly-payout":
       return sampleRestaurantWeeklyPayoutHtml({ salesKitPreview: true });
-    case "catering-production":
-      throw new Error("catering-production sample is only available for chick-fil-a prospect");
   }
 }
 

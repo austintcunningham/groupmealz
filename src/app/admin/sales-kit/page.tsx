@@ -39,26 +39,6 @@ export default async function AdminSalesKitPage() {
             </Link>
           </div>
         </Card>
-        <Card title="Chick-fil-A (target account)">
-          <p className="mb-4 text-sm text-slate-600">
-            Same restaurant partner packet (Firehouse examples) plus a Chick-fil-A–specific one-sheet
-            leave-behind.
-          </p>
-          <div className="flex flex-wrap gap-2">
-            <Link
-              href="/admin/sales-kit/restaurants/chick-fil-a/one-sheet"
-              className="inline-flex rounded-lg bg-[var(--geaux-red)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--geaux-red-dark)]"
-            >
-              Chick-fil-A one-sheet →
-            </Link>
-            <Link
-              href="/admin/sales-kit/restaurants/chick-fil-a"
-              className="inline-flex rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50"
-            >
-              Full packet →
-            </Link>
-          </div>
-        </Card>
         <Card title="Onboarding specialists">
           <p className="mb-4 text-sm text-slate-600">
             Step-by-step checklist with admin deep links, plus printable partner operations guide,

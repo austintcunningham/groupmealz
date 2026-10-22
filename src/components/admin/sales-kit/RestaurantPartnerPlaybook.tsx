@@ -1,18 +1,11 @@
 import { BRAND } from "@/lib/brand";
 import { RESTAURANT_PARTNER_SERVICE_FEE_LINE } from "@/lib/partner/partner-fee-copy";
-import type { RestaurantProspectId } from "@/lib/sales-kit/restaurant-prospect-variants";
 
 /**
- * Start-to-finish fulfillment guide for restaurant partners (sales packet + print PDF).
+ * Start-to-finish fulfillment guide for restaurant partners (kickoff / onboarding print).
  * Timings reflect platform defaults (Central time, 48h ordering window, 9:30 AM cutoff & digest).
  */
-export function RestaurantPartnerPlaybook({
-  prospectId = "default",
-}: {
-  prospectId?: RestaurantProspectId;
-}) {
-  const isChickFilA = prospectId === "chick-fil-a";
-
+export function RestaurantPartnerPlaybook() {
   return (
     <section className="sales-kit-print-flow space-y-8 print:space-y-0">
       <div className="sales-kit-print-unit rounded-2xl border-2 border-[var(--geaux-red)] bg-white p-6 shadow-sm">
@@ -20,29 +13,18 @@ export function RestaurantPartnerPlaybook({
           Operations guide
         </p>
         <h2 className="mt-2 text-2xl font-bold text-[var(--geaux-charcoal)]">
-          {isChickFilA ? "Office lunch and catering" : "The full process — start to finish"}
+          The full process — start to finish
         </h2>
         <p className="mt-3 text-sm leading-relaxed text-slate-600">
-          {isChickFilA ? (
-            <>
-              Office lunch and catering do not share a checkout or a kitchen email. This guide covers
-              both: catering with enough lead time to prep trays, and rotation-day lunches with labeled
-              bags. {BRAND.name} handles ordering and payment; your team cooks, packs, and delivers on
-              the scheduled time.
-            </>
-          ) : (
-            <>
-              This is the playbook we expect every {BRAND.name} partner to follow. Offices reorder when
-              lunch is on time, labeled correctly, and matches what each person ordered. The steps below
-              mirror what the platform does automatically — your job is great food, accurate packing, and
-              reliable delivery to the published window.
-            </>
-          )}
+          This is the playbook we expect every {BRAND.name} partner to follow. Offices reorder when
+          lunch is on time, labeled correctly, and matches what each person ordered. The steps below
+          mirror what the platform does automatically — your job is great food, accurate packing, and
+          reliable delivery to the published window.
         </p>
         <p className="mt-3 rounded-lg bg-[var(--geaux-cream)] px-3 py-2 text-xs text-slate-600">
           <strong>Time zone:</strong> All cutoffs and digest send times are{" "}
           <strong>America/Chicago (Central)</strong>. Default order cutoff is{" "}
-          <strong>9:30 AM</strong> on the lunch date; employees can order up to{" "}
+          <strong>9:30 AM</strong> on the lunch date; customers can order up to{" "}
           <strong>48 hours</strong> before cutoff unless your market uses a different setting.
         </p>
       </div>
@@ -64,10 +46,9 @@ export function RestaurantPartnerPlaybook({
           Align on goals, volume expectations, and who on your team opens the morning digest, labels
           bags, and delivers.
         </Step>
-        <Step n={2} title={isChickFilA ? "Kitchen contacts and menus" : "Kitchen & finance contacts"}>
-          {isChickFilA
-            ? "Set up catering items and rotation-day meals separately. Give us an email for the daily office lunch list and another for catering production sheets when those orders close, plus a contact for weekly payout summaries."
-            : "Provide one email for daily kitchen digests (printed or forwarded to the line). Confirm payout contact info for weekly settlement summaries."}
+        <Step n={2} title="Kitchen & finance contacts">
+          Provide one email for daily kitchen digests (printed or forwarded to the line). Confirm
+          payout contact info for weekly settlement summaries.
         </Step>
         <Step n={3} title="Menu in the platform">
           We enter entrées, sizes, combos, and modifiers (e.g. “no tomato”) so customer choices match
@@ -75,7 +56,7 @@ export function RestaurantPartnerPlaybook({
           your line.
         </Step>
         <Step n={4} title="Branding">
-          Logo and banner on the employee order screen — customers should recognize your restaurant
+          Logo and banner on the customer order screen — customers should recognize your restaurant
           before they checkout.
         </Step>
         <Step n={5} title="Dry run">
@@ -101,16 +82,16 @@ export function RestaurantPartnerPlaybook({
 
       <Phase
         number="C"
-        title="When employees order"
+        title="When customers order"
         subtitle="Usually opens ~48 hours before cutoff"
       >
         <Step n={1} title="Ordering window opens">
-          Employees at the office use their {BRAND.name} link. They pick items, modifiers, and notes;
+          Customers at the office use their {BRAND.name} link. They pick items, modifiers, and notes;
           pay by card in the app. You do not take payment at the door.
         </Step>
         <Step n={2} title="While the window is open — you hear nothing (by design)">
           {BRAND.name} does <strong>not</strong> send partial counts, live totals, or order updates
-          while employees are still ordering. Your kitchen should not prep this office lunch from
+          while customers are still ordering. Your kitchen should not prep this office lunch from
           guesses, walk-ins asking “how many so far?”, or yesterday’s volume — wait for the one
           authoritative email after cutoff.
         </Step>
@@ -149,7 +130,7 @@ export function RestaurantPartnerPlaybook({
         </Step>
       </Phase>
 
-      <LabelingAndSealingSection includeCateringNotes={isChickFilA} />
+      <LabelingAndSealingSection />
 
       <DeliveryExpectationsSection />
 
@@ -193,23 +174,15 @@ export function RestaurantPartnerPlaybook({
   );
 }
 
-function LabelingAndSealingSection({ includeCateringNotes }: { includeCateringNotes?: boolean }) {
+function LabelingAndSealingSection() {
   return (
     <div className="sales-kit-print-flow space-y-8 print:space-y-0">
       <div className="sales-kit-print-unit rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <h3 className="text-xl font-bold text-[var(--geaux-charcoal)]">
         Labeling every bag correctly
       </h3>
-      {includeCateringNotes ? (
-        <p className="mt-2 text-sm text-slate-600">
-          <strong>Catering:</strong> Label each sealed tray with the office name, item (for example
-          “Nuggets Tray 64 ct”), and room or suite from the catering sheet. Catering is scheduled from
-          advance orders; keep trays separate from rotation-day meal bags unless you deliberately combine
-          routes.
-        </p>
-      ) : null}
       <p className="mt-2 text-sm text-slate-600">
-        Corporate lunch is individual meals. The office admin and each employee must be able to grab
+        Corporate lunch is individual meals. The office admin and each customer must be able to grab
         the right bag in seconds — no opening every container in the lobby.
       </p>
 
@@ -250,7 +223,7 @@ function LabelingAndSealingSection({ includeCateringNotes }: { includeCateringNo
               label even if it’s also on the receipt inside.
             </li>
             <li>
-              Do not use only order numbers — employees do not know internal IDs.
+              Do not use only order numbers — customers do not know internal IDs.
             </li>
           </ul>
         </div>
@@ -341,7 +314,7 @@ function DeliveryExpectationsSection() {
         />
         <ExpectRow
           label="Payment at door"
-          detail={`None. Orders are prepaid. Do not ask employees or the admin for payment or tips on behalf of ${BRAND.name} unless you run a separate in-house program.`}
+          detail={`None. Orders are prepaid. Do not ask customers or the admin for payment or tips on behalf of ${BRAND.name} unless you run a separate in-house program.`}
         />
       </div>
 

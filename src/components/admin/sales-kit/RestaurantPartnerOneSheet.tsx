@@ -1,53 +1,27 @@
 import { GroupMealsLogo } from "@/components/brand/GroupMealsLogo";
 import { BRAND } from "@/lib/brand";
-import { CHICK_FIL_A_ONE_SHEET } from "@/lib/sales-kit/chick-fil-a-one-sheet-copy";
-import type { RestaurantProspectId } from "@/lib/sales-kit/restaurant-prospect-variants";
 
 /**
  * Single-page leave-behind for restaurant prospects. Tuned for Print / Save PDF (US Letter).
  * Layout classes `one-sheet-grid-*` pair with globals.css so print matches desktop preview.
  */
-export function RestaurantPartnerOneSheet({
-  prospectId = "default",
-}: {
-  prospectId?: RestaurantProspectId;
-}) {
-  const isChickFilA = prospectId === "chick-fil-a";
-  const cfa = CHICK_FIL_A_ONE_SHEET;
-
+export function RestaurantPartnerOneSheet() {
   return (
-    <article
-      className={`restaurant-one-sheet mx-auto flex min-h-[11in] w-full max-w-[8.5in] flex-col bg-white text-[var(--geaux-charcoal)] shadow-lg${
-        isChickFilA ? " restaurant-one-sheet--cfa" : ""
-      }`}
-      data-prospect={prospectId}
-    >
+    <article className="restaurant-one-sheet mx-auto flex min-h-[11in] w-full max-w-[8.5in] flex-col bg-white text-[var(--geaux-charcoal)] shadow-lg">
       <header className="one-sheet-hero relative shrink-0 overflow-hidden geaux-header-gradient px-8 py-7 text-white">
         <div className="geaux-accent-bar" />
         <div className="flex items-start justify-between gap-5">
           <div className="min-w-0 flex-1 pt-0.5">
-            {!isChickFilA ? (
-              <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-white/75">
-                For restaurant partners
-              </p>
-            ) : null}
-            <h1
-              className={`${isChickFilA ? "mt-0 text-[1.55rem]" : "mt-2.5 text-[1.75rem]"} font-bold leading-[1.15] tracking-tight`}
-            >
-              {isChickFilA
-                ? cfa.heroTitle
-                : "Fill your lunch day with orders you can see coming — not last-minute chaos."}
+            <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-white/75">
+              For restaurant partners
+            </p>
+            <h1 className="mt-2.5 text-[1.75rem] font-bold leading-[1.15] tracking-tight">
+              Fill your lunch day with orders you can see coming — not last-minute chaos.
             </h1>
             <p className="mt-3 max-w-[34rem] text-[15px] leading-relaxed text-white/92">
-              {isChickFilA ? (
-                cfa.heroSub
-              ) : (
-                <>
-                  {BRAND.name} connects local offices to your kitchen: employees order ahead, pay online,
-                  and you get <strong className="text-white">one final order list</strong> every morning.
-                  Same window, labeled bags, repeat business.
-                </>
-              )}
+              {BRAND.name} connects local offices to your kitchen: customers order ahead, pay online,
+              and you get <strong className="text-white">one final order list</strong> every morning.
+              Same window, labeled bags, repeat business.
             </p>
           </div>
           <div className="shrink-0 pt-1">
@@ -58,67 +32,38 @@ export function RestaurantPartnerOneSheet({
 
       <div className="shrink-0 border-y border-[var(--geaux-yellow)]/80 bg-[var(--geaux-cream)] px-8 py-4">
         <p className="text-center text-[15px] font-semibold leading-snug text-slate-800">
-          {isChickFilA ? (
-            cfa.banner
-          ) : (
-            <>
-              Think of a{" "}
-              <span className="text-[var(--geaux-red)]">big DoorDash or Uber Eats drop</span> — with
-              advance notice, a final headcount, and{" "}
-              <span className="text-[var(--geaux-red)]">time to prepare</span> before the lunch rush hits
-              your line.
-            </>
-          )}
+          Think of a{" "}
+          <span className="text-[var(--geaux-red)]">big DoorDash or Uber Eats drop</span> — with
+          advance notice, a final headcount, and{" "}
+          <span className="text-[var(--geaux-red)]">time to prepare</span> before the lunch rush hits
+          your line.
         </p>
       </div>
 
-      {isChickFilA ? (
-        <div className="one-sheet-main one-sheet-cfa-body shrink-0 flex-1 bg-[var(--geaux-cream)] px-8 py-6">
-          <section>
-            <SectionHeading>{cfa.whyPartnerHeading}</SectionHeading>
-            <ul className="mt-4 grid gap-3.5 sm:grid-cols-2">
-              {cfa.bullets.map((b) => (
-                <OneSheetBullet key={b.title} title={b.title} size="lg">
-                  {b.body}
-                </OneSheetBullet>
-              ))}
-            </ul>
-          </section>
-          <section className="mt-7">
-            <SectionHeading>What lands in your inbox</SectionHeading>
-            <div className="mt-4 grid gap-3 sm:grid-cols-3">
-              {cfa.inbox.map((row) => (
-                <InboxRow key={row.when} when={row.when} what={row.what} size="lg" />
-              ))}
-            </div>
-          </section>
-        </div>
-      ) : (
-        <div className="one-sheet-main one-sheet-grid-2 grid shrink-0 grid-cols-1 items-start bg-[var(--geaux-cream)] sm:grid-cols-2">
-          <section className="border-b border-slate-200/90 px-8 py-6 sm:border-b-0 sm:border-r">
-            <SectionHeading>Why restaurants say yes</SectionHeading>
-            <ul className="mt-4 space-y-3.5 text-[14px] leading-snug text-slate-800">
-              {defaultBullets().map((b) => (
-                <OneSheetBullet key={b.title} title={b.title}>
-                  {b.body}
-                </OneSheetBullet>
-              ))}
-            </ul>
-          </section>
-          <section className="px-8 py-6">
-            <SectionHeading>What lands in your inbox</SectionHeading>
-            <div className="mt-4 space-y-3">
-              {defaultInbox().map((row) => (
-                <InboxRow key={row.when} when={row.when} what={row.what} />
-              ))}
-            </div>
-          </section>
-        </div>
-      )}
+      <div className="one-sheet-main one-sheet-grid-2 grid shrink-0 grid-cols-1 items-start bg-[var(--geaux-cream)] sm:grid-cols-2">
+        <section className="border-b border-slate-200/90 px-8 py-6 sm:border-b-0 sm:border-r">
+          <SectionHeading>Why restaurants say yes</SectionHeading>
+          <ul className="mt-4 space-y-3.5 text-[14px] leading-snug text-slate-800">
+            {defaultBullets().map((b) => (
+              <OneSheetBullet key={b.title} title={b.title}>
+                {b.body}
+              </OneSheetBullet>
+            ))}
+          </ul>
+        </section>
+        <section className="px-8 py-6">
+          <SectionHeading>What lands in your inbox</SectionHeading>
+          <div className="mt-4 space-y-3">
+            {defaultInbox().map((row) => (
+              <InboxRow key={row.when} when={row.when} what={row.what} />
+            ))}
+          </div>
+        </section>
+      </div>
 
       <section className="one-sheet-grid-3 one-sheet-steps grid shrink-0 grid-cols-1 gap-5 border-t border-slate-200 bg-white px-8 py-6 sm:grid-cols-3 sm:gap-6">
-        {(isChickFilA ? cfa.steps : defaultSteps()).map((s) => (
-          <Step key={s.n} n={s.n} title={s.title} large={isChickFilA}>
+        {defaultSteps().map((s) => (
+          <Step key={s.n} n={s.n} title={s.title}>
             {s.body}
           </Step>
         ))}
@@ -126,7 +71,7 @@ export function RestaurantPartnerOneSheet({
 
       <footer className="one-sheet-footer geaux-header-gradient mt-auto shrink-0 px-8 py-5 text-center text-white">
         <p className="text-base font-bold leading-snug sm:text-[17px]">
-          {isChickFilA ? cfa.footerTitle : "Let's put your restaurant on office lunch calendars."}
+          Let&apos;s put your restaurant on office lunch calendars.
         </p>
         <p className="mt-2 text-[13px] text-white/88">
           {BRAND.supportEmail} · {BRAND.name} · groupmeals.net
@@ -150,7 +95,7 @@ function defaultBullets() {
     },
     {
       title: "Headcount before prep",
-      body: "Employees order ahead; you get one kitchen email with every name, modifier, and delivery window.",
+      body: "Customers order ahead; you get one kitchen email with every name, modifier, and delivery window.",
     },
     {
       title: "Already paid",
@@ -208,28 +153,11 @@ function defaultSteps() {
   ];
 }
 
-function OneSheetBullet({
-  title,
-  children,
-  size = "md",
-}: {
-  title: string;
-  children: React.ReactNode;
-  size?: "md" | "lg";
-}) {
-  const lg = size === "lg";
+function OneSheetBullet({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <li
-      className={
-        lg
-          ? "flex gap-3 rounded-xl border border-slate-200/80 bg-white px-4 py-3.5 text-[15px] leading-snug shadow-sm"
-          : "flex gap-2.5 text-[14px] leading-snug"
-      }
-    >
+    <li className="flex gap-2.5 text-[14px] leading-snug">
       <span
-        className={`mt-0.5 flex shrink-0 items-center justify-center rounded-full bg-[var(--geaux-red)] font-bold text-white ${
-          lg ? "h-6 w-6 text-[11px]" : "h-4 w-4 text-[10px]"
-        }`}
+        className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[var(--geaux-red)] text-[10px] font-bold text-white"
         aria-hidden
       >
         ✓
@@ -241,62 +169,23 @@ function OneSheetBullet({
   );
 }
 
-function InboxRow({
-  when,
-  what,
-  size = "md",
-}: {
-  when: string;
-  what: React.ReactNode;
-  size?: "md" | "lg";
-}) {
-  const lg = size === "lg";
+function InboxRow({ when, what }: { when: string; what: React.ReactNode }) {
   return (
-    <div
-      className={`rounded-xl border border-slate-200 bg-white shadow-sm ${
-        lg ? "px-4 py-4" : "px-3.5 py-2.5"
-      }`}
-    >
-      <p
-        className={`font-bold uppercase tracking-wide text-[var(--geaux-red)] ${
-          lg ? "text-[11px]" : "text-[10px]"
-        }`}
-      >
-        {when}
-      </p>
-      <p className={`mt-1.5 leading-snug text-slate-800 ${lg ? "text-[15px]" : "text-[13px]"}`}>
-        {what}
-      </p>
+    <div className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 shadow-sm">
+      <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--geaux-red)]">{when}</p>
+      <p className="mt-1.5 text-[13px] leading-snug text-slate-800">{what}</p>
     </div>
   );
 }
 
-function Step({
-  n,
-  title,
-  children,
-  large,
-}: {
-  n: string;
-  title: string;
-  children: React.ReactNode;
-  large?: boolean;
-}) {
+function Step({ n, title, children }: { n: string; title: string; children: React.ReactNode }) {
   return (
     <div className="rounded-xl border border-slate-100 bg-[var(--geaux-cream)]/60 px-4 py-4 text-left">
-      <span
-        className={`inline-flex items-center justify-center rounded-full bg-[var(--geaux-red)] font-bold text-white ${
-          large ? "h-9 w-9 text-base" : "h-8 w-8 text-sm"
-        }`}
-      >
+      <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[var(--geaux-red)] text-sm font-bold text-white">
         {n}
       </span>
-      <p className={`mt-3 font-bold leading-snug text-slate-900 ${large ? "text-[15px]" : "text-sm"}`}>
-        {title}
-      </p>
-      <p className={`mt-2 leading-relaxed text-slate-600 ${large ? "text-[14px]" : "text-[13px]"}`}>
-        {children}
-      </p>
+      <p className="mt-3 text-sm font-bold leading-snug text-slate-900">{title}</p>
+      <p className="mt-2 text-[13px] leading-relaxed text-slate-600">{children}</p>
     </div>
   );
 }

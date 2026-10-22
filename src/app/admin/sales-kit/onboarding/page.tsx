@@ -23,19 +23,11 @@ export default async function AdminRestaurantOnboardingPage() {
           </h2>
           <p className="mt-2 max-w-2xl text-sm text-slate-600">
             These sections are intentionally <strong>not</strong> in the public sales packet. Walk
-            through them on the kickoff call or print as a fulfillment guide. For Chick-fil-A–style
-            stores, also use the{" "}
-            <a
-              href="/admin/sales-kit/restaurants/chick-fil-a"
-              className="font-medium text-[var(--geaux-red)] hover:underline"
-            >
-              Chick-fil-A packet
-            </a>{" "}
-            (catering vs office lunch samples).
+            through them on the kickoff call or print as a fulfillment guide.
           </p>
         </div>
 
-        <RestaurantPartnerPlaybook prospectId="default" />
+        <RestaurantPartnerPlaybook />
         <RestaurantPartnerPayoutTerms />
         <RestaurantSalesTaxNotice />
       </div>

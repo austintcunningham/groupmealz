@@ -4,14 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { downloadRestaurantOneSheetPdf } from "@/components/admin/sales-kit/download-one-sheet-pdf";
 
-type SalesKitAudience =
-  | "restaurants"
-  | "offices"
-  | "hub"
-  | "onboarding"
-  | "restaurants-one-sheet"
-  | "restaurants-chick-fil-a"
-  | "restaurants-chick-fil-a-one-sheet";
+type SalesKitAudience = "restaurants" | "offices" | "hub" | "onboarding" | "restaurants-one-sheet";
 
 export function SalesKitToolbar({
   audience,
@@ -21,8 +14,7 @@ export function SalesKitToolbar({
   oneSheetPdfName?: string;
 }) {
   const [pdfBusy, setPdfBusy] = useState(false);
-  const isOneSheet =
-    audience === "restaurants-one-sheet" || audience === "restaurants-chick-fil-a-one-sheet";
+  const isOneSheet = audience === "restaurants-one-sheet";
 
   async function handleDownloadPdf() {
     setPdfBusy(true);
@@ -47,7 +39,7 @@ export function SalesKitToolbar({
         >
           Sales kit home
         </Link>
-        {audience !== "restaurants" && !audience.startsWith("restaurants-chick-fil-a") ? (
+        {audience !== "restaurants" ? (
           <Link
             href="/admin/sales-kit/restaurants"
             className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"
@@ -55,31 +47,12 @@ export function SalesKitToolbar({
             Restaurant packet
           </Link>
         ) : null}
-        {audience.startsWith("restaurants-chick-fil-a") ? (
-          <Link
-            href="/admin/sales-kit/restaurants/chick-fil-a"
-            className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"
-          >
-            Chick-fil-A packet
-          </Link>
-        ) : (
-          <Link
-            href="/admin/sales-kit/restaurants/chick-fil-a"
-            className="rounded-lg px-3 py-1.5 text-sm font-medium text-amber-900 ring-1 ring-amber-200 hover:bg-amber-50"
-          >
-            Chick-fil-A (target)
-          </Link>
-        )}
         {!isOneSheet ? (
           <Link
-            href={
-              audience.startsWith("restaurants-chick-fil-a")
-                ? "/admin/sales-kit/restaurants/chick-fil-a/one-sheet"
-                : "/admin/sales-kit/restaurants/one-sheet"
-            }
+            href="/admin/sales-kit/restaurants/one-sheet"
             className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"
           >
-            {audience.startsWith("restaurants-chick-fil-a") ? "Chick-fil-A one-sheet" : "Restaurant one-sheet"}
+            Restaurant one-sheet
           </Link>
         ) : null}
         {audience !== "offices" ? (
