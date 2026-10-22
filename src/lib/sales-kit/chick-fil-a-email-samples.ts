@@ -111,9 +111,9 @@ export function chickFilASampleCateringProductionHtml(): string {
 
 /** High-volume week sample for Chick-fil-A prospect packet. */
 export function chickFilASampleWeeklyPayoutHtml(): string {
-  const subtotalCents = 1_128_000;
+  const subtotalCents = 62_400;
   const gratuityCents = 0;
-  const taxCents = 118_440;
+  const taxCents = 6_552;
   const commissionBps = 1200;
   const commissionCents = calculateRestaurantCommissionCents(subtotalCents, commissionBps);
   const grossSalesCents = subtotalCents + taxCents + gratuityCents;
@@ -128,7 +128,7 @@ export function chickFilASampleWeeklyPayoutHtml(): string {
         weekEnd: "2026-10-10",
         label: "10/06/2026 – 10/10/2026 (Mon–Fri)",
       },
-      orderCount: 600,
+      orderCount: 48,
       subtotalCents,
       gratuityCents,
       taxCents,

@@ -31,7 +31,7 @@ export const CHICK_FIL_A_ORDER_PREVIEW: SalesKitOrderPreviewSample = {
   bannerUrl: null,
   simulatePath: "/admin/simulate-order",
   orderBlurb:
-    "Employees order individual meals for office lunch rotation—same branded experience you get at go-live. Catering is a separate flow we set up in onboarding.",
+    "Sample office lunch order screen. Catering is a separate flow—configured in onboarding.",
   menuItems: [
     {
       name: "Chick-fil-A® Chicken Sandwich Meal",

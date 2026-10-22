@@ -3,39 +3,36 @@ import { CHICK_FIL_A_MAIN_HEADLINE } from "@/lib/sales-kit/restaurant-prospect-v
 
 export const CHICK_FIL_A_ONE_SHEET = {
   heroTitle: CHICK_FIL_A_MAIN_HEADLINE,
-  heroSub: `${BRAND.name} puts corporate lunch and catering on your calendar—prepaid, scheduled, and sized for stores that are already busy at noon.`,
+  heroSub: `${BRAND.name} brings prepaid corporate catering and office lunch to your calendar—two channels, one partnership.`,
   banner:
-    "Two ways offices buy from you: rotation-day lunch for the building, and advance catering for meetings—both through GroupMeals.",
+    "Catering for meetings. Office lunch on rotation. Both order ahead through GroupMeals.",
+  whyPartnerHeading: "Why operators choose to partner",
   bullets: [
     {
-      title: "Catering first",
-      body: "Corporate trays and platters on their own order path—good way to open the door with a store that already knows catering.",
+      title: "Two channels",
+      body: "Catering and office lunch each have their own order path and kitchen email.",
     },
     {
-      title: "Big rotation days",
-      body: "When you are Restaurant of the Day, think 120–200+ labeled meals from one office—not a handful of walk-ins.",
+      title: "Advance notice",
+      body: "Production sheets and order lists arrive when ordering closes—not mid-rush guesswork.",
     },
     {
-      title: "Planned ahead",
-      body: "Offices order on a schedule so your team can staff prep and delivery before the rush.",
+      title: "Prepaid",
+      body: "Offices pay online. You cook, label, and deliver.",
     },
     {
-      title: "Paid upfront",
-      body: "No payment at the door. You cook, deliver, and get a weekly payout summary.",
-    },
-    {
-      title: "Your brand",
-      body: "Your menu and look on the order screen—not a generic marketplace.",
+      title: "Your store",
+      body: "Your menu and branding on the employee order screen.",
     },
   ] as const,
   inbox: [
     {
       when: "Office lunch days",
-      what: "Kitchen order list with names, items, and delivery details.",
+      what: "Kitchen order list for that day.",
     },
     {
-      when: "Catering jobs",
-      what: "Production sheet with tray counts and setup notes.",
+      when: "Catering",
+      what: "Production sheet when the order is confirmed.",
     },
     {
       when: "Each week",
@@ -45,19 +42,19 @@ export const CHICK_FIL_A_ONE_SHEET = {
   steps: [
     {
       n: "1",
-      title: "Conversation",
-      body: "We align on catering, timing, and what a good first office looks like.",
+      title: "Talk",
+      body: "Align on catering, office lunch, and a pilot.",
     },
     {
       n: "2",
       title: "Pilot",
-      body: "One corporate event or rotation day with onboarding support.",
+      body: "First event or rotation day with our team alongside yours.",
     },
     {
       n: "3",
       title: "Grow",
-      body: "More offices and catering accounts as fulfillment stays smooth.",
+      body: "Add offices and events as fulfillment stays smooth.",
     },
   ] as const,
-  footerTitle: "Let's talk about catering—or office lunch when you're ready.",
+  footerTitle: "Let's talk catering—or office lunch when you're ready.",
 };

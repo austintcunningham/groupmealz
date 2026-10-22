@@ -52,7 +52,7 @@ export function RestaurantSalesPacket({
 
       <section className="sales-kit-print-unit rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <h2 className="text-xl font-bold text-[var(--geaux-charcoal)]">
-          {prospectId === "chick-fil-a" ? "What the volume looks like" : "The revenue opportunity"}
+          {prospectId === "chick-fil-a" ? "Two ways offices buy from you" : "The revenue opportunity"}
         </h2>
         <p className="mt-3 text-sm leading-relaxed text-slate-600">{prospect.revenueLead}</p>
         <div className="mt-6 grid gap-4 sm:grid-cols-3">
@@ -60,14 +60,16 @@ export function RestaurantSalesPacket({
             <RevenueStat key={stat.label} {...stat} />
           ))}
         </div>
-        <p className="mt-4 text-xs text-slate-500">{prospect.revenueFootnote}</p>
+        {prospect.revenueFootnote ? (
+          <p className="mt-4 text-xs text-slate-500">{prospect.revenueFootnote}</p>
+        ) : null}
       </section>
 
       {prospect.showCateringSection ? <RestaurantCateringProspectSection /> : null}
 
       <section className="sales-kit-print-unit rounded-2xl bg-[var(--geaux-cream)] p-6 ring-1 ring-slate-200">
         <h2 className="text-xl font-bold text-[var(--geaux-charcoal)]">
-          {prospectId === "chick-fil-a" ? "Why it works for a busy store" : "Why restaurants win"}
+          {prospectId === "chick-fil-a" ? "Why operators choose to partner" : "Why restaurants win"}
         </h2>
         <ul className="mt-4 space-y-3 text-sm text-slate-700">
           {prospect.whyWinBullets.map((b) => (

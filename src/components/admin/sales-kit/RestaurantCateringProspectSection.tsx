@@ -1,24 +1,13 @@
-import { BRAND } from "@/lib/brand";
-
-/** Catering positioning for high-volume QSR prospects (e.g. Chick-fil-A). */
+/** Short catering note for high-volume QSR prospect packets. */
 export function RestaurantCateringProspectSection() {
   return (
-    <section className="sales-kit-print-unit rounded-2xl border-2 border-[var(--geaux-red)]/30 bg-white p-6 shadow-sm">
-      <p className="text-xs font-bold uppercase tracking-[0.15em] text-[var(--geaux-red)]">
-        Why lead with catering
-      </p>
-      <h2 className="mt-2 text-xl font-bold text-[var(--geaux-charcoal)]">
-        Corporate catering is the easy yes—office lunch is the long game
+    <section className="sales-kit-print-unit rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 className="text-lg font-bold text-[var(--geaux-charcoal)]">
+        Catering and office lunch stay separate
       </h2>
-      <p className="mt-3 text-sm leading-relaxed text-slate-600">
-        Many high-volume stores already trust their catering program. {BRAND.name} feeds it with
-        offices that book trays and platters ahead, pay online, and show up on a calendar—not as a
-        day-of phone call. Office lunch rotation is the second chapter: same partnership, bigger
-        labeled-meal days when the store is ready.
-      </p>
-      <p className="mt-4 rounded-lg bg-[var(--geaux-cream)] px-4 py-3 text-sm text-slate-700">
-        Catering and office lunch are separate in the product. How each one is set up for your store
-        is part of onboarding—not something you need from this overview.
+      <p className="mt-2 text-sm leading-relaxed text-slate-600">
+        Different order paths and kitchen emails. How each channel is set up for your store happens
+        in onboarding—not in this overview.
       </p>
     </section>
   );

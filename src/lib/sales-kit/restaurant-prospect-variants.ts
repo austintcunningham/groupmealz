@@ -36,40 +36,40 @@ export const CHICK_FIL_A_PROSPECT: RestaurantProspectContent = {
   oneSheetPdfName: "groupmeals-chick-fil-a-one-sheet.pdf",
   coverEyebrow: "",
   coverHeadline: CHICK_FIL_A_MAIN_HEADLINE,
-  coverSubhead: `${BRAND.name} helps busy stores add corporate lunch and catering revenue without treating both the same way. Offices order ahead, pay online, and you get clear production sheets—not last-minute phone chaos.`,
+  coverSubhead: `${BRAND.name} adds corporate catering and office lunch rotation—prepaid, scheduled, and kept separate in your kitchen workflow.`,
   revenueLead:
-    "Think campus-scale office lunch when you are on rotation, plus corporate catering booked in advance. Both are prepaid B2B volume you can plan around instead of hiding inside the noon dining room rush.",
+    "Offices order catering and rotation-day lunch through GroupMeals. You get clear production sheets and order lists instead of day-of phone chaos.",
   revenueStats: [
     {
-      label: "Example office lunch day",
-      value: "120–200+ meals",
-      detail: "One large office on rotation",
+      label: "Catering",
+      value: "Corporate events",
+      detail: "Advance orders with a production sheet",
     },
     {
-      label: "Example catering job",
-      value: "$800–$2,500+",
-      detail: "One corporate event",
+      label: "Office lunch",
+      value: "Rotation days",
+      detail: "One kitchen list per lunch day",
     },
     {
-      label: "Illustrative rotation week",
-      value: "$9,500–$22,000",
-      detail: "Office lunch illustration; catering adds on separately",
+      label: "Checkout",
+      value: "Prepaid online",
+      detail: "No payment at the door",
     },
   ],
-  revenueFootnote: "Illustrative Gonzales / Ascension market—your onboarding specialist will size this for your trade area.",
+  revenueFootnote: "",
   showCateringSection: true,
   emailSamples: [
     {
       id: "daily-kitchen",
       title: "Office lunch — kitchen order list",
       when: "Morning of a rotation lunch day",
-      pitch: "Who ordered what, delivery window, and office contact—built for batching labeled meals.",
+      pitch: "Kitchen order list for that rotation day.",
     },
     {
       id: "catering-production",
       title: "Catering — production sheet",
       when: "When a catering order is confirmed",
-      pitch: "Tray counts and setup notes while there is still time to prep.",
+      pitch: "Production sheet when catering is confirmed.",
     },
     {
       id: "weekly-payout",
@@ -80,24 +80,20 @@ export const CHICK_FIL_A_PROSPECT: RestaurantProspectContent = {
   ],
   whyWinBullets: [
     {
-      title: "Catering as the opener",
-      body: "Lead with trays and platters on a path built for advance corporate orders.",
+      title: "Two channels",
+      body: "Catering and office lunch—separate paths and kitchen emails.",
     },
     {
-      title: "Rotation-day scale",
-      body: "Large offices on the calendar when you are Restaurant of the Day.",
-    },
-    {
-      title: "Off the noon rush",
-      body: "Demand shows up on a schedule, not as surprise walk-in pressure.",
+      title: "Advance notice",
+      body: "Lists and sheets when ordering closes, not guesswork during the rush.",
     },
     {
       title: "Prepaid",
       body: "Offices pay online; you focus on food and delivery.",
     },
     {
-      title: "Your menu, your look",
-      body: "Branded order experience and items you control in the portal.",
+      title: "Your store",
+      body: "Your menu and branding on the order screen.",
     },
   ],
 };
