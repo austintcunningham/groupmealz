@@ -92,8 +92,8 @@ function whyBullets() {
       body: "Places your team already likes — not a national ghost kitchen or mystery bag.",
     },
     {
-      title: "Everyone uses the website link to individually order their meal",
-      body: "",
+      title: "Easy Ordering",
+      body: "Everyone uses the website link to individually order their meal.",
     },
     {
       title: "Paid online",
