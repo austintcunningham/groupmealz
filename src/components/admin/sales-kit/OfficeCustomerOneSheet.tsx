@@ -92,8 +92,8 @@ function whyBullets() {
       body: "Places your team already likes — not a national ghost kitchen or mystery bag.",
     },
     {
-      title: "Order ahead",
-      body: "Everyone picks their meal online before lunch day. You get a clean headcount.",
+      title: "Everyone uses the website link to individually order their meal",
+      body: "",
     },
     {
       title: "Paid online",
@@ -101,7 +101,7 @@ function whyBullets() {
     },
     {
       title: "Labeled delivery",
-      body: "Bags show up with names on them — grab-and-go, not a pile of unmarked boxes.",
+      body: "Individually sealed bags show up for quick grab-and-go, not a pile of unmarked boxes.",
     },
     {
       title: "Feedback that matters",
@@ -122,7 +122,7 @@ function inboxRows() {
     },
     {
       when: "After lunch",
-      what: "A short review request so we can improve food quality and service for the next week.",
+      what: "A short review request so we can improve food quality and service.",
     },
   ];
 }
@@ -148,6 +148,7 @@ function steps() {
 }
 
 function OneSheetBullet({ title, children }: { title: string; children: React.ReactNode }) {
+  const hasBody = typeof children === "string" ? children.trim().length > 0 : Boolean(children);
   return (
     <li className="flex gap-2.5 text-[14px] leading-snug">
       <span
@@ -157,7 +158,13 @@ function OneSheetBullet({ title, children }: { title: string; children: React.Re
         ✓
       </span>
       <span>
-        <strong className="text-slate-900">{title}.</strong> {children}
+        {hasBody ? (
+          <>
+            <strong className="text-slate-900">{title}.</strong> {children}
+          </>
+        ) : (
+          <strong className="text-slate-900">{title}.</strong>
+        )}
       </span>
     </li>
   );
