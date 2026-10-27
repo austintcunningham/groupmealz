@@ -104,10 +104,6 @@ function whyBullets() {
       body: "Bags show up with names on them — grab-and-go, not a pile of unmarked boxes.",
     },
     {
-      title: "One office link",
-      body: "We give your office a single ordering page to share. Your team orders there; we send confirmations and work with the restaurant so you are not the go-between.",
-    },
-    {
       title: "Feedback that matters",
       body: "After lunch, each person can leave a short rating on that specific meal. We use it to catch issues early and push restaurants to improve food and service the next time they are on your rotation.",
     },
@@ -118,7 +114,7 @@ function inboxRows() {
   return [
     {
       when: "When they order",
-      what: "Each person gets a confirmation with what they picked and when lunch arrives.",
+      what: "Each customer receives an order confirmation email along with the set delivery time.",
     },
     {
       when: "Morning of lunch",
