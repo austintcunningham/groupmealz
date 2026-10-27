@@ -83,7 +83,7 @@ export function OfficeSalesPacket({ appBase }: { appBase: string }) {
             Emails your team &amp; admins receive
           </h2>
           <p className="mt-2 text-sm text-slate-600">
-            Samples of what goes out in production — confirmations, the morning list, and review
+            Samples of what goes out in production — confirmations, the order list, and review
             requests.
           </p>
         </div>
@@ -94,7 +94,9 @@ export function OfficeSalesPacket({ appBase }: { appBase: string }) {
             when={sample.when}
             pitch={sample.pitch}
             html={getOfficeSalesKitEmailHtml(sample.id, appBase)}
-            compact={sample.id === "review-invite"}
+            compact={
+              sample.id === "review-invite" || sample.id === "customer-confirmation"
+            }
           />
         ))}
       </section>

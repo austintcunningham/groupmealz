@@ -362,10 +362,45 @@ body.geaux-body::before {
     padding-bottom: 0 !important;
   }
 
+  /* Print body copy at full contrast — slate utilities read faded on paper */
+  .sales-kit-document .text-slate-400,
+  .sales-kit-document .text-slate-500,
+  .sales-kit-document .text-slate-600,
+  .sales-kit-document .text-slate-700,
+  .sales-kit-document .text-slate-800,
+  .restaurant-one-sheet .text-slate-400,
+  .restaurant-one-sheet .text-slate-500,
+  .restaurant-one-sheet .text-slate-600,
+  .restaurant-one-sheet .text-slate-700,
+  .restaurant-one-sheet .text-slate-800 {
+    color: #111 !important;
+  }
+
   .sales-kit-document .email-sample-frame,
   .sales-kit-document .email-sample-caption,
   .sales-kit-document .email-sample-body {
     overflow: visible !important;
+  }
+
+  .sales-kit-document .email-sample-frame.sales-kit-print-unit {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .sales-kit-document .email-sample-caption {
+    break-after: avoid !important;
+    page-break-after: avoid !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .sales-kit-document .email-inline-preview .muted,
+  .sales-kit-document .email-inline-preview [style*="color:#64748b"],
+  .sales-kit-document .email-inline-preview [style*="color:#94a3b8"],
+  .sales-kit-document .email-inline-preview [style*="color:#334155"],
+  .sales-kit-document .email-inline-preview [style*="color:#475569"] {
+    color: #111 !important;
+    -webkit-text-fill-color: #111 !important;
   }
 
   .sales-kit-document .email-inline-preview .digest-shipment-header,

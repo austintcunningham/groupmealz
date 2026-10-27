@@ -9,6 +9,7 @@ export function buildReviewRequestHtml(input: {
   restaurantName: string;
   lunchDateLabel: string;
   reviewUrl: string;
+  omitLogo?: boolean;
 }): string {
   const bodyHtml = `
     <p style="margin:0 0 16px;font-size:16px;line-height:1.5;color:#334155 !important;">
@@ -27,6 +28,7 @@ export function buildReviewRequestHtml(input: {
     subheadline: input.restaurantName,
     bodyHtml,
     footerNote: `One review per order. Questions? ${BRAND.supportEmail}`,
+    omitLogo: input.omitLogo,
   });
 }
 
@@ -62,7 +64,10 @@ export async function sendReviewRequestEmail(input: {
   return { sent: true };
 }
 
-export function sampleReviewRequestHtml(appBase?: string): string {
+export function sampleReviewRequestHtml(
+  appBase?: string,
+  options?: { omitLogo?: boolean }
+): string {
   const base = (appBase ?? process.env.NEXT_PUBLIC_APP_URL ?? "https://www.groupmeals.net").replace(
     /\/$/,
     ""
@@ -72,5 +77,6 @@ export function sampleReviewRequestHtml(appBase?: string): string {
     restaurantName: "Firehouse Subs Gonzales",
     lunchDateLabel: "Monday, October 13, 2026",
     reviewUrl: `${base}/review/demo`,
+    omitLogo: options?.omitLogo,
   });
 }

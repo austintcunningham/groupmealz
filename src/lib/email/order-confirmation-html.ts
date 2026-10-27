@@ -31,6 +31,7 @@ export type OrderConfirmationEmailData = {
   platformFeeCents: number;
   totalCents: number;
   entreeCount?: number;
+  omitLogo?: boolean;
 };
 
 export function buildOrderConfirmationHtml(data: OrderConfirmationEmailData): string {
@@ -96,11 +97,12 @@ export function buildOrderConfirmationHtml(data: OrderConfirmationEmailData): st
     subheadline: formatLunchDate(data.lunchDate),
     bodyHtml,
     footerNote: `Save this email as your receipt. Questions? ${BRAND.supportEmail}`,
+    omitLogo: data.omitLogo,
   });
 }
 
 /** Sample receipt for admin preview (matches a typical $1 + $2.50 fee order). */
-export function sampleOrderConfirmationHtml(): string {
+export function sampleOrderConfirmationHtml(options?: { omitLogo?: boolean }): string {
   return buildOrderConfirmationHtml({
     customerName: "Austin",
     orderId: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
@@ -114,5 +116,6 @@ export function sampleOrderConfirmationHtml(): string {
     platformFeeCents: 250,
     totalCents: 350,
     entreeCount: 1,
+    omitLogo: options?.omitLogo,
   });
 }

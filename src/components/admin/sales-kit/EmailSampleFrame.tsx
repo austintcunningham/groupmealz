@@ -44,16 +44,23 @@ export function EmailSampleFrame({
     return () => window.removeEventListener("beforeprint", onBeforePrint);
   }, [syncFrameHeight]);
 
+  // Compact samples (confirmation / review) stay on one print unit so caption
+  // never orphans above a blank page. Taller digests may flow across pages,
+  // but the caption still sticks to the start of the email body.
   return (
-    <section className="email-sample-frame sales-kit-print-flow rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden print:overflow-visible">
-      <div className="email-sample-caption sales-kit-print-unit border-b border-slate-100 bg-[var(--geaux-cream)] px-5 py-4">
+    <section
+      className={`email-sample-frame rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden print:overflow-visible ${
+        compact ? "sales-kit-print-unit" : "sales-kit-print-flow"
+      }`}
+    >
+      <div className="email-sample-caption border-b border-slate-100 bg-[var(--geaux-cream)] px-5 py-4 print:border-slate-300">
         <h3 className="text-lg font-semibold text-[var(--geaux-charcoal)]">{title}</h3>
         <p className="mt-1 text-xs font-medium uppercase tracking-wide text-[var(--geaux-red)]">
           {when}
         </p>
-        <p className="mt-2 text-sm leading-relaxed text-slate-600">{pitch}</p>
+        <p className="mt-2 text-sm leading-relaxed text-slate-600 print:text-black">{pitch}</p>
       </div>
-      <div className="email-sample-body sales-kit-print-unit bg-slate-100 p-3 print:bg-white print:p-0">
+      <div className="email-sample-body bg-slate-100 p-3 print:bg-white print:p-0">
         <div
           className="email-sample-inline hidden bg-white print:block"
           dangerouslySetInnerHTML={{ __html: inlineHtml }}

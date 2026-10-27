@@ -46,13 +46,21 @@ export function wrapBrandedEmail(options: {
   bodyHtml: string;
   footerNote?: string;
   logoUrl?: string;
+  /** Sales-kit print: skip logo block to keep caption + sample on one page. */
+  omitLogo?: boolean;
 }): string {
-  const { preheader, headline, subheadline, bodyHtml, footerNote } = options;
+  const { preheader, headline, subheadline, bodyHtml, footerNote, omitLogo } = options;
   const logoUrl = options.logoUrl ?? getBrandLogoUrl();
   const safeHeadline = escapeHtml(headline);
   const safePreheader = escapeHtml(preheader);
   const safeSub = subheadline ? escapeHtml(subheadline) : "";
   const safeFooter = footerNote ? escapeHtml(footerNote) : "";
+  const logoRow = omitLogo
+    ? ""
+    : `<tr><td style="padding:0;">${emailLogoBlock(logoUrl)}</td></tr>`;
+  const headerPad = omitLogo ? "16px 20px 18px" : "20px 24px 24px";
+  const bodyPad = omitLogo ? "18px 20px 20px" : "28px 24px 32px";
+  const outerPad = omitLogo ? "12px 8px" : "32px 16px";
 
   return `<!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
@@ -64,32 +72,28 @@ export function wrapBrandedEmail(options: {
 </head>
 <body class="email-outer" style="margin:0;padding:0;background-color:#f1f5f9 !important;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:${COLORS.charcoal};">
   <div style="display:none;max-height:0;overflow:hidden;opacity:0;">${safePreheader}</div>
-  <table role="presentation" class="email-outer" width="100%" cellspacing="0" cellpadding="0" bgcolor="#f1f5f9" style="background-color:#f1f5f9 !important;padding:32px 16px;">
+  <table role="presentation" class="email-outer" width="100%" cellspacing="0" cellpadding="0" bgcolor="#f1f5f9" style="background-color:#f1f5f9 !important;padding:${outerPad};">
     <tr>
       <td align="center">
         <table role="presentation" class="email-card" width="100%" cellspacing="0" cellpadding="0" bgcolor="${COLORS.cream}" style="max-width:560px;background-color:${COLORS.cream} !important;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+          ${logoRow}
           <tr>
-            <td style="padding:0;">
-              ${emailLogoBlock(logoUrl)}
+            <td class="email-header" bgcolor="${COLORS.red}" style="background-color:${COLORS.red} !important;padding:${headerPad};text-align:center;">
+              <h1 class="email-headline" style="margin:0;font-size:${omitLogo ? "18px" : "22px"};font-weight:700;color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;background-color:${COLORS.red} !important;line-height:1.3;">${safeHeadline}</h1>
+              ${safeSub ? `<p class="email-header-text" style="margin:8px 0 0;font-size:13px;color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;background-color:${COLORS.red} !important;">${safeSub}</p>` : ""}
             </td>
           </tr>
           <tr>
-            <td class="email-header" bgcolor="${COLORS.red}" style="background-color:${COLORS.red} !important;padding:20px 24px 24px;text-align:center;">
-              <h1 class="email-headline" style="margin:0;font-size:22px;font-weight:700;color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;background-color:${COLORS.red} !important;line-height:1.3;">${safeHeadline}</h1>
-              ${safeSub ? `<p class="email-header-text" style="margin:12px 0 0;font-size:14px;color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;background-color:${COLORS.red} !important;">${safeSub}</p>` : ""}
-            </td>
-          </tr>
-          <tr>
-            <td class="email-body" bgcolor="${COLORS.cream}" style="padding:28px 24px 32px;background-color:${COLORS.cream} !important;color:${COLORS.charcoal} !important;">
+            <td class="email-body" bgcolor="${COLORS.cream}" style="padding:${bodyPad};background-color:${COLORS.cream} !important;color:${COLORS.charcoal} !important;">
               ${bodyHtml}
             </td>
           </tr>
           <tr>
-            <td class="email-footer" bgcolor="${COLORS.cream}" style="padding:0 24px 28px;text-align:center;background-color:${COLORS.cream} !important;">
+            <td class="email-footer" bgcolor="${COLORS.cream}" style="padding:0 20px 18px;text-align:center;background-color:${COLORS.cream} !important;">
               <p style="margin:0;font-size:12px;color:#64748b !important;line-height:1.6;">
                 ${safeFooter || `Questions? Reply to this email or contact ${BRAND.supportEmail}.`}
               </p>
-              <p style="margin:12px 0 0;font-size:11px;color:#94a3b8 !important;">© ${new Date().getFullYear()} ${BRAND.name}</p>
+              <p style="margin:8px 0 0;font-size:11px;color:#94a3b8 !important;">© ${new Date().getFullYear()} ${BRAND.name}</p>
             </td>
           </tr>
         </table>

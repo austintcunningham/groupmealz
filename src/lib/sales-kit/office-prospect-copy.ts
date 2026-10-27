@@ -6,12 +6,13 @@ export const OFFICE_PROSPECT = {
   eyebrow: "For office teams",
   headline: "Office lunch from local restaurants — without the midday scramble.",
   subhead: `${BRAND.name} puts a weekly rotation of local favorites on your calendar. Your team orders ahead, pays online, and lunch shows up labeled and on time — so nobody is juggling group orders in chat.`,
-  banner: "Real kitchens nearby. Prepaid meals that land when you need them.",
-  whyHeading: "Why offices switch",
+  banner:
+    "Real restaurants nearby. Individually paid, bagged & labeled meals that land when you need them.",
+  whyHeading: "Why offices use us",
   whyBullets: [
     {
       title: "Local restaurants",
-      body: "Places your team already likes — not a national ghost kitchen or mystery bag.",
+      body: "Places your team already enjoys — not a national ghost kitchen or mystery bag.",
     },
     {
       title: "Easy Ordering",
@@ -34,7 +35,7 @@ export const OFFICE_PROSPECT = {
   teamRows: [
     {
       when: "When they order",
-      what: "Each customer receives an order confirmation email along with the set delivery time.",
+      what: "Each customer receives an order confirmation email along with the set group delivery time.",
     },
     {
       when: "Morning of lunch",
@@ -49,7 +50,7 @@ export const OFFICE_PROSPECT = {
     {
       n: "1",
       title: "Tell us about your office",
-      body: "Building address, delivery notes, and who should get the morning list.",
+      body: "Building address, delivery notes, and who should get the order list.",
     },
     {
       n: "2",
@@ -59,7 +60,7 @@ export const OFFICE_PROSPECT = {
     {
       n: "3",
       title: "Lunch runs itself",
-      body: "Your team orders, kitchens prep, bags arrive — you stay out of the middle.",
+      body: "Your team orders, kitchens prep, individually bagged & labeled with name orders arrive — you stay out of the middle.",
     },
   ],
   footerTitle: "Ready for a quieter lunch hour? Let's plan your first week.",

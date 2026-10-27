@@ -35,11 +35,26 @@ export function emailHtmlForInlinePreview(fullHtml: string): string {
   .rule { margin: 8px 0 !important; }
   table.kv td { padding: 4px 2px !important; font-size: 12px !important; }
   table.kv tr.bold td { padding-top: 6px !important; padding-bottom: 6px !important; }
-  .muted { margin: 4px 0 !important; line-height: 1.35 !important; font-size: 11px !important; }
+  .muted { margin: 4px 0 !important; line-height: 1.35 !important; font-size: 11px !important; color: #111 !important; }
   h1 { font-size: 14px !important; margin: 0 0 6px !important; }
   .order-block { margin: 10px 0 !important; padding-bottom: 8px !important; }
   .bar { margin: 8px 0 6px !important; padding: 4px 8px !important; }
   .office-note { margin: 6px 0 !important; padding: 6px 8px !important; }
+  .email-outer { padding: 8px 4px !important; }
+  .email-card { box-shadow: none !important; }
+  .email-body p,
+  .email-footer p,
+  .email-inline-preview p {
+    color: #111 !important;
+  }
+  .email-inline-preview .muted,
+  .email-inline-preview [style*="color:#64748b"],
+  .email-inline-preview [style*="color:#94a3b8"],
+  .email-inline-preview [style*="color:#334155"],
+  .email-inline-preview [style*="color:#475569"] {
+    color: #111 !important;
+    -webkit-text-fill-color: #111 !important;
+  }
 }`;
 
   return `<style>${styles.join("\n")}\n${printKeepTogether}</style><div class="email-inline-preview">${body}</div>`;

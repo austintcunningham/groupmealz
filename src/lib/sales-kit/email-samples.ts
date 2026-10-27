@@ -1,4 +1,3 @@
-import { BRAND } from "@/lib/brand";
 import { sampleOrderConfirmationHtml } from "@/lib/email/order-confirmation-html";
 import { sampleRestaurantFulfillmentHtml } from "@/lib/email/printable-order-digest";
 import { sampleReviewRequestHtml } from "@/lib/email/review-request";
@@ -44,6 +43,23 @@ export function sampleOfficeDeliveryBlock(): DigestOfficeBlock {
         taxCents: 147,
         totalCents: 1546,
       },
+      {
+        orderId: "2879739a-0000-4000-8000-000000000002",
+        placedAt: "10/12/2026 8:02:41 AM",
+        customerName: "Jordan Ellis",
+        customerEmail: "jordan.ellis@example.com",
+        lines: [
+          {
+            name: "Hook & Ladder — Medium",
+            qty: 1,
+            lineCents: 1099,
+            specialInstructions: "extra pickles",
+          },
+        ],
+        subtotalCents: 1099,
+        taxCents: 115,
+        totalCents: 1214,
+      },
     ],
   };
 }
@@ -70,11 +86,11 @@ export async function getRestaurantSalesKitEmailHtml(
 export function getOfficeSalesKitEmailHtml(id: OfficeEmailSampleId, appBase?: string): string {
   switch (id) {
     case "customer-confirmation":
-      return sampleOrderConfirmationHtml();
+      return sampleOrderConfirmationHtml({ omitLogo: true });
     case "office-delivery":
       return buildOfficeFulfillmentHtml(sampleOfficeDeliveryBlock());
     case "review-invite":
-      return sampleReviewRequestHtml(appBase);
+      return sampleReviewRequestHtml(appBase, { omitLogo: true });
     case "weekly-summary":
       return sampleOfficeWeeklySummaryHtml();
   }
@@ -111,11 +127,12 @@ export const OFFICE_EMAIL_SAMPLES: {
     id: "customer-confirmation",
     title: "Order confirmation",
     when: "When they order",
-    pitch: "Each customer receives an order confirmation email along with the set delivery time.",
+    pitch:
+      "Each customer receives an order confirmation email along with the set group delivery time.",
   },
   {
     id: "office-delivery",
-    title: "Office morning list",
+    title: "Office order list",
     when: "Morning of lunch",
     pitch: "Your point person gets a list of who ordered — useful at the front desk.",
   },
@@ -129,6 +146,6 @@ export const OFFICE_EMAIL_SAMPLES: {
     id: "weekly-summary",
     title: "Weekly lunch summary",
     when: "End of the week",
-    pitch: "Meals by day and restaurant — useful for planning the next rotation.",
+    pitch: "Meals by day and restaurant.",
   },
 ];

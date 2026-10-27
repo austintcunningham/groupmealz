@@ -37,8 +37,9 @@ export function sampleOfficeWeeklySummaryHtml(): string {
       officeName: "Iberville Building",
       totalMeals: 54,
       byRestaurant: [
-        { restaurantName: "Firehouse Subs Gonzales", meals: 42 },
-        { restaurantName: "Panera Bread", meals: 12 },
+        { restaurantName: "Firehouse Subs Gonzales", meals: 28 },
+        { restaurantName: "Izzos", meals: 14 },
+        { restaurantName: "Lit Pizza", meals: 12 },
       ],
     },
     {
