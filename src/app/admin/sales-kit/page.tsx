@@ -63,17 +63,25 @@ export default async function AdminSalesKitPage() {
             Open onboarding checklist →
           </Link>
         </Card>
-        <Card title="Office customer packet">
+        <Card title="Office customer materials">
           <p className="mb-4 text-sm text-slate-600">
-            Local-restaurant story, employee confirmations, admin fulfillment emails, post-lunch
-            surveys, and weekly planning summaries.
+            <strong>One-sheet</strong> — leave-behind for office leaders.{" "}
+            <strong>Full packet</strong> — email samples, satisfaction flow, setup overview.
           </p>
-          <Link
-            href="/admin/sales-kit/offices"
-            className="inline-flex rounded-lg bg-[var(--geaux-red)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--geaux-red-dark)]"
-          >
-            Open office packet →
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/admin/sales-kit/offices/one-sheet"
+              className="inline-flex rounded-lg bg-[var(--geaux-red)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--geaux-red-dark)]"
+            >
+              Office one-sheet →
+            </Link>
+            <Link
+              href="/admin/sales-kit/offices"
+              className="inline-flex rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+            >
+              Full packet →
+            </Link>
+          </div>
         </Card>
       </div>
       <p className="mt-8 text-xs text-slate-500">

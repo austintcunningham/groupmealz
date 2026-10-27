@@ -17,68 +17,76 @@ export function OfficeSalesPacket({ appBase }: { appBase: string }) {
             <GroupMealsLogo size="md" href={undefined} surface="light" />
           </div>
           <p className="mt-6 text-xs font-semibold uppercase tracking-[0.2em] text-white/80">
-            For office leaders & admins
+            For office leaders &amp; admins
           </p>
           <h1 className="mt-2 text-3xl font-bold leading-tight sm:text-4xl">
-            Lunch your team will brag about — from real local restaurants
+            Office lunch from local restaurants — without the midday scramble
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-white/90">
-            {BRAND.name} is not a national ghost kitchen. We run scheduled office lunch with
-            Baton Rouge partners you already know: clear cutoffs, reliable delivery, and a human
-            team that tracks whether lunch actually landed well.
+            {BRAND.name} runs scheduled office lunch with local kitchens your team already likes.
+            People order ahead, pay online, and bags show up labeled — so lunch stops living in the
+            group chat.
           </p>
         </div>
       </header>
 
-      <section className="sales-kit-section break-inside-avoid rounded-2xl border-2 border-[var(--geaux-red)]/20 bg-white p-6 shadow-sm">
-        <h2 className="text-xl font-bold text-[var(--geaux-charcoal)]">
-          The personal touch — without the personal hassle
-        </h2>
+      <section className="sales-kit-print-unit rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 className="text-xl font-bold text-[var(--geaux-charcoal)]">Why it works for busy offices</h2>
         <p className="mt-3 text-sm leading-relaxed text-slate-600">
-          You are not asking someone to coordinate a 40-person DoorDash drop. You are giving
-          employees a simple link, a weekly rotation of local favorites, and an ops partner who
-          sends confirmations, order lists, and satisfaction surveys so nobody has to chase lunch in
-          Slack.
+          You are not asking someone to coordinate a giant delivery-app drop. You share one link, pick
+          a rotation of local favorites, and we keep the restaurants and your team in sync.
         </p>
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
-          <PromiseCard
-            title="Fulfillment you can trust"
-            items={[
-              "Ordering closes on a published cutoff — kitchens know your headcount.",
-              "Office admins get a morning digest before delivery.",
-              "Individually packed meals with modifiers and notes honored.",
-            ]}
-          />
-          <PromiseCard
-            title="Satisfaction you can measure"
-            items={[
-              "Post-lunch review emails (one per order, not spam).",
-              "Star ratings + comments tied to restaurant and date.",
-              `${BRAND.name} monitors trends and responds when something slips.`,
-            ]}
-          />
-        </div>
+        <ul className="mt-4 space-y-3 text-sm text-slate-700">
+          {[
+            {
+              title: "Local restaurants",
+              body: "Real kitchens nearby — not a national ghost kitchen.",
+            },
+            {
+              title: "Order ahead",
+              body: "Your team picks meals online before lunch day; you get a clear headcount.",
+            },
+            {
+              title: "Paid online",
+              body: "No cash collection, no shared cards at the door.",
+            },
+            {
+              title: "Labeled delivery",
+              body: "Names on bags so distribution takes minutes, not a scavenger hunt.",
+            },
+            {
+              title: "Someone watching quality",
+              body: "Short post-lunch ratings tied to that meal — so the next week improves.",
+            },
+          ].map((b) => (
+            <li key={b.title} className="flex gap-2">
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--geaux-yellow)]" />
+              <span>
+                <strong>{b.title}</strong> — {b.body}
+              </span>
+            </li>
+          ))}
+        </ul>
       </section>
 
-      <section className="sales-kit-section break-inside-avoid rounded-2xl bg-[var(--geaux-cream)] p-6 ring-1 ring-slate-200">
-        <h2 className="text-xl font-bold text-[var(--geaux-charcoal)]">A typical week</h2>
+      <section className="sales-kit-print-unit rounded-2xl bg-[var(--geaux-cream)] p-6 ring-1 ring-slate-200">
+        <h2 className="text-xl font-bold text-[var(--geaux-charcoal)]">How a lunch day feels</h2>
         <div className="mt-4 space-y-3 text-sm text-slate-700">
-          <WeekRow day="Mon–Thu" what="Employees order from the week view — up to 48 hours ahead." />
-          <WeekRow day="Morning of" what="Restaurant + your admin receive fulfillment emails." />
-          <WeekRow day="Delivery window" what="Lunch arrives on schedule; names on bags." />
-          <WeekRow day="After lunch" what="Quick ‘how was it?’ survey while memory is fresh." />
-          <WeekRow day="Friday" what="Weekly summary email — meals by day for planning." />
+          <WeekRow day="Ahead of time" what="Your team orders from the office link." />
+          <WeekRow day="Morning of" what="Your point person gets a list of who ordered." />
+          <WeekRow day="Lunch window" what="Meals arrive labeled and ready to hand out." />
+          <WeekRow day="After" what="Optional short rating while the meal is still fresh." />
+          <WeekRow day="Each week" what="A simple summary for planning the next rotation." />
         </div>
       </section>
 
-      <section className="space-y-6">
-        <div>
+      <section className="sales-kit-print-flow space-y-6 print:space-y-0">
+        <div className="sales-kit-print-unit">
           <h2 className="text-xl font-bold text-[var(--geaux-charcoal)]">
-            Emails your team & admins receive
+            Emails your team &amp; admins receive
           </h2>
           <p className="mt-2 text-sm text-slate-600">
-            Below are live samples from the platform — the same HTML your employees and office leads
-            get in production.
+            Samples of what goes out in production — confirmations, the morning list, and follow-ups.
           </p>
         </div>
         {OFFICE_EMAIL_SAMPLES.map((sample) => (
@@ -95,26 +103,33 @@ export function OfficeSalesPacket({ appBase }: { appBase: string }) {
 
       <SatisfactionFlowCard variant="office" />
 
-      <section className="sales-kit-section break-inside-avoid grid gap-6 sm:grid-cols-2 items-center">
-        <ReviewScreenMock />
-        <div>
+      <section className="sales-kit-print-flow grid gap-6 sm:grid-cols-2 items-center">
+        <div className="sales-kit-print-unit">
+          <ReviewScreenMock />
+        </div>
+        <div className="sales-kit-print-unit">
           <h2 className="text-lg font-bold text-[var(--geaux-charcoal)]">
             Feedback that improves next week
           </h2>
           <p className="mt-2 text-sm leading-relaxed text-slate-600">
-            When someone says the sandwich was cold or the special request was perfect, we see it
-            alongside the restaurant and office — not buried in a generic app store review. That is
-            how local lunch programs stay sharp.
+            When someone notes a cold meal or a perfect special request, we see it next to the
+            restaurant and office — not buried in a generic app review. That is how a local lunch
+            program stays sharp.
           </p>
         </div>
       </section>
 
-      <section className="sales-kit-section break-inside-avoid rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-xl font-bold text-[var(--geaux-charcoal)]">What we need from you</h2>
+      <section className="sales-kit-print-unit rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 className="text-xl font-bold text-[var(--geaux-charcoal)]">If we move forward</h2>
+        <p className="mt-3 text-sm leading-relaxed text-slate-600">
+          A {BRAND.name} specialist helps with setup — delivery notes, your order link, and the first
+          week&apos;s restaurant rotation. You do not need to memorize how the platform works from this
+          overview.
+        </p>
         <ul className="mt-4 space-y-2 text-sm text-slate-700">
-          <li>A point person for delivery (name + phone) and any building instructions.</li>
-          <li>Employee list or open signup — we provide your office order link.</li>
-          <li>Optional: office admin login to see orders and weekly summaries.</li>
+          <li>Kickoff call and building / delivery details</li>
+          <li>Office order link and admin access if you want it</li>
+          <li>First live lunch week with our team on standby</li>
         </ul>
         <p className="mt-6 text-sm text-slate-600">
           <strong>Your link looks like:</strong>{" "}
@@ -123,33 +138,17 @@ export function OfficeSalesPacket({ appBase }: { appBase: string }) {
           </span>
         </p>
         <p className="mt-6 rounded-lg bg-[var(--geaux-red)] px-4 py-3 text-center text-sm font-semibold text-white">
-          Let&apos;s set up your first week — {BRAND.supportEmail}
+          Let&apos;s plan your first week — {BRAND.supportEmail}
         </p>
       </section>
     </article>
   );
 }
 
-function PromiseCard({ title, items }: { title: string; items: string[] }) {
-  return (
-    <div className="rounded-xl border border-slate-200 bg-[var(--geaux-cream)] p-4">
-      <h3 className="font-semibold text-slate-800">{title}</h3>
-      <ul className="mt-3 space-y-2 text-sm text-slate-600">
-        {items.map((item) => (
-          <li key={item} className="flex gap-2">
-            <span className="text-[var(--geaux-red)]">✓</span>
-            <span>{item}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
 function WeekRow({ day, what }: { day: string; what: string }) {
   return (
     <div className="flex gap-4 rounded-lg bg-white px-4 py-3 shadow-sm">
-      <span className="w-24 shrink-0 text-xs font-bold uppercase tracking-wide text-[var(--geaux-red)]">
+      <span className="w-28 shrink-0 text-xs font-bold uppercase tracking-wide text-[var(--geaux-red)]">
         {day}
       </span>
       <span>{what}</span>

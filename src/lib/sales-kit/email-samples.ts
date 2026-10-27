@@ -109,30 +109,26 @@ export const OFFICE_EMAIL_SAMPLES: {
 }[] = [
   {
     id: "customer-confirmation",
-    title: "Employee order confirmation",
-    when: "Immediately after checkout",
-    pitch:
-      "Every teammate gets a branded receipt with items, pickup time, and restaurant — zero ‘did my order go through?’ Slack threads.",
+    title: "Order confirmation",
+    when: "Right after checkout",
+    pitch: "What they ordered, which restaurant, and when lunch is due — so nobody has to ask.",
   },
   {
     id: "office-delivery",
-    title: "Office admin delivery digest",
-    when: "Same morning as the restaurant (before delivery)",
-    pitch:
-      "Your point person sees who ordered, special instructions, and headcount — so reception and floor leads are never surprised.",
+    title: "Office morning list",
+    when: "Morning of lunch",
+    pitch: "Who ordered what — handy for your point person at the desk.",
   },
   {
     id: "review-invite",
-    title: "Post-lunch satisfaction survey",
-    when: "~45 minutes after scheduled delivery",
-    pitch:
-      `We ask how lunch landed while it’s fresh — ratings flow to ${BRAND.name} and the restaurant so the next week gets better.`,
+    title: "Quick lunch check-in",
+    when: "After delivery",
+    pitch: `A short rating while the meal is fresh — helps ${BRAND.name} and the restaurant improve next week.`,
   },
   {
     id: "weekly-summary",
     title: "Weekly lunch summary",
-    when: "Friday afternoon",
-    pitch:
-      "Meal counts by day and restaurant for the week — perfect for planning headcount, budgets, and ‘what did we eat?’ conversations.",
+    when: "End of the week",
+    pitch: "Meals by day and restaurant — useful for planning the next rotation.",
   },
 ];

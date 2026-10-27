@@ -23,12 +23,12 @@ export function SatisfactionFlowCard({ variant }: { variant: "restaurant" | "off
   const headline =
     variant === "restaurant"
       ? "We turn lunch into a feedback loop — so quality (and repeat orders) go up"
-      : "We measure satisfaction so your team feels heard — not ignored";
+      : "How lunch landed — so next week can be better";
 
   const sub =
     variant === "restaurant"
       ? "Happy offices reorder. Unhappy ones churn. Our review system gives you signal while orders are still recurring."
-      : "You're not buying a faceless meal ticket. You're partnering with a local operator who tracks how lunch actually landed.";
+      : "Short ratings after delivery, tied to that meal and restaurant — not a faceless app review.";
 
   return (
     <section className="sales-kit-print-unit rounded-2xl border-2 border-[var(--geaux-yellow)] bg-white p-6 shadow-sm">

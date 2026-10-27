@@ -10,6 +10,7 @@ type SalesKitAudience =
   | "hub"
   | "onboarding"
   | "restaurants-one-sheet"
+  | "offices-one-sheet"
   | "restaurants-chick-fil-a";
 
 export function SalesKitToolbar({
@@ -20,13 +21,16 @@ export function SalesKitToolbar({
   oneSheetPdfName?: string;
 }) {
   const [pdfBusy, setPdfBusy] = useState(false);
-  const isOneSheet = audience === "restaurants-one-sheet";
+  const isOneSheet = audience === "restaurants-one-sheet" || audience === "offices-one-sheet";
 
   async function handleDownloadPdf() {
     setPdfBusy(true);
     try {
       await downloadRestaurantOneSheetPdf(
-        oneSheetPdfName ?? "groupmeals-restaurant-one-sheet.pdf"
+        oneSheetPdfName ??
+          (audience === "offices-one-sheet"
+            ? "groupmeals-office-one-sheet.pdf"
+            : "groupmeals-restaurant-one-sheet.pdf")
       );
     } catch (err) {
       console.error(err);
@@ -68,7 +72,7 @@ export function SalesKitToolbar({
             Standard packet
           </Link>
         )}
-        {!isOneSheet ? (
+        {audience !== "restaurants-one-sheet" ? (
           <Link
             href="/admin/sales-kit/restaurants/one-sheet"
             className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"
@@ -82,6 +86,14 @@ export function SalesKitToolbar({
             className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"
           >
             Office packet
+          </Link>
+        ) : null}
+        {audience !== "offices-one-sheet" ? (
+          <Link
+            href="/admin/sales-kit/offices/one-sheet"
+            className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"
+          >
+            Office one-sheet
           </Link>
         ) : null}
         <Link
