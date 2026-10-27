@@ -32,7 +32,7 @@ export function OfficeCustomerOneSheet() {
 
       <div className="shrink-0 border-y border-[var(--geaux-yellow)]/80 bg-[var(--geaux-cream)] px-8 py-4">
         <p className="text-center text-[15px] font-semibold leading-snug text-slate-800">
-          Real kitchens nearby. One link for the office. Prepaid meals that land when you need them.
+          Real kitchens nearby. Prepaid meals that land when you need them.
         </p>
       </div>
 
@@ -126,7 +126,7 @@ function inboxRows() {
     },
     {
       when: "After lunch",
-      what: "A quick check-in while the meal is still fresh — optional, not spammy.",
+      what: "A short review request so we can improve food quality and service for the next week.",
     },
   ];
 }
