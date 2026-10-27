@@ -105,11 +105,11 @@ function whyBullets() {
     },
     {
       title: "One office link",
-      body: "Share a single ordering page. We handle confirmations and the restaurant side.",
+      body: "We give your office a single ordering page to share. Your team orders there; we send confirmations and work with the restaurant so you are not the go-between.",
     },
     {
       title: "Feedback that matters",
-      body: "After lunch, a short rating tied to that meal — so the next week gets better.",
+      body: "After lunch, each person can leave a short rating on that specific meal. We use it to catch issues early and push restaurants to improve food and service the next time they are on your rotation.",
     },
   ];
 }
