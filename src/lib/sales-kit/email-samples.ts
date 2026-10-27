@@ -110,20 +110,20 @@ export const OFFICE_EMAIL_SAMPLES: {
   {
     id: "customer-confirmation",
     title: "Order confirmation",
-    when: "Right after checkout",
-    pitch: "What they ordered, which restaurant, and when lunch is due — so nobody has to ask.",
+    when: "When they order",
+    pitch: "Each customer receives an order confirmation email along with the set delivery time.",
   },
   {
     id: "office-delivery",
     title: "Office morning list",
     when: "Morning of lunch",
-    pitch: "Who ordered what — handy for your point person at the desk.",
+    pitch: "Your point person gets a list of who ordered — useful at the front desk.",
   },
   {
     id: "review-invite",
-    title: "Quick lunch check-in",
-    when: "After delivery",
-    pitch: `A short rating while the meal is fresh — helps ${BRAND.name} and the restaurant improve next week.`,
+    title: "Review request",
+    when: "After lunch",
+    pitch: "A short review request so we can improve food quality and service.",
   },
   {
     id: "weekly-summary",

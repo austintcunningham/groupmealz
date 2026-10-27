@@ -1,11 +1,14 @@
 import { GroupMealsLogo } from "@/components/brand/GroupMealsLogo";
 import { BRAND } from "@/lib/brand";
+import { OFFICE_PROSPECT } from "@/lib/sales-kit/office-prospect-copy";
 
 /**
  * Single-page leave-behind for office prospects. Tuned for Print / Save PDF (US Letter).
  * Shares `restaurant-one-sheet` layout/print classes with the restaurant leave-behind.
  */
 export function OfficeCustomerOneSheet() {
+  const copy = OFFICE_PROSPECT;
+
   return (
     <article className="restaurant-one-sheet mx-auto flex min-h-[11in] w-full max-w-[8.5in] flex-col bg-white text-[var(--geaux-charcoal)] shadow-lg">
       <header className="one-sheet-hero relative shrink-0 overflow-hidden geaux-header-gradient px-8 py-7 text-white">
@@ -13,16 +16,12 @@ export function OfficeCustomerOneSheet() {
         <div className="flex items-start justify-between gap-5">
           <div className="min-w-0 flex-1 pt-0.5">
             <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-white/75">
-              For office teams
+              {copy.eyebrow}
             </p>
             <h1 className="mt-2.5 text-[1.75rem] font-bold leading-[1.15] tracking-tight">
-              Office lunch from local restaurants — without the midday scramble.
+              {copy.headline}
             </h1>
-            <p className="mt-3 max-w-[34rem] text-[15px] leading-relaxed text-white/92">
-              {BRAND.name} puts a weekly rotation of local favorites on your calendar. Your team
-              orders ahead, pays online, and lunch shows up labeled and on time — so nobody is
-              juggling group orders in chat.
-            </p>
+            <p className="mt-3 max-w-[34rem] text-[15px] leading-relaxed text-white/92">{copy.subhead}</p>
           </div>
           <div className="shrink-0 pt-1">
             <GroupMealsLogo size="sm" href={undefined} surface="light" />
@@ -31,16 +30,14 @@ export function OfficeCustomerOneSheet() {
       </header>
 
       <div className="shrink-0 border-y border-[var(--geaux-yellow)]/80 bg-[var(--geaux-cream)] px-8 py-4">
-        <p className="text-center text-[15px] font-semibold leading-snug text-slate-800">
-          Real kitchens nearby. Prepaid meals that land when you need them.
-        </p>
+        <p className="text-center text-[15px] font-semibold leading-snug text-slate-800">{copy.banner}</p>
       </div>
 
       <div className="one-sheet-main one-sheet-grid-2 grid shrink-0 grid-cols-1 items-start bg-[var(--geaux-cream)] sm:grid-cols-2">
         <section className="border-b border-slate-200/90 px-8 py-6 sm:border-b-0 sm:border-r">
-          <SectionHeading>Why offices switch</SectionHeading>
+          <SectionHeading>{copy.whyHeading}</SectionHeading>
           <ul className="mt-4 space-y-3.5 text-[14px] leading-snug text-slate-800">
-            {whyBullets().map((b) => (
+            {copy.whyBullets.map((b) => (
               <OneSheetBullet key={b.title} title={b.title}>
                 {b.body}
               </OneSheetBullet>
@@ -48,9 +45,9 @@ export function OfficeCustomerOneSheet() {
           </ul>
         </section>
         <section className="px-8 py-6">
-          <SectionHeading>What your team gets</SectionHeading>
+          <SectionHeading>{copy.teamHeading}</SectionHeading>
           <div className="mt-4 space-y-3">
-            {inboxRows().map((row) => (
+            {copy.teamRows.map((row) => (
               <InboxRow key={row.when} when={row.when} what={row.what} />
             ))}
           </div>
@@ -58,7 +55,7 @@ export function OfficeCustomerOneSheet() {
       </div>
 
       <section className="one-sheet-grid-3 one-sheet-steps grid shrink-0 grid-cols-1 gap-5 border-t border-slate-200 bg-white px-8 py-6 sm:grid-cols-3 sm:gap-6">
-        {steps().map((s) => (
+        {copy.steps.map((s) => (
           <Step key={s.n} n={s.n} title={s.title}>
             {s.body}
           </Step>
@@ -66,9 +63,7 @@ export function OfficeCustomerOneSheet() {
       </section>
 
       <footer className="one-sheet-footer geaux-header-gradient mt-auto shrink-0 px-8 py-5 text-center text-white">
-        <p className="text-base font-bold leading-snug sm:text-[17px]">
-          Ready for a quieter lunch hour? Let&apos;s plan your first week.
-        </p>
+        <p className="text-base font-bold leading-snug sm:text-[17px]">{copy.footerTitle}</p>
         <p className="mt-2 text-[13px] text-white/88">
           {BRAND.supportEmail} · {BRAND.name} · groupmeals.net
         </p>
@@ -83,68 +78,6 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
       {children}
     </h2>
   );
-}
-
-function whyBullets() {
-  return [
-    {
-      title: "Local restaurants",
-      body: "Places your team already likes — not a national ghost kitchen or mystery bag.",
-    },
-    {
-      title: "Easy Ordering",
-      body: "Everyone uses the website link to individually order their meal.",
-    },
-    {
-      title: "Paid online",
-      body: "No cash at the door, no shared cards, no collecting receipts after the fact.",
-    },
-    {
-      title: "Labeled delivery",
-      body: "Individually sealed bags show up for quick grab-and-go, not a pile of unmarked boxes.",
-    },
-    {
-      title: "Feedback that matters",
-      body: "After lunch, each person can leave a short rating on that specific meal. We use it to catch issues early and push restaurants to improve food and service the next time they are on your rotation.",
-    },
-  ];
-}
-
-function inboxRows() {
-  return [
-    {
-      when: "When they order",
-      what: "Each customer receives an order confirmation email along with the set delivery time.",
-    },
-    {
-      when: "Morning of lunch",
-      what: "Your point person gets a list of who ordered — useful at the front desk.",
-    },
-    {
-      when: "After lunch",
-      what: "A short review request so we can improve food quality and service.",
-    },
-  ];
-}
-
-function steps() {
-  return [
-    {
-      n: "1",
-      title: "Tell us about your office",
-      body: "Building address, delivery notes, and who should get the morning list.",
-    },
-    {
-      n: "2",
-      title: "Share your order link",
-      body: "We set up the page and a rotation of local restaurants for the week.",
-    },
-    {
-      n: "3",
-      title: "Lunch runs itself",
-      body: "Your team orders, kitchens prep, bags arrive — you stay out of the middle.",
-    },
-  ];
 }
 
 function OneSheetBullet({ title, children }: { title: string; children: React.ReactNode }) {
