@@ -14,6 +14,7 @@ export function MenuItemEditModal({
   itemIngredients,
   onSave,
   onDelete,
+  onToggleAvailable,
   onClose,
 }: {
   item: MenuItem | null;
@@ -25,13 +26,14 @@ export function MenuItemEditModal({
   itemIngredients: MenuItemIngredient[];
   onSave: (itemId: string, formData: FormData) => void;
   onDelete: (itemId: string, itemName: string) => void;
+  onToggleAvailable?: (itemId: string, nextAvailable: boolean) => void;
   onClose: () => void;
 }) {
   return (
     <Modal open={Boolean(item)} title={item ? `Edit — ${item.name}` : "Edit item"} onClose={onClose} wide>
       {item ? (
       <MenuItemEditForm
-        key={item.id}
+        key={`${item.id}-${item.available ? "on" : "off"}`}
         item={item}
         categoryOptions={categoryOptions}
         isPending={isPending}
@@ -40,6 +42,7 @@ export function MenuItemEditModal({
           onDelete(id, name);
           onClose();
         }}
+        onToggleAvailable={onToggleAvailable}
         showPlatformFeeHints={showPlatformFeeHints}
         serviceFeePerEntreeCents={serviceFeePerEntreeCents}
         itemSizes={itemSizes}

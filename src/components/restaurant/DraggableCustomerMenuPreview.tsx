@@ -156,6 +156,7 @@ export function DraggableCustomerMenuPreview({
   layout = "embedded",
   editorMode = false,
   onEditItem,
+  onToggleItemAvailable,
 }: {
   allCategories: MenuCategory[];
   allMenuItems: MenuItem[];
@@ -166,6 +167,7 @@ export function DraggableCustomerMenuPreview({
   layout?: "embedded" | "full";
   editorMode?: boolean;
   onEditItem?: (itemId: string) => void;
+  onToggleItemAvailable?: (itemId: string, nextAvailable: boolean) => void;
 }) {
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -353,7 +355,7 @@ export function DraggableCustomerMenuPreview({
               >
                 {!item.available && editorMode ? (
                   <span className="mb-1 inline-block rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800">
-                    Sold out
+                    Hidden
                   </span>
                 ) : null}
                 <CustomerMenuItemDisplay
@@ -367,6 +369,11 @@ export function DraggableCustomerMenuPreview({
                   simpleLineKey={buildCartLineKey(item.id, null, [])}
                   simpleQty={0}
                   onEdit={onEditItem ? () => onEditItem(item.id) : undefined}
+                  onToggleAvailable={
+                    onToggleItemAvailable
+                      ? () => onToggleItemAvailable(item.id, !item.available)
+                      : undefined
+                  }
                 />
               </div>
             </SortableRow>

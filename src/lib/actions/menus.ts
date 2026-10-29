@@ -694,6 +694,14 @@ export async function updateMenuItem(
   return { success: true, data: undefined };
 }
 
+/** Hide or restore a menu item for customers without deleting it. */
+export async function setMenuItemAvailable(
+  itemId: string,
+  available: boolean
+): Promise<ActionResult> {
+  return updateMenuItem({ id: itemId, available });
+}
+
 const menuItemSizeInputSchema = z.object({
   name: z.string().min(1).max(40),
   price_cents: z.number().int().min(0),

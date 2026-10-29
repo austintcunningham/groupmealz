@@ -50,6 +50,7 @@ export function CustomerMenuItemDisplay({
   onSimpleQtyChange,
   onAddConfigured,
   onEdit,
+  onToggleAvailable,
 }: {
   item: MenuItem;
   lunchDate: string;
@@ -65,6 +66,8 @@ export function CustomerMenuItemDisplay({
   onAddConfigured?: (line: Omit<CustomerCartLine, "lineKey" | "quantity">) => void;
   /** Menu editor: edit control shown beside the item name (always visible). */
   onEdit?: () => void;
+  /** Menu editor: hide/show for customers without deleting. */
+  onToggleAvailable?: () => void;
 }) {
   const hasOptions = menuItemHasOptions(sizes, ingredients);
   const [sizeId, setSizeId] = useState<string | null>(() => defaultSizeId(sizes));
@@ -138,10 +141,24 @@ export function CustomerMenuItemDisplay({
         <div className="flex min-w-0 flex-1 flex-col justify-center">
           <div className="flex items-start justify-between gap-2">
             <h3 className="font-semibold leading-snug text-slate-900">{item.name}</h3>
-            {onEdit ? (
-              <Button type="button" variant="secondary" size="sm" className="shrink-0" onClick={onEdit}>
-                Edit
-              </Button>
+            {onEdit || onToggleAvailable ? (
+              <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
+                {onToggleAvailable ? (
+                  <Button
+                    type="button"
+                    variant={item.available ? "secondary" : "success"}
+                    size="sm"
+                    onClick={onToggleAvailable}
+                  >
+                    {item.available ? "Hide" : "Show"}
+                  </Button>
+                ) : null}
+                {onEdit ? (
+                  <Button type="button" variant="secondary" size="sm" onClick={onEdit}>
+                    Edit
+                  </Button>
+                ) : null}
+              </div>
             ) : null}
           </div>
           {item.description ? (

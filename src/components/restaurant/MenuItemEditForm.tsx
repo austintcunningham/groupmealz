@@ -14,6 +14,7 @@ export function MenuItemEditForm({
   isPending,
   onSave,
   onDelete,
+  onToggleAvailable,
   showPlatformFeeHints,
   serviceFeePerEntreeCents,
   itemSizes,
@@ -25,6 +26,7 @@ export function MenuItemEditForm({
   isPending: boolean;
   onSave: (itemId: string, formData: FormData) => void;
   onDelete: (itemId: string, itemName: string) => void;
+  onToggleAvailable?: (itemId: string, nextAvailable: boolean) => void;
   showPlatformFeeHints: boolean;
   serviceFeePerEntreeCents: number;
   itemSizes: MenuItemSize[];
@@ -81,10 +83,34 @@ export function MenuItemEditForm({
         defaultValue={(item.price_cents / 100).toFixed(2)}
         required
       />
-      <label className="flex items-center gap-2 text-sm">
-        <input type="checkbox" name="available" defaultChecked={item.available} className="rounded" />
-        Available to order
-      </label>
+      <input type="hidden" name="available" value={item.available ? "on" : ""} />
+      <div
+        className={`rounded-xl border p-3 ${
+          item.available
+            ? "border-slate-200 bg-slate-50"
+            : "border-amber-200 bg-amber-50"
+        }`}
+      >
+        <p className="text-sm font-semibold text-slate-800">
+          {item.available ? "Visible to customers" : "Hidden from customers"}
+        </p>
+        <p className="mt-1 text-xs leading-relaxed text-slate-600">
+          Out of an ingredient or dish for the day? Hide it instead of deleting — you can show it again
+          anytime.
+        </p>
+        {onToggleAvailable ? (
+          <Button
+            type="button"
+            variant={item.available ? "secondary" : "success"}
+            size="sm"
+            className="mt-3"
+            loading={isPending}
+            onClick={() => onToggleAvailable(item.id, !item.available)}
+          >
+            {item.available ? "Hide from customers" : "Show on menu again"}
+          </Button>
+        ) : null}
+      </div>
       <label className="flex items-start gap-2 rounded-md border border-slate-200 bg-slate-50 p-3 text-sm">
         <input
           type="checkbox"
@@ -139,19 +165,34 @@ export function MenuItemEditForm({
           defaultValue={item.promo_ends_at ?? ""}
         />
       </div>
-      <div className="sticky bottom-0 flex flex-wrap gap-2 border-t border-slate-100 bg-white pt-3">
-        <Button type="submit" loading={isPending}>
-          Save item
-        </Button>
-        <Button
-          type="button"
-          variant="danger"
-          size="sm"
-          loading={isPending}
-          onClick={() => onDelete(item.id, item.name)}
-        >
-          Delete item
-        </Button>
+      <div className="sticky bottom-0 space-y-2 border-t border-slate-100 bg-white pt-3">
+        <div className="flex flex-wrap gap-2">
+          <Button type="submit" loading={isPending}>
+            Save item
+          </Button>
+          {onToggleAvailable ? (
+            <Button
+              type="button"
+              variant={item.available ? "secondary" : "success"}
+              loading={isPending}
+              onClick={() => onToggleAvailable(item.id, !item.available)}
+            >
+              {item.available ? "Hide from customers" : "Show on menu again"}
+            </Button>
+          ) : null}
+          <Button
+            type="button"
+            variant="danger"
+            size="sm"
+            loading={isPending}
+            onClick={() => onDelete(item.id, item.name)}
+          >
+            Delete item
+          </Button>
+        </div>
+        <p className="text-xs text-slate-500">
+          Prefer <strong>Hide</strong> for temporary sell-outs. Delete permanently removes the item.
+        </p>
       </div>
     </form>
   );

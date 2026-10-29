@@ -12,6 +12,7 @@ import {
   deleteMenuCategory,
   deleteMenuItem,
   moveMenuCategory,
+  setMenuItemAvailable,
   syncMenuItemOptions,
   updateMenuCategory,
   updateMenuItem,
@@ -310,6 +311,19 @@ export function RestaurantMenuEditor({
     });
   }
 
+  function toggleItemAvailable(itemId: string, nextAvailable: boolean) {
+    setError(null);
+    startTransition(async () => {
+      const result = await setMenuItemAvailable(itemId, nextAvailable);
+      if (!result.success) {
+        setError(result.error);
+        return;
+      }
+      flash(nextAvailable ? "Item is visible to customers again" : "Item hidden from customers");
+      router.refresh();
+    });
+  }
+
   const saveItem = useCallback(
     (itemId: string, formData: FormData) => {
       setError(null);
@@ -410,9 +424,10 @@ export function RestaurantMenuEditor({
 
       <div className="mx-auto max-w-3xl">
         <p className="mb-3 text-sm text-slate-600">
-          This is what customers see when ordering. Use <strong>Edit</strong> on any item, drag the{" "}
-          <span className="font-mono text-xs">≡</span> handle to reorder, or open{" "}
-          <strong>Categories</strong> to add sections. Sold-out items stay visible here with a badge.
+          This is what customers see when ordering. Use <strong>Hide</strong> for temporary sell-outs
+          (keeps the item for later), <strong>Edit</strong> for details, or drag the{" "}
+          <span className="font-mono text-xs">≡</span> handle to reorder. Hidden items stay here with a
+          badge until you show them again.
         </p>
 
         <DraggableCustomerMenuPreview
@@ -425,6 +440,7 @@ export function RestaurantMenuEditor({
           sizesByMenuItemId={sizesByMenuItemId}
           ingredientsByMenuItemId={ingredientsByMenuItemId}
           onEditItem={openEditItem}
+          onToggleItemAvailable={toggleItemAvailable}
         />
       </div>
 
@@ -440,6 +456,7 @@ export function RestaurantMenuEditor({
         }
         onSave={saveItem}
         onDelete={removeItem}
+        onToggleAvailable={toggleItemAvailable}
         onClose={() => setEditingItemId(null)}
       />
 
