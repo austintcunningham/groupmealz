@@ -9,6 +9,7 @@ import type {
   MenuItemSize,
   Office,
   Restaurant,
+  RestaurantNotice,
 } from "@/types/database";
 
 export type ScheduleWithRelations = DailyLunchSchedule & {
@@ -91,27 +92,38 @@ export async function loadOfficeOrderContext(office: Office, selectedDate: strin
       menuItems: [] as MenuItem[],
       sizesByMenuItemId: {} as Record<string, MenuItemSize[]>,
       ingredientsByMenuItemId: {} as Record<string, MenuItemIngredient[]>,
+      kitchenNotices: [] as RestaurantNotice[],
       advanceOrderHours: settings?.advance_order_hours ?? 48,
       feeSettings,
     };
   }
 
-  const [{ data: categories }, { data: menuItems }, menuOptions] = await Promise.all([
-    supabase
-      .from("menu_categories")
-      .select("*")
-      .eq("restaurant_id", schedule.restaurant_id)
-      .eq("active", true)
-      .order("display_order"),
-    supabase
-      .from("menu_items")
-      .select("*")
-      .eq("restaurant_id", schedule.restaurant_id)
-      .eq("active", true)
-      .eq("available", true)
-      .order("display_order"),
-    loadMenuItemOptionsForRestaurant(supabase, schedule.restaurant_id),
-  ]);
+  const [{ data: categories }, { data: menuItems }, menuOptions, noticesResult] =
+    await Promise.all([
+      supabase
+        .from("menu_categories")
+        .select("*")
+        .eq("restaurant_id", schedule.restaurant_id)
+        .eq("active", true)
+        .order("display_order"),
+      supabase
+        .from("menu_items")
+        .select("*")
+        .eq("restaurant_id", schedule.restaurant_id)
+        .eq("active", true)
+        .eq("available", true)
+        .order("display_order"),
+      loadMenuItemOptionsForRestaurant(supabase, schedule.restaurant_id),
+      supabase
+        .from("restaurant_notices")
+        .select("*")
+        .eq("restaurant_id", schedule.restaurant_id)
+        .order("created_at", { ascending: false }),
+    ]);
+
+  if (noticesResult.error) {
+    console.error("restaurant_notices load failed", noticesResult.error.message);
+  }
 
   return {
     weekDays,
@@ -120,6 +132,9 @@ export async function loadOfficeOrderContext(office: Office, selectedDate: strin
     menuItems: menuItems ?? [],
     sizesByMenuItemId: menuOptions.sizesByMenuItemId,
     ingredientsByMenuItemId: menuOptions.ingredientsByMenuItemId,
+    kitchenNotices: noticesResult.error
+      ? []
+      : ((noticesResult.data ?? []) as RestaurantNotice[]),
     advanceOrderHours: settings?.advance_order_hours ?? 48,
     feeSettings,
   };

@@ -80,6 +80,15 @@ export interface Restaurant {
   updated_at: string;
 }
 
+/** Day-of kitchen updates shown on the customer order page (e.g. "Out of lettuce"). */
+export interface RestaurantNotice {
+  id: string;
+  restaurant_id: string;
+  message: string;
+  created_at: string;
+  created_by: string | null;
+}
+
 export interface Office {
   id: string;
   name: string;

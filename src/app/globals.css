@@ -136,6 +136,21 @@ body.geaux-body::before {
   box-shadow: var(--geaux-shadow-sm);
 }
 
+.geaux-kitchen-notice {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--geaux-radius-lg);
+  border: 1px solid rgb(253 185 19 / 0.55);
+  background:
+    linear-gradient(135deg, rgb(255 251 235 / 0.95) 0%, #ffffff 55%, rgb(255 247 237 / 0.9) 100%);
+  box-shadow: var(--geaux-shadow-md);
+}
+
+.geaux-kitchen-notice-accent {
+  height: 4px;
+  background: linear-gradient(90deg, var(--geaux-yellow) 0%, var(--geaux-yellow-light) 55%, var(--geaux-red) 100%);
+}
+
 .geaux-hero-restaurant {
   overflow: hidden;
   border-radius: var(--geaux-radius-lg);

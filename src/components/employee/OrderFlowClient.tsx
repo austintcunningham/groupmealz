@@ -23,6 +23,7 @@ import { isOrderingWindowOpen, formatOrderingWindow } from "@/lib/scheduling/win
 import { EmbeddedCheckout } from "@/components/checkout/EmbeddedCheckout";
 import { CustomerOrderRestaurantHero } from "@/components/order/CustomerOrderRestaurantHero";
 import { OrderingRulesCard } from "@/components/order/OrderingRulesCard";
+import { RestaurantKitchenNotices } from "@/components/order/RestaurantKitchenNotices";
 import { liveCustomerBranding } from "@/lib/restaurant/branding-display";
 import { Badge, Button, Card, ErrorMessage, Input, Textarea } from "@/components/ui";
 import type {
@@ -32,6 +33,7 @@ import type {
   MenuItemIngredient,
   MenuItemSize,
   Restaurant,
+  RestaurantNotice,
   Office,
 } from "@/types/database";
 
@@ -55,6 +57,7 @@ interface Props {
   menuItems: MenuItem[];
   sizesByMenuItemId?: Record<string, MenuItemSize[]>;
   ingredientsByMenuItemId?: Record<string, MenuItemIngredient[]>;
+  kitchenNotices?: RestaurantNotice[];
   guestMode?: boolean;
   isLoggedIn?: boolean;
   userEmail?: string;
@@ -76,6 +79,7 @@ export function OrderFlowClient({
   menuItems,
   sizesByMenuItemId = {},
   ingredientsByMenuItemId = {},
+  kitchenNotices = [],
   guestMode = true,
   isLoggedIn = false,
   userEmail,
@@ -294,6 +298,11 @@ export function OrderFlowClient({
         dateLabel={dateLabel}
         logoUrl={customerBranding.logoUrl}
         bannerUrl={customerBranding.bannerUrl}
+      />
+
+      <RestaurantKitchenNotices
+        restaurantName={restaurant?.name ?? "Kitchen"}
+        notices={kitchenNotices}
       />
 
       <OrderingRulesCard schedule={schedule} advanceOrderHours={advanceOrderHours} />

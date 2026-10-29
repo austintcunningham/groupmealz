@@ -10,6 +10,7 @@ import type {
   Office,
   PlatformFeeType,
   Restaurant,
+  RestaurantNotice,
 } from "@/types/database";
 import type { ScheduleWithRelations } from "@/lib/order/office-order-page";
 
@@ -63,6 +64,7 @@ export type RestaurantOrderSimulation = {
   menuItems: MenuItem[];
   sizesByMenuItemId: Record<string, MenuItemSize[]>;
   ingredientsByMenuItemId: Record<string, MenuItemIngredient[]>;
+  kitchenNotices: RestaurantNotice[];
   advanceOrderHours: number;
   feeSettings: {
     platform_fee_type: PlatformFeeType;
@@ -129,28 +131,38 @@ export async function buildRestaurantOrderSimulation(
     };
   });
 
-  const [{ data: categories }, { data: menuItems }, menuOptions, { data: settings }] =
-    await Promise.all([
-      supabase
-        .from("menu_categories")
-        .select("*")
-        .eq("restaurant_id", restaurant.id)
-        .eq("active", true)
-        .order("display_order"),
-      supabase
-        .from("menu_items")
-        .select("*")
-        .eq("restaurant_id", restaurant.id)
-        .eq("active", true)
-        .eq("available", true)
-        .order("display_order"),
-      loadMenuItemOptionsForRestaurant(supabase, restaurant.id),
-      supabase
-        .from("platform_settings")
-        .select("advance_order_hours, platform_fee_type, flat_fee_cents, percentage_bps, sales_tax_bps")
-        .limit(1)
-        .maybeSingle(),
-    ]);
+  const [
+    { data: categories },
+    { data: menuItems },
+    menuOptions,
+    { data: settings },
+    { data: kitchenNotices },
+  ] = await Promise.all([
+    supabase
+      .from("menu_categories")
+      .select("*")
+      .eq("restaurant_id", restaurant.id)
+      .eq("active", true)
+      .order("display_order"),
+    supabase
+      .from("menu_items")
+      .select("*")
+      .eq("restaurant_id", restaurant.id)
+      .eq("active", true)
+      .eq("available", true)
+      .order("display_order"),
+    loadMenuItemOptionsForRestaurant(supabase, restaurant.id),
+    supabase
+      .from("platform_settings")
+      .select("advance_order_hours, platform_fee_type, flat_fee_cents, percentage_bps, sales_tax_bps")
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .from("restaurant_notices")
+      .select("*")
+      .eq("restaurant_id", restaurant.id)
+      .order("created_at", { ascending: false }),
+  ]);
 
   return {
     office,
@@ -160,6 +172,7 @@ export async function buildRestaurantOrderSimulation(
     menuItems: menuItems ?? [],
     sizesByMenuItemId: menuOptions.sizesByMenuItemId,
     ingredientsByMenuItemId: menuOptions.ingredientsByMenuItemId,
+    kitchenNotices: (kitchenNotices ?? []) as RestaurantNotice[],
     advanceOrderHours: settings?.advance_order_hours ?? 48,
     feeSettings: {
       platform_fee_type: settings?.platform_fee_type ?? "per_entree",

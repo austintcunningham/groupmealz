@@ -74,6 +74,18 @@ export default async function RestaurantDashboardPage() {
             <EmptyState message="No paid orders for today yet." />
           )}
         </Card>
+        <Card title="Kitchen notices">
+          <p className="text-sm text-slate-600">
+            Tell customers about temporary sell-outs — like out of lettuce or dirty rice — right on
+            the order page.
+          </p>
+          <Link
+            href="/restaurant/notices"
+            className="mt-3 inline-block text-sm font-medium text-[var(--geaux-red)] hover:underline"
+          >
+            Manage notices →
+          </Link>
+        </Card>
         <Card title="Your restaurants">
           {!restaurantLinks?.length && profile.role !== "admin" ? (
             <EmptyState message="No restaurant assigned." />

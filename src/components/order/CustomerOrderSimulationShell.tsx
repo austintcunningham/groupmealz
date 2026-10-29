@@ -11,8 +11,18 @@ export function CustomerOrderSimulationShell({
   simulation: RestaurantOrderSimulation;
   staffLoginHref?: string;
 }) {
-  const { office, schedule, weekDays, categories, menuItems, sizesByMenuItemId, ingredientsByMenuItemId, advanceOrderHours, feeSettings } =
-    simulation;
+  const {
+    office,
+    schedule,
+    weekDays,
+    categories,
+    menuItems,
+    sizesByMenuItemId,
+    ingredientsByMenuItemId,
+    kitchenNotices,
+    advanceOrderHours,
+    feeSettings,
+  } = simulation;
 
   return (
     <div className="min-h-screen w-full min-w-0 bg-[var(--geaux-cream)]">
@@ -42,6 +52,7 @@ export function CustomerOrderSimulationShell({
             menuItems={menuItems}
             sizesByMenuItemId={sizesByMenuItemId}
             ingredientsByMenuItemId={ingredientsByMenuItemId}
+            kitchenNotices={kitchenNotices}
             guestMode
             isLoggedIn={false}
             advanceOrderHours={advanceOrderHours}
