@@ -63,7 +63,8 @@ export function filterCustomerFacingCategories(
   categories: MenuCategory[],
   menuItems: MenuItem[]
 ): MenuCategory[] {
-  const visibleItems = menuItems.filter((i) => i.active && i.available);
+  // Include unavailable items so customers still see them as sold out.
+  const visibleItems = menuItems.filter((i) => i.active);
   const needed = new Set<string>();
 
   for (const item of visibleItems) {

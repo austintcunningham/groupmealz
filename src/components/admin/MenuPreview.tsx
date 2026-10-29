@@ -54,7 +54,7 @@ export function MenuPreview({
       </Select>
 
       <p className="text-xs text-slate-500">
-        Customer-facing view (available items only, with photos and deals).
+        Customer-facing view (hidden items stay visible but marked unavailable).
       </p>
 
       <CustomerOrderMenu

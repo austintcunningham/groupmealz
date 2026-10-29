@@ -134,8 +134,24 @@ export function CustomerMenuItemDisplay({
     </div>
   );
 
+  // Customer/preview view: keep unavailable items visible but not orderable.
+  const soldOutOverlay = !item.available && !onEdit && !onToggleAvailable;
+  const canOrder = interactive && item.available;
+
   return (
-    <div className="border-b border-slate-100 py-4 last:border-0 last:pb-0">
+    <div
+      className={`relative border-b border-slate-100 py-4 last:border-0 last:pb-0 ${
+        soldOutOverlay ? "overflow-hidden rounded-xl" : ""
+      }`}
+      aria-disabled={soldOutOverlay || undefined}
+    >
+      <div
+        className={
+          soldOutOverlay
+            ? "pointer-events-none select-none opacity-45 grayscale-[0.85]"
+            : undefined
+        }
+      >
       <div className="flex items-start gap-3 sm:gap-4">
         <MenuItemPhoto imageUrl={item.image_url} itemName={item.name} size="lg" showPlaceholder />
         <div className="flex min-w-0 flex-1 flex-col justify-center">
@@ -168,7 +184,7 @@ export function CustomerMenuItemDisplay({
             <MenuItemPromoPrice item={item} lunchDate={lunchDate} priceCents={unitPrice} />
           ) : null}
         </div>
-        {interactive && !hasOptions && onSimpleQtyChange
+        {canOrder && !hasOptions && onSimpleQtyChange
           ? qtyControls(simpleQty, () => onSimpleQtyChange(simpleLineKey, simpleQty - 1), () =>
               onSimpleQtyChange(simpleLineKey, simpleQty + 1)
             )
@@ -248,7 +264,7 @@ export function CustomerMenuItemDisplay({
               <span className="text-slate-500">Your price:</span>{" "}
               <strong className="text-slate-900">{formatCents(unitPrice)}</strong>
             </p>
-            {onSimpleQtyChange && onAddConfigured
+            {canOrder && onSimpleQtyChange && onAddConfigured
               ? qtyControls(
                   configuredQty,
                   () => changeConfiguredQty(-1),
@@ -256,6 +272,18 @@ export function CustomerMenuItemDisplay({
                 )
               : null}
           </div>
+        </div>
+      ) : null}
+      </div>
+
+      {soldOutOverlay ? (
+        <div
+          className="absolute inset-0 z-10 flex items-center justify-center bg-white/55 px-4 backdrop-blur-[1px]"
+          aria-label="This item is currently unavailable"
+        >
+          <p className="rounded-full border border-slate-300/80 bg-white/95 px-4 py-2 text-center text-sm font-semibold text-slate-800 shadow-[var(--geaux-shadow-sm)]">
+            This item is currently unavailable.
+          </p>
         </div>
       ) : null}
     </div>
@@ -498,12 +526,12 @@ export function CustomerOrderMenu({
   );
 }
 
-/** Items/categories as customers see them on order pages (available + active only). */
+/** Items/categories as customers see them on order pages (active items; unavailable stay visible). */
 export function filterCustomerFacingMenu(
   categories: MenuCategory[],
   menuItems: MenuItem[]
 ): { categories: MenuCategory[]; menuItems: MenuItem[] } {
-  const visibleItems = menuItems.filter((i) => i.active && i.available);
+  const visibleItems = menuItems.filter((i) => i.active);
   const visibleCategories = filterCustomerFacingCategories(categories, visibleItems);
   return { categories: visibleCategories, menuItems: visibleItems };
 }

@@ -111,7 +111,6 @@ export async function loadOfficeOrderContext(office: Office, selectedDate: strin
         .select("*")
         .eq("restaurant_id", schedule.restaurant_id)
         .eq("active", true)
-        .eq("available", true)
         .order("display_order"),
       loadMenuItemOptionsForRestaurant(supabase, schedule.restaurant_id),
       supabase

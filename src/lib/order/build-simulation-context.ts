@@ -149,7 +149,6 @@ export async function buildRestaurantOrderSimulation(
       .select("*")
       .eq("restaurant_id", restaurant.id)
       .eq("active", true)
-      .eq("available", true)
       .order("display_order"),
     loadMenuItemOptionsForRestaurant(supabase, restaurant.id),
     supabase
