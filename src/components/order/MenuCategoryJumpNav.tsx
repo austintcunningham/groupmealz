@@ -49,11 +49,31 @@ export function MenuCategoryJumpNav({
     return () => observer.disconnect();
   }, [sections, hideWhenSearching]);
 
+  // Keep the active pill in view horizontally only — never use element.scrollIntoView,
+  // which can also scroll the document vertically (jerking the order page back up).
   useEffect(() => {
     if (!activeId || !navRef.current) return;
-    const btn = navRef.current.querySelector(`[data-section="${activeId}"]`);
-    if (btn && "scrollIntoView" in btn) {
-      btn.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    const btn = navRef.current.querySelector(
+      `[data-section="${activeId}"]`
+    ) as HTMLElement | null;
+    const scroller = navRef.current.querySelector(
+      "[data-category-scroller]"
+    ) as HTMLElement | null;
+    if (!btn || !scroller) return;
+
+    const btnLeft = btn.offsetLeft;
+    const btnRight = btnLeft + btn.offsetWidth;
+    const viewLeft = scroller.scrollLeft;
+    const viewRight = viewLeft + scroller.clientWidth;
+    const pad = 12;
+
+    if (btnLeft < viewLeft + pad) {
+      scroller.scrollTo({ left: Math.max(0, btnLeft - pad), behavior: "smooth" });
+    } else if (btnRight > viewRight - pad) {
+      scroller.scrollTo({
+        left: btnRight - scroller.clientWidth + pad,
+        behavior: "smooth",
+      });
     }
   }, [activeId]);
 
@@ -100,7 +120,10 @@ export function MenuCategoryJumpNav({
 
       {!hideWhenSearching && sections.length >= 2 ? (
         <nav ref={navRef} aria-label="Menu categories" className="px-3">
-          <div className="flex gap-1.5 overflow-x-auto overscroll-x-contain pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div
+            data-category-scroller
+            className="flex gap-1.5 overflow-x-auto overscroll-x-contain pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
             {sections.map((s) => {
               const active = activeId === s.id;
               return (
