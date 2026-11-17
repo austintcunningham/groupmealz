@@ -1,6 +1,11 @@
 export const BRAND = {
   name: "GroupMeals",
-  tagline: "Scheduled office lunch, done right.",
+  /** Primary consumer positioning */
+  tagline: "Catering Made Simple.",
+  supportingMessage:
+    "Order catering from local restaurants for meetings, office lunches, parties, and events.",
+  /** Kept for office-lunch emails / staff surfaces */
+  officeLunchTagline: "Scheduled office lunch, done right.",
   supportEmail: "office@groupmeals.net",
   /** Daily fulfillment rollup + email verification samples. */
   opsEmail: "office@groupmeals.net",

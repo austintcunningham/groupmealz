@@ -19,6 +19,7 @@ function isPublicPath(pathname: string): boolean {
     pathname.startsWith("/checkout") ||
     pathname.startsWith("/review/") ||
     pathname.startsWith("/order") ||
+    pathname.startsWith("/catering") ||
     pathname.startsWith("/api/webhooks") ||
     pathname.startsWith("/api/cron") ||
     pathname === "/" ||

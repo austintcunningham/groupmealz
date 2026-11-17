@@ -15,7 +15,9 @@
     "db:apply:002": "node scripts/apply-sql-file.mjs supabase/migrations/002_geaux_eats_phase2.sql",
     "db:apply:003": "node scripts/apply-sql-file.mjs supabase/migrations/003_guest_orders_office_slug.sql",
     "db:apply:004": "node scripts/apply-sql-file.mjs supabase/migrations/004_per_entree_service_fee.sql",
-    "db:apply:005": "node scripts/apply-sql-file.mjs supabase/migrations/005_partner_accounting_and_features.sql"
+    "db:apply:005": "node scripts/apply-sql-file.mjs supabase/migrations/005_partner_accounting_and_features.sql",
+    "db:apply:023": "node scripts/apply-sql-file.mjs supabase/migrations/023_catering_channel.sql",
+    "db:seed:catering-demo": "node scripts/seed-fhs-g-catering-demo.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

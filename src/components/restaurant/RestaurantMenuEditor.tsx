@@ -332,6 +332,8 @@ export function RestaurantMenuEditor({
           const promoPriceRaw = String(formData.get("promo_price") ?? "").trim();
           const promoEnds = String(formData.get("promo_ends_at") ?? "").trim();
           const categoryId = String(formData.get("category_id") ?? "").trim();
+          const servesRaw = String(formData.get("catering_serves_count") ?? "").trim();
+          const packagingRaw = String(formData.get("catering_packaging") ?? "").trim();
           const result = await updateMenuItem({
             id: itemId,
             name: String(formData.get("name") ?? ""),
@@ -339,6 +341,9 @@ export function RestaurantMenuEditor({
             category_id: categoryId || null,
             price_cents: parseDollarsToCents(String(formData.get("price") ?? "0")),
             available: formData.get("available") === "on",
+            available_for_catering: formData.get("available_for_catering") === "on",
+            catering_serves_count: servesRaw ? Number(servesRaw) : null,
+            catering_packaging: packagingRaw || null,
             counts_as_entree: formData.get("counts_as_entree") === "on",
             promo_label: String(formData.get("promo_label") ?? "").trim() || null,
             promo_price_cents: promoPriceRaw ? parseDollarsToCents(promoPriceRaw) : null,

@@ -495,3 +495,52 @@ export async function resendRestaurantManagerInviteEmail(
     },
   };
 }
+
+const cateringSettingsSchema = z.object({
+  supports_catering: z.boolean(),
+  catering_live_orders: z.boolean(),
+  catering_min_order_cents: z.number().int().min(0).nullable(),
+  catering_lead_hours: z.number().int().min(1).max(24 * 14),
+  catering_delivery_fee_cents: z.number().int().min(0),
+  catering_description: z.string().max(2000).nullable(),
+  catering_service_area: z.string().max(200).nullable(),
+  catering_cuisine: z.string().max(120).nullable(),
+});
+
+/** Restaurant managers can edit catering presentation; only admins can enable live orders. */
+export async function updateRestaurantCateringSettings(
+  restaurantId: string,
+  input: z.infer<typeof cateringSettingsSchema>
+): Promise<ActionResult> {
+  const auth = await requireProfileRole(["admin", "restaurant_manager"]);
+  if ("error" in auth) return { success: false, error: auth.error };
+
+  const parsed = cateringSettingsSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.errors[0]?.message ?? "Invalid input" };
+  }
+
+  const allowed = await assertRestaurantBrandingAccess(
+    restaurantId,
+    auth.profile.role,
+    auth.profile.id
+  );
+  if (!allowed) return { success: false, error: "Unauthorized" };
+
+  const payload = { ...parsed.data };
+  if (auth.profile.role !== "admin") {
+    // Managers cannot flip live checkout on by themselves.
+    delete (payload as { catering_live_orders?: boolean }).catering_live_orders;
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("restaurants").update(payload).eq("id", restaurantId);
+  if (error) return { success: false, error: error.message };
+
+  await logAudit("update_restaurant_catering", "restaurant", restaurantId);
+  revalidatePath("/restaurant/catering");
+  revalidatePath("/catering");
+  revalidatePath(`/catering`);
+  revalidatePath("/");
+  return { success: true, data: undefined };
+}

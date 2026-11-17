@@ -46,6 +46,7 @@ const navByRole: Record<UserRole, { href: string; label: string }[]> = {
     { href: "/restaurant/production", label: "Order list" },
     { href: "/restaurant/orders", label: "Orders" },
     { href: "/restaurant/menu", label: "Menu" },
+    { href: "/restaurant/catering", label: "Catering" },
     { href: "/restaurant/notices", label: "Kitchen notices" },
     { href: "/restaurant/branding", label: "Branding" },
   ],

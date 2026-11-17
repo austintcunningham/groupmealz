@@ -76,6 +76,15 @@ export interface Restaurant {
   phone: string | null;
   email: string | null;
   active: boolean;
+  /** Present after migration 023; treat missing as false. */
+  supports_catering?: boolean;
+  catering_live_orders?: boolean;
+  catering_min_order_cents?: number | null;
+  catering_lead_hours?: number;
+  catering_delivery_fee_cents?: number;
+  catering_description?: string | null;
+  catering_service_area?: string | null;
+  catering_cuisine?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -115,6 +124,7 @@ export interface MenuCategory {
   parent_id?: string | null;
   display_order: number;
   active: boolean;
+  catering_only?: boolean;
 }
 
 export interface MenuItem {
@@ -131,6 +141,9 @@ export interface MenuItem {
   image_url?: string | null;
   active: boolean;
   available: boolean;
+  available_for_catering?: boolean;
+  catering_serves_count?: number | null;
+  catering_packaging?: string | null;
   display_order: number;
   created_at: string;
   updated_at: string;

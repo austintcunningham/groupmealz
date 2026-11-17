@@ -4,10 +4,18 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: BRAND.name,
+    default: `${BRAND.name} · ${BRAND.tagline}`,
     template: `%s · ${BRAND.name}`,
   },
-  description: BRAND.tagline,
+  description: BRAND.supportingMessage,
+  keywords: [
+    "Catering in Baton Rouge",
+    "Office Lunch Catering",
+    "Corporate Catering",
+    "Catering Near Me",
+    "Group Lunch Ordering",
+    "Restaurant Catering Delivery",
+  ],
   icons: {
     icon: [
       { url: BRAND.faviconPath, sizes: "any" },
@@ -17,8 +25,8 @@ export const metadata: Metadata = {
     apple: BRAND.appleTouchIconPath,
   },
   openGraph: {
-    title: BRAND.name,
-    description: BRAND.tagline,
+    title: `${BRAND.name} · ${BRAND.tagline}`,
+    description: BRAND.supportingMessage,
     images: [{ url: getBrandLogoUrl(), width: 480, height: 118, alt: BRAND.name }],
   },
 };

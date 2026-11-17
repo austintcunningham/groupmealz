@@ -133,6 +133,34 @@ export function MenuItemEditForm({
           )}
         </span>
       </label>
+      <div className="rounded-md border border-slate-200 bg-white p-3 space-y-3">
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Catering</p>
+        <label className="flex items-start gap-2 text-sm">
+          <input
+            type="checkbox"
+            name="available_for_catering"
+            defaultChecked={Boolean(item.available_for_catering)}
+            className="mt-0.5 rounded"
+          />
+          <span>
+            <strong>Show on catering menu</strong> — separate from office-lunch availability.
+          </span>
+        </label>
+        <Input
+          name="catering_serves_count"
+          label="Serves (people)"
+          type="number"
+          min="1"
+          defaultValue={item.catering_serves_count ?? ""}
+          placeholder="e.g. 10"
+        />
+        <Input
+          name="catering_packaging"
+          label="Packaging"
+          defaultValue={item.catering_packaging ?? ""}
+          placeholder="Platter, Individual box…"
+        />
+      </div>
       <MenuItemOptionsEditor
         menuItemId={item.id}
         initialSizes={itemSizes}

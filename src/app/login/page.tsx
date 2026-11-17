@@ -18,9 +18,12 @@ export default async function LoginPage({
     <AuthPageShell title="Sign in">
       {authError ? <div className="mb-4"><ErrorMessage message={authError} /></div> : null}
       <LoginForm />
-      <p className="mt-4 text-center text-sm">
-        <Link href="/order" className="font-medium text-[var(--geaux-red)] hover:underline">
-          Order lunch (no account) →
+      <p className="mt-4 space-y-2 text-center text-sm">
+        <Link href="/catering" className="block font-medium text-[var(--geaux-red)] hover:underline">
+          Order catering →
+        </Link>
+        <Link href="/order" className="block font-medium text-slate-600 hover:underline">
+          Group office lunch order →
         </Link>
       </p>
     </AuthPageShell>
