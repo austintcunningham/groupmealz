@@ -13,20 +13,20 @@ import {
 
 /** Applies any pending staff_invitations for the signed-in user (signup hook + login safety net). */
 export async function applyPendingStaffInvitationsForCurrentUser(): Promise<void> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user?.email) return;
-
   try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user?.email) return;
+
     const admin = createAdminClient();
     await admin.rpc("apply_staff_invitations_for_user", {
       p_user_id: user.id,
       p_email: normalizeStaffEmail(user.email),
     });
   } catch {
-    // Migration 006 not applied yet, or missing service role — ignore.
+    // Migration 006 not applied yet, missing service role, or auth race after login — ignore.
   }
 }
 

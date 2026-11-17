@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 /** Keep middleware under Vercel's invocation limit if Auth/DNS stalls. */
-const AUTH_TIMEOUT_MS = 2500;
+const AUTH_TIMEOUT_MS = 8000;
 
 function isPublicPath(pathname: string): boolean {
   const isAuthRoute =

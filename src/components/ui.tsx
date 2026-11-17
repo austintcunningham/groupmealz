@@ -167,9 +167,13 @@ export function EmptyState({ message }: { message: string }) {
 }
 
 export function ErrorMessage({ message }: { message: string }) {
+  const text =
+    typeof message === "string" && message.trim() && message.trim() !== "{}"
+      ? message
+      : "Something went wrong. Please try again.";
   return (
     <div className="animate-fade-in rounded-xl border border-red-200/80 bg-red-50/90 px-4 py-3 text-sm text-red-800 shadow-[var(--geaux-shadow-sm)]">
-      {message}
+      {text}
     </div>
   );
 }
